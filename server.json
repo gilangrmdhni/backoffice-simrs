@@ -1,0 +1,205 @@
+{
+  "uuid": "c4d59c48-4871-4220-9c66-1adf2c50290f",
+  "lastMigration": 29,
+  "name": "Server",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3000,
+  "hostname": "",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "6e197fa2-0a5d-4668-9455-11b9336a7347",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "",
+      "responses": [
+        {
+          "uuid": "e083afa5-b9e0-4262-b3c6-1070f382b930",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id"
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    },
+    {
+      "uuid": "8b3ab7ac-d1ce-4d8b-a199-0597bb9eebb6",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "auth/login",
+      "responses": [
+        {
+          "uuid": "0aff92d1-cbf9-413a-9494-c93034779646",
+          "body": "{\n  \"data\" : {\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c\",\n  \"name\": \"{{faker 'person.firstName'}} {{faker 'person.lastName'}}\",\n      \"email\": \"{{faker 'internet.email'}}\",\n      \"phone\": \"{{faker 'phone.number'}}\",\n      \"address\": \"{{faker 'location.streetAddress'}}, {{faker 'location.city'}}, {{faker 'location.stateAbbr'}} {{faker 'location.zipCode'}}\",\n      \"birthdate\": \"{{faker 'date.past'}}\"\n  },\n  \"message\" : \"OK\"\n}",
+          "latency": 3000,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "email",
+              "value": "ilumnix@gmail.com",
+              "invert": false,
+              "operator": "equals"
+            },
+            {
+              "target": "body",
+              "modifier": "password",
+              "value": "pass",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "AND",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id"
+        },
+        {
+          "uuid": "db584ee8-be8b-4a31-a612-3cb8b492604d",
+          "body": "{\n  \"message\" : \"Invalid email or password\"\n}",
+          "latency": 3000,
+          "statusCode": 401,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "email",
+              "value": "ilumnix@gmail.com",
+              "invert": true,
+              "operator": "equals"
+            },
+            {
+              "target": "body",
+              "modifier": "password",
+              "value": "pass",
+              "invert": true,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id"
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    },
+    {
+      "uuid": "a7465e85-ec12-4a44-aea9-c7b0c96e1935",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "news",
+      "responses": [
+        {
+          "uuid": "8cd1cb66-f7db-42be-98ad-0f14b5278424",
+          "body": "{\n  \"data\" :[ \n    {{# repeat (queryParam 'total' '2') }}\n      {\n        \"id\": \"{{ faker 'string.uuid' }}\",\n        \"image\": \"{{ faker 'image.sports' }}\",\n        \"title\" : \"{{faker 'lorem.sentence'}}\",\n        \"category\" : \"Event\",\n        \"date\" : \"{{faker 'date.past'}}\",\n        \"desc\" : \"{{faker 'lorem.sentences'}}\",\n        \"author\": \"{{faker 'person.firstName'}} {{faker 'person.lastName'}}\"\n      }\n    {{/ repeat }},\n    {{# repeat (queryParam 'total' '2') }}\n      {\n        \"id\": \"{{ faker 'string.uuid' }}\",\n        \"image\": \"{{ faker 'image.sports' }}\",\n        \"title\" : \"{{faker 'lorem.sentence'}}\",\n        \"category\" : \"General\",\n        \"date\" : \"{{faker 'date.past'}}\",\n        \"desc\" : \"{{faker 'lorem.sentences'}}\",\n        \"author\": \"{{faker 'person.firstName'}} {{faker 'person.lastName'}}\"\n      }\n    {{/ repeat }}\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id"
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "6e197fa2-0a5d-4668-9455-11b9336a7347"
+    },
+    {
+      "type": "route",
+      "uuid": "8b3ab7ac-d1ce-4d8b-a199-0597bb9eebb6"
+    },
+    {
+      "type": "route",
+      "uuid": "a7465e85-ec12-4a44-aea9-c7b0c96e1935"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": []
+}
