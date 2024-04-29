@@ -8,17 +8,14 @@ import Dropdown from '../Dropdown';
 import { logOut } from '../../store/api/auth/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { removeUserInfo } from "@/utils/auth";
-import { useMsal, useIsAuthenticated } from "@azure/msal-react";
 
 const Header = () => {
     const location = useLocation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const { instance } = useMsal();
     const handleLogout = () => {
       // Clear user data from local storage
-      instance.logoutRedirect().catch((error) => console.log(error));
       removeUserInfo();
       dispatch(logOut());
     };
