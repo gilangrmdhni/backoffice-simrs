@@ -12,6 +12,13 @@ const RoleIndex = lazy(() => import('../pages/roles'));
 const RoleCreate = lazy(() => import('../pages/roles/form'));
 const RoleUpdate = lazy(() => import('../pages/roles/form'));
 
+// Buku Besar
+const CoAIndex = lazy(() => import('../pages/Master/CoA'));
+const CoACreate = lazy(() => import('../pages/Master/CoA/form'));
+
+const CurrencyIndex = lazy(() => import('../pages/Master/Currency'));
+const CurrencyCreate = lazy(() => import('../pages/Master/Currency/form'));
+
 const routes = [
     // dashboard
     {
@@ -52,6 +59,41 @@ const routes = [
     {
         path: '/role/update/:id',
         element: <RoleUpdate />,
+        layout: 'default',
+    },
+    {
+        path: 'coa',
+        element: <CoAIndex />,
+        layout: 'default',
+    },
+    {
+        path: 'coa/create',
+        element: <CoACreate />,
+        layout: 'default',
+    },
+    {
+        path: '/currency',
+        element: <CurrencyIndex />,
+        layout: 'default',
+    },
+    {
+        path: '/currency/create',
+        element: <CurrencyCreate />,
+        layout: 'default',
+    },
+    {
+        path: '/bukti-jurnal-umum',
+        element: <UserIndex />,
+        layout: 'default',
+    },
+    {
+        path: '/proses-akhir-bulan',
+        element: <UserIndex />,
+        layout: 'default',
+    },
+    {
+        path: '/info-perusahaan',
+        element: <UserIndex />,
         layout: 'default',
     },
 ];

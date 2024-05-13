@@ -82,7 +82,7 @@
 
     .sidebar .nav-item > button,
     .sidebar .nav-item > a {
-        @apply mb-1 flex items-center justify-between overflow-hidden whitespace-nowrap rounded-md p-2.5 text-[#fff] hover:bg-[#ffffff]/[0.08] hover:text-white dark:hover:bg-[#fff]/[0.08] dark:hover:text-white w-full;
+        @apply mb-1 flex items-center justify-between overflow-hidden whitespace-nowrap rounded-md p-2.5 text-[#fff] hover:bg-[#9b69ee]/[0.08] hover:text-white dark:hover:bg-[#9b69ee]/[0.08] dark:hover:text-white w-full;
     }
     .sidebar .nav-item > button.active,
     .sidebar .nav-item > a.active {
@@ -96,12 +96,12 @@
 
     .sidebar ul.sub-menu li button,
     .sidebar ul.sub-menu li a {
-        @apply flex items-center px-9 py-2.5 before:h-0.5 before:w-2 before:rounded before:bg-gray-300 hover:bg-gray-100
-      hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark:before:bg-gray-500 dark:hover:bg-gray-900 dark:hover:text-white;
+        @apply flex items-center px-9 py-2.5 before:h-0.5 before:w-2 before:rounded before:bg-purple-300 hover:bg-purple-300
+      hover:text-black hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark:before:bg-purple-300 dark:hover:bg-purple-300 dark:hover:text-white;
     }
     .sidebar ul.sub-menu li button.active,
     .sidebar ul.sub-menu li a.active {
-        @apply text-primary before:bg-primary;
+        @apply text-purple-500;
     }
 
     .sidebar .nav-item a div:first-child svg,
