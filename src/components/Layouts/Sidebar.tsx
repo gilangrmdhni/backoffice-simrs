@@ -54,7 +54,7 @@ const Sidebar = () => {
                 <div className="bg-white h-full">
                     <div className="flex justify-between items-center px-4 py-3">
                         <NavLink to="/" className="main-logo flex items-center shrink-0">
-                            <img className="w-8 ml-[5px] flex-none h-[45px] w-auto" src="/assets/images/trakindo-logo.png" alt="logo" />
+                            <img className="w-8 ml-[5px] flex-none h-[45px] w-auto" src="https://placehold.co/150x45" alt="logo" />
                         </NavLink>
 
                         <button
@@ -64,13 +64,13 @@ const Sidebar = () => {
                         >
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 m-auto">
                                 <path d="M13 19L7 12L13 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                <path opacity="0.5" d="M16.9998 19L10.9998 12L16.9998 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <path opacity="0.5" d="M16.9998 19L10.9998 12L16.9998 5" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </button>
                     </div>
                     <PerfectScrollbar className="h-[calc(100vh-80px)] relative">
                         <ul className="relative font-semibold space-y-0.5 p-4 py-0">
-                            <li className={`menu nav-item ${currentMenu === 'dashboard' ? 'bg-purple-500' : ''} hover:bg-purple-300`}>
+                            <li className={`menu nav-item ${currentMenu === 'dashboard' ? 'bg-[#9C6ACD]' : ''} hover:bg-purple-300`}>
                                 <NavLink to="/">
                                     <button
                                         type="button"
@@ -106,7 +106,7 @@ const Sidebar = () => {
                                 </NavLink>
                             </li>
 
-                            <li className={`menu nav-item ${currentMenu === 'users' ? 'bg-purple-500' : ''} hover:bg-purple-300`}>
+                            <li className={`menu nav-item ${currentMenu === 'users' ? 'bg-[#9C6ACD]' : ''} hover:bg-purple-300`}>
                                 <NavLink to="/user">
                                     <button type="button" className={`nav-link group w-full`} onClick={() => toggleMenu('users')}>
                                         <div className="flex items-center">
@@ -116,7 +116,7 @@ const Sidebar = () => {
                                     </button>
                                 </NavLink>
                             </li>
-                            <li className={`menu nav-item ${currentMenu === 'role' ? 'bg-purple-500' : ''} hover:bg-purple-300`}>
+                            <li className={`menu nav-item ${currentMenu === 'role' ? 'bg-[#9C6ACD]' : ''} hover:bg-purple-300`}>
                                 <NavLink to="/role">
                                     <button type="button" className={`${currentMenu === 'role' ? 'active' : ''} nav-link group w-full`} onClick={() => toggleMenu('role')}>
                                         <div className="flex items-center">
@@ -127,7 +127,7 @@ const Sidebar = () => {
                                 </NavLink>
                             </li>
 
-                            <li className={`menu nav-item ${currentMenu === 'master' ? 'bg-purple-500' : ''} hover:bg-purple-300`}>
+                            <li className={`menu nav-item ${currentMenu === 'master' ? 'bg-[#9C6ACD]' : ''} hover:bg-purple-300`}>
                                     <button type="button" className={`nav-link group w-full`} onClick={() => toggleMenu('master')}>
                                         <div className="flex items-center">
                                             <svg className="group-hover:!text-primary shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -153,11 +153,13 @@ const Sidebar = () => {
                                             <span className={`ltr:pl-3 rtl:pr-3 ${currentMenu === 'master' ? 'text-white' : 'text-black'}`}>{t('Master')}</span>
                                         </div>
                                         <div className={currentMenu !== 'master' ? 'rtl:rotate-90 -rotate-90' : ''}>
-                                            <IconCaretDown />
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'master' ? 'white' : 'black'}`} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        </svg>
                                         </div>
                                     </button>
                                 <AnimateHeight duration={300} height={currentMenu === 'master' ? 'auto' : 0}>
-                                    <ul className={`sub-menu ${currentMenu === 'branch' ? 'text-white bg-purple-500' : 'text-black bg-white'}`}>
+                                    <ul className={`sub-menu ${currentMenu === 'coa' ? 'text-white bg-[#9C6ACD]' : 'text-black bg-white'}`}>
                                         <li>
                                             <NavLink to="/coa">
                                                 CoA

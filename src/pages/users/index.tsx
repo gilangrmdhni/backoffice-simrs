@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, Navigate } from 'react-router-dom';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { Fragment, useEffect, useState } from 'react';
-import { setPageTitle } from '../../store/themeConfigSlice';
+import { setBreadcrumbTitle, setPageTitle, setTitle } from '../../store/themeConfigSlice';
 import { useDeleteUsersMutation, useGetUsersQuery } from '@/store/api/users/usersApiSlice';
 import IconServer from '@/components/Icon/IconServer';
 import AnimateHeight from 'react-animate-height';
@@ -27,6 +27,8 @@ const Index = () => {
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(setPageTitle('Users'));
+        dispatch(setTitle('Users'));
+        dispatch(setBreadcrumbTitle(['Dashboard','Users']))
     });
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const [page, setPage] = useState<number>(1);
@@ -85,16 +87,18 @@ const Index = () => {
 
     return (
         <div>
-            <ul className="flex space-x-2 rtl:space-x-reverse">
-                <li>
-                    <Link to="/user" className="text-primary hover:underline">
-                        Users
-                    </Link>
-                </li>
-                <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                    <span>List</span>
-                </li>
-            </ul>
+            <div className={`panel flex `}>
+                <ol className="flex space-x-2 rtl:space-x-reverse">
+                    <li>
+                        <Link to="/user" className="text-primary hover:underline">
+                            Users
+                        </Link>
+                    </li>
+                    <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
+                        <span>List</span>
+                    </li>
+                </ol>
+            </div>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
                     <h5 className="font-semibold text-lg dark:text-white-light">Users</h5>

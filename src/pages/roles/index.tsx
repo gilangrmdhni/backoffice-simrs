@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, Navigate } from 'react-router-dom';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { Fragment, useEffect, useState } from 'react';
-import { setPageTitle } from '../../store/themeConfigSlice';
+import { setBreadcrumbTitle, setPageTitle, setTitle } from '../../store/themeConfigSlice';
 import IconTrashLines from '@/components/Icon/IconTrashLines';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
@@ -21,7 +21,9 @@ import { ToastContainer } from 'react-toastify';
 const Index = () => {
     const dispatch = useDispatch();
     useEffect(() => {
-        dispatch(setPageTitle('Users'));
+        dispatch(setPageTitle('Roles'));
+        dispatch(setTitle('Roles'));
+        dispatch(setBreadcrumbTitle(["Dashboard","Roles"]));
     });
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const [page, setPage] = useState<number>(1);

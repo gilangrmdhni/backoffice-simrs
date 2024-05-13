@@ -19,6 +19,8 @@ const defaultState = {
         { code: 'id', name: 'Indonesia' }
     ],
     semidark: false,
+    breadcrumbTitle : [],
+    Title : ''
 };
 
 const initialState = {
@@ -36,6 +38,8 @@ const initialState = {
         { code: 'en', name: 'English' },
         { code: 'id', name: 'Indonesia' }
     ],
+    breadcrumbTitle : [],
+    Title: ''
 };
 
 const themeConfigSlice = createSlice({
@@ -109,9 +113,18 @@ const themeConfigSlice = createSlice({
         setPageTitle(state, { payload }) {
             document.title = `${payload} | Ilumnix - Starter Project`;
         },
+        setTitle(state, { payload }) {
+            state.Title = `${payload}`;
+        },
+
+        setBreadcrumbTitle(state, { payload }) {
+            payload = payload || ['Dashboard'];
+            localStorage.setItem('breadcrumbTitle', payload);
+            state.breadcrumbTitle = payload;
+        },
     },
 });
 
-export const { toggleTheme, toggleMenu, toggleLayout, toggleRTL, toggleAnimation, toggleNavbar, toggleSemidark, toggleLocale, toggleSidebar, setPageTitle } = themeConfigSlice.actions;
+export const { toggleTheme, toggleMenu, toggleLayout, toggleRTL, toggleAnimation, toggleNavbar, toggleSemidark, toggleLocale, toggleSidebar, setPageTitle,setTitle, setBreadcrumbTitle } = themeConfigSlice.actions;
 
 export default themeConfigSlice.reducer;

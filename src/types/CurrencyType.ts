@@ -5,5 +5,5 @@ export interface CurrencyType {
     symbol: string;
     country: string;
     exchangeRate: number | 0;
-    branchId: number ;
+    branchId: number | 0 ;
 }

@@ -1,8 +1,8 @@
-import { useDispatch, useSelector } from 'react-redux';
+import { createDispatchHook, useDispatch, useSelector } from 'react-redux';
 import { Link, Navigate } from 'react-router-dom';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { Fragment, useEffect, useState } from 'react';
-import { setPageTitle } from '../../../store/themeConfigSlice';
+import { setBreadcrumbTitle, setPageTitle,setTitle } from '../../../store/themeConfigSlice';
 import { useDeleteUsersMutation, useGetUsersQuery } from '@/store/api/users/usersApiSlice';
 import IconServer from '@/components/Icon/IconServer';
 import AnimateHeight from 'react-animate-height';
@@ -26,7 +26,9 @@ const Index = () => {
     // const user = useSelector((state: any) => state.auth.user);
     const dispatch = useDispatch();
     useEffect(() => {
-        dispatch(setPageTitle('Users'));
+        dispatch(setPageTitle('CoA'));
+        dispatch(setTitle('CoA'));
+        dispatch(setBreadcrumbTitle(["Dashboard","Master","CoA"]))
     });
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const [page, setPage] = useState<number>(1);
@@ -87,7 +89,7 @@ const Index = () => {
         <div>
             <ul className="flex space-x-2 rtl:space-x-reverse">
                 <li>
-                    <Link to="/daftar-akun" className="text-primary hover:underline">
+                    <Link to="/coa" className="text-primary hover:underline">
                         CoA
                     </Link>
                 </li>
@@ -127,7 +129,7 @@ const Index = () => {
                         <div className="grid grid-cols-2 gap-2">
                             <Tippy content="Add COA">
                                 <button
-                                    onClick={() => navigate(`/daftar-akun/create`)}
+                                    onClick={() => navigate(`/coa/create`)}
                                     type="button"
                                     className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
                                 >

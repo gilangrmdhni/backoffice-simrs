@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { setPageTitle } from '../../../store/themeConfigSlice';
+import { setPageTitle,setBreadcrumbTitle,setTitle } from '../../../store/themeConfigSlice';
 import { useGetEmployeeQuery } from '@/store/api/employee/employeeApiSlice';
 import IconMail from '@/components/Icon/IconMail';
 import * as yup from 'yup';
@@ -71,7 +71,9 @@ const Form = () => {
     };
 
     useEffect(() => {
-        dispatch(setPageTitle('Users'));
+        dispatch(setPageTitle('CoA'));
+        dispatch(setTitle('CoA'));
+        dispatch(setBreadcrumbTitle(['Dashboard','Master','CoA','Form']));
         rolesListRefetch();
     }, [dispatch]);
 
@@ -92,24 +94,26 @@ const Form = () => {
     return (
         <div>
             <ToastContainer />
-            <ul className="flex space-x-2 rtl:space-x-reverse">
-                <li>
-                    <Link to="/daftar-akun" className="text-primary hover:underline">
-                        Daftar Akun
-                    </Link>
-                </li>
-                <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                    <span>{type}</span>
-                </li>
-
-                {type === 'update' ? (
-                    <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                        <span>{lastSegment}</span>
+            <div className='panel flex'>
+                <ol className="flex space-x-2 rtl:space-x-reverse">
+                    <li>
+                        <Link to="/coa" className="text-primary hover:underline">
+                            CoA
+                        </Link>
                     </li>
-                ) : (
-                    ''
-                )}
-            </ul>
+                    <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
+                        <span>{type}</span>
+                    </li>
+
+                    {type === 'update' ? (
+                        <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
+                            <span>{lastSegment}</span>
+                        </li>
+                    ) : (
+                        ''
+                    )}
+                </ol>
+            </div>
             <div className="panel mt-6">
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(submitForm)}>
                     <div className="grid md:grid-cols-2 gap-4 w-full ">

@@ -8,6 +8,7 @@ import Setting from './Setting';
 import Sidebar from './Sidebar';
 import Portals from '../../components/Portals';
 import { useNavigate } from 'react-router-dom';
+import BreadCrumb from './BreadCrumb';
 
 const DefaultLayout = ({ children }: PropsWithChildren) => {
     const themeConfig = useSelector((state: any) => state.themeConfig);
@@ -94,6 +95,10 @@ const DefaultLayout = ({ children }: PropsWithChildren) => {
                         {/* BEGIN TOP NAVBAR */}
                         <Header />
                         {/* END TOP NAVBAR */}
+
+                        {/* START BREADCRUMP */}
+                        <BreadCrumb />
+                        {/* END BREADCRUMP */}
 
                         {/* BEGIN CONTENT AREA */}
                         <Suspense>

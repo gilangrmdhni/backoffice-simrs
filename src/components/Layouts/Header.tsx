@@ -123,12 +123,12 @@ const Header = () => {
     const { t } = useTranslation();
 
     return (
-        <header className={`z-40 ${themeConfig.semidark && themeConfig.menu === 'horizontal' ? 'dark' : 'bg-purple-500'}`}>
+        <header className={`z-40 ${themeConfig.semidark && themeConfig.menu === 'horizontal' ? 'dark' : 'bg-[#9C6ACD]'}`}>
             <div className="shadow-sm">
-                <div className="relative bg-purple-500 flex w-full items-center px-5 py-2.5 dark:bg-black">
+                <div className="relative shadow-lg bg-[#9C6ACD] flex w-full items-center px-5 py-2.5 dark:bg-black">
                     <div className="horizontal-logo flex lg:hidden justify-between items-center ltr:mr-2 rtl:ml-2">
                         <Link to="/" className="main-logo flex items-center shrink-0">
-                            <img className="w-8 ltr:-ml-1 rtl:-mr-1 inline h-[45px] w-auto" src="/assets/images/trakindo-logo.png" alt="logo" />
+                            <img className="w-8 ltr:-ml-1 rtl:-mr-1 inline h-[45px] w-auto" src="https://placehold.co/150x45" alt="logo" />
                         </Link>
                         <button
                             type="button"
@@ -138,9 +138,9 @@ const Header = () => {
                             }}
                         >
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M20 7L4 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                                <path opacity="0.5" d="M20 12L4 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                                <path d="M20 17L4 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                                <path d="M20 7L4 7" stroke="black" strokeWidth="1.5" strokeLinecap="round" />
+                                <path opacity="0.5" d="M20 12L4 12" stroke="black" strokeWidth="1.5" strokeLinecap="round" />
+                                <path d="M20 17L4 17" stroke="black" strokeWidth="1.5" strokeLinecap="round" />
                             </svg>
                         </button>
                     </div>
