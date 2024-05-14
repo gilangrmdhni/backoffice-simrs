@@ -28,8 +28,7 @@ const Form = () => {
 
     const { id } = useParams();
     const { data: detailCurrency, refetch: detailCurrencyRefetch } = id ? useGetDetailCurrencyQuery(id) : { data: null, refetch: () => {} };
-    const { data: rolesList, refetch: rolesListRefetch } = useGetRolesQuery({});
-
+    console.log(detailCurrency)
     const schema = yup
         .object({
             currencyName: yup.string().required('Currency Name is Required'),
@@ -73,7 +72,6 @@ const Form = () => {
         dispatch(setPageTitle('Currency'));
         dispatch(setTitle('Currency'));
         dispatch(setBreadcrumbTitle(['Dashboard','Master','Currency','Form']));
-        rolesListRefetch();
     }, [dispatch]);
 
     useEffect(() => {
@@ -92,7 +90,6 @@ const Form = () => {
 
     return (
         <div>
-            <ToastContainer />
             <div className='panel flex'>
                 <ol className="flex space-x-2 rtl:space-x-reverse">
                     <li>
@@ -129,7 +126,7 @@ const Form = () => {
                         <div>
                             <label htmlFor="currencyCode">Currency Code</label>
                             <div className="relative text-white-dark">
-                                <input id="currencyCode" type="text" placeholder="Enter Name" {...register('currencyCode')} className="form-input placeholder:text-white-dark" />
+                                <input id="currencyCode" type="text" placeholder="Enter Code" {...register('currencyCode')} className="form-input placeholder:text-white-dark" />
                                 {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                     <IconMail fill={true} />
                                 </span> */}

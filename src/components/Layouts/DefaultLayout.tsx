@@ -9,6 +9,7 @@ import Sidebar from './Sidebar';
 import Portals from '../../components/Portals';
 import { useNavigate } from 'react-router-dom';
 import BreadCrumb from './BreadCrumb';
+import { ToastContainer } from 'react-toastify';
 
 const DefaultLayout = ({ children }: PropsWithChildren) => {
     const themeConfig = useSelector((state: any) => state.themeConfig);
@@ -92,6 +93,8 @@ const DefaultLayout = ({ children }: PropsWithChildren) => {
                     {/* END SIDEBAR */}
 
                     <div className="main-content flex flex-col min-h-screen">
+                        <ToastContainer />
+
                         {/* BEGIN TOP NAVBAR */}
                         <Header />
                         {/* END TOP NAVBAR */}

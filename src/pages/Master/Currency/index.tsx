@@ -15,13 +15,13 @@ import IconX from '@/components/Icon/IconX';
 import IconPlus from '@/components/Icon/IconPlus';
 import IconDownload from '@/components/Icon/IconDownload';
 import { useNavigate } from 'react-router-dom';
-import { usersType } from '@/types';
+import { CurrencyType, usersType } from '@/types';
 import { number } from 'yup';
 import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
 import { rolesType } from '@/types/rolesType';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
-import { useGetCurrencyQuery } from '@/store/api/currency/currencyApiSlice';
+import { useGetCurrencyQuery,useDeleteCurrencyMutation } from '@/store/api/currency/currencyApiSlice';
 
 const Index = () => {
     // const user = useSelector((state: any) => state.auth.user);
@@ -41,7 +41,7 @@ const Index = () => {
     const [showFilter, setShowFilter] = useState<boolean>(false);
     const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'id', direction: 'asc' });
     const {
-        data: usersList,
+        data: currencyList,
         refetch,
         error,
         isLoading,
@@ -55,7 +55,7 @@ const Index = () => {
         status,
     });
     const { data: rolesList, refetch: rolesListRefetch } = useGetRolesQuery({});
-    const [deleted, { isError }] = useDeleteUsersMutation();
+    const [deleted, { isError }] = useDeleteCurrencyMutation();
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<number>(0);
     const [selectedRecords, setSelectedRecords] = useState<any>([]);
@@ -102,7 +102,6 @@ const Index = () => {
             </div>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
-                    <h5 className="font-semibold text-lg dark:text-white-light">Currency</h5>
                     <div className="rtl:ml-auto rtl:mr-auto">
                         <div className="grid grid-cols-3 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
@@ -145,7 +144,7 @@ const Index = () => {
                     <DataTable
                         highlightOnHover
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
-                        records={usersList?.data}
+                        records={currencyList?.data}
                         columns={[
                             { accessor: 'currencyId', title: 'ID', sortable: true },
                             { accessor: 'currencyName', title: 'Currency Name', sortable: true },
@@ -153,14 +152,13 @@ const Index = () => {
                             { accessor: 'symbol', title: 'symbol', sortable: true },
                             { accessor: 'country', title: 'country', sortable: true },
                             { accessor: 'exchangeRate', title: 'exchangeRate', sortable: true },
-                            { accessor: 'branchId', title: 'branch ID', sortable: true },
                             {
                                 accessor: '',
                                 title: 'action',
-                                render: (s: usersType) => (
+                                render: (s: CurrencyType) => (
                                     <>
                                         <Tippy content="Edit">
-                                            <button type="button" onClick={() => navigate(`/currency/update/${s.userID}`)}>
+                                            <button type="button" onClick={() => navigate(`/currency/update/${s.currencyId}`)}>
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>
@@ -168,7 +166,7 @@ const Index = () => {
                                             <button
                                                 type="button"
                                                 onClick={async () => {
-                                                    setDeleteId(s.userID as number);
+                                                    setDeleteId(s.currencyId as number);
                                                     setShowDeleteModal(true);
                                                 }}
                                             >
@@ -179,7 +177,7 @@ const Index = () => {
                                 ),
                             },
                         ]}
-                        totalRecords={usersList?.totalCount}
+                        totalRecords={currencyList?.totalCount}
                         recordsPerPage={pageSize}
                         page={page}
                         onPageChange={(p) => setPage(p)}

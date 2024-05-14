@@ -91,7 +91,6 @@ const Form = () => {
 
     return (
         <div>
-            <ToastContainer />
             <div className='panel flex'>
                 <ol className="flex space-x-2 rtl:space-x-reverse">
                     <li>

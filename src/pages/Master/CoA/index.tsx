@@ -99,7 +99,6 @@ const Index = () => {
             </ul>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
-                    <h5 className="font-semibold text-lg dark:text-white-light">Daftar Akun</h5>
                     <div className="rtl:ml-auto rtl:mr-auto">
                         <div className="grid grid-cols-3 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />

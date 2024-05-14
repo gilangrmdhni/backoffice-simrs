@@ -18,7 +18,7 @@ const CoACreate = lazy(() => import('../pages/Master/CoA/form'));
 
 const CurrencyIndex = lazy(() => import('../pages/Master/Currency'));
 const CurrencyCreate = lazy(() => import('../pages/Master/Currency/form'));
-const CurrencyUpdate = lazy(() => import('../pages/users/form'));
+const CurrencyUpdate = lazy(() => import('../pages/Master/Currency/form'));
 
 const routes = [
     // dashboard
