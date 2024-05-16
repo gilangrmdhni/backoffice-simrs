@@ -25,7 +25,7 @@ import { useGetCOAQuery,useDeleteCOAMutation } from '@/store/api/COA/COAApiSlice
 import '@/pages/Master/COA/index.css';
 
 const Index = () => {
-    // const user = useSelector((state: any) => state.auth.user);
+    const user = useSelector((state: any) => state.auth.user);
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(setPageTitle('COA'));
@@ -38,6 +38,7 @@ const Index = () => {
     const [pageSize, setPageSize] = useState<number>(PAGE_SIZES[0]);
     const [search, setSearch] = useState<string>('');
     const [status, setStatus] = useState<string>('');
+    const [COALevel, setCOALevel] = useState<string>('');
     const [role, setRole] = useState<string>('');
     const [showFilter, setShowFilter] = useState<boolean>(false);
     const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'coaCode', direction: 'asc' });
@@ -52,6 +53,7 @@ const Index = () => {
         orderType: sortStatus.direction,
         pageSize:1000,
         status,
+        level : COALevel,
     });
     const { data: rolesList, refetch: rolesListRefetch } = useGetRolesQuery({});
     const [deleted, { isError }] = useDeleteCOAMutation();
@@ -108,6 +110,10 @@ const Index = () => {
                                 <option value={''}>All Status</option>
                                 <option value={'active'}>Active</option>
                                 <option value={'inactive'}>In Active</option>
+                            </select>
+                            <select id="ctnSelect2" className="form-select text-white-dark" onChange={(e) => setCOALevel(e.target.value)}>
+                                <option value={""}>COA Level</option>
+                                <option value={4}>4</option>
                             </select>
                             <button
                                 type="button"
@@ -190,7 +196,7 @@ const Index = () => {
                                 render: (s: COAType) => (
                                     <>
                                         <Tippy content="Edit">
-                                            <button type="button" onClick={() => navigate(`/CoA/update/${s.coaId}`)}>
+                                            <button type="button" onClick={() => navigate(`/CoA/update/${s.coaId}`)} className="">
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>
