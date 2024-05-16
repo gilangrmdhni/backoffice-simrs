@@ -22,7 +22,7 @@ import { rolesType } from '@/types/rolesType';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
 import { useGetCOAQuery,useDeleteCOAMutation } from '@/store/api/COA/COAApiSlice';
-import '@/pages/Master/CoA/index.css';
+import '@/pages/Master/COA/index.css';
 
 const Index = () => {
     // const user = useSelector((state: any) => state.auth.user);
