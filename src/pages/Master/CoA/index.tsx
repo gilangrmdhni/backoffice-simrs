@@ -21,7 +21,7 @@ import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
 import { rolesType } from '@/types/rolesType';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
-import { useGetCOAQuery,useDeleteCOAMutation,useGetOptionCOAQuery } from '@/store/api/COA/coaApiSlice';
+import { useGetCOAQuery,useDeleteCOAMutation,useGetOptionCOAQuery } from '@/store/api/coa/coaApiSlice';
 import '@/pages/Master/COA/index.css';
 
 const Index = () => {
