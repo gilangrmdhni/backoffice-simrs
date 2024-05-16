@@ -21,7 +21,7 @@ import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
 import { rolesType } from '@/types/rolesType';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
-import { useGetCoAQuery,useDeleteCoAMutation } from '@/store/api/CoA/CoAApiSlice';
+import { useGetCOAQuery,useDeleteCOAMutation } from '@/store/api/COA/COAApiSlice';
 import '@/pages/Master/CoA/index.css';
 
 const Index = () => {
@@ -46,7 +46,7 @@ const Index = () => {
         refetch,
         error,
         isLoading,
-    } = useGetCoAQuery({
+    } = useGetCOAQuery({
         keyword: search,
         orderBy: sortStatus.columnAccessor === 'coaCode' ? 'coaCode' : sortStatus.columnAccessor,
         orderType: sortStatus.direction,
@@ -54,7 +54,7 @@ const Index = () => {
         status,
     });
     const { data: rolesList, refetch: rolesListRefetch } = useGetRolesQuery({});
-    const [deleted, { isError }] = useDeleteCoAMutation();
+    const [deleted, { isError }] = useDeleteCOAMutation();
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<number>(0);
     const [selectedRecords, setSelectedRecords] = useState<any>([]);
