@@ -28,9 +28,9 @@ const Index = () => {
     // const user = useSelector((state: any) => state.auth.user);
     const dispatch = useDispatch();
     useEffect(() => {
-        dispatch(setPageTitle('CoA'));
-        dispatch(setTitle('CoA'));
-        dispatch(setBreadcrumbTitle(['Dashboard','Master','CoA']));
+        dispatch(setPageTitle('COA'));
+        dispatch(setTitle('COA'));
+        dispatch(setBreadcrumbTitle(['Dashboard','Master','COA']));
     });
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const [page, setPage] = useState<number>(1);
@@ -91,7 +91,7 @@ const Index = () => {
                 <ol className="flex space-x-2 rtl:space-x-reverse">
                     <li>
                         <Link to="/coa" className="text-primary hover:underline">
-                            CoA
+                            COA
                         </Link>
                     </li>
                     <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
@@ -157,7 +157,8 @@ const Index = () => {
                                     </>
                                 )
                             },
-                            { 
+                            
+                            {
                                 accessor: 'coaName', 
                                 title: 'CoA Name', 
                                 sortable: true,
@@ -169,7 +170,20 @@ const Index = () => {
                                     </>
                                 )
                             },
-                            // ini gmn caranya biar gk ada paddingnya gua dah aklin gkbisa bisa
+
+                            { 
+                                accessor: 'balance', 
+                                title: 'Balance', 
+                                sortable: true,
+                                render: (row: COAType,index: number) => (
+                                    <>
+                                        <span style={{ fontWeight: row.accountTypeName == "Header" ? 'bold' : 'normal'}}>
+                                            {row.balance}
+                                        </span>
+                                    </>
+                                )
+                            },
+                            
                             {
                                 accessor: '',
                                 title: 'action',
