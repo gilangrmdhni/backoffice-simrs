@@ -35,7 +35,11 @@ export const COAApi = apiSlice.injectEndpoints({
         getDetailCOA: builder.query({
             query: (id?: string) => `/COA/${id}`,
         }),
+
+        getOptionCOA: builder.query({
+            query: (params) => `/COA/option?${new URLSearchParams(params).toString()}`,
+        }),
     }),
 });
 
-export const { useGetCOAQuery, useDeleteCOAMutation, usePostCOAMutation, useUpdateCOAMutation, useGetDetailCOAQuery } = COAApi;
+export const { useGetCOAQuery, useDeleteCOAMutation, usePostCOAMutation, useUpdateCOAMutation, useGetDetailCOAQuery,useGetOptionCOAQuery } = COAApi;

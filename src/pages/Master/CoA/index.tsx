@@ -15,13 +15,13 @@ import IconX from '@/components/Icon/IconX';
 import IconPlus from '@/components/Icon/IconPlus';
 import IconDownload from '@/components/Icon/IconDownload';
 import { useNavigate } from 'react-router-dom';
-import { COAType, usersType } from '@/types';
+import { COAType, usersType,OptionType } from '@/types';
 import { number } from 'yup';
 import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
 import { rolesType } from '@/types/rolesType';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
-import { useGetCOAQuery,useDeleteCOAMutation } from '@/store/api/COA/COAApiSlice';
+import { useGetCOAQuery,useDeleteCOAMutation,useGetOptionCOAQuery } from '@/store/api/COA/coaApiSlice';
 import '@/pages/Master/COA/index.css';
 
 const Index = () => {
@@ -53,7 +53,17 @@ const Index = () => {
         orderType: sortStatus.direction,
         pageSize:1000,
         status,
-        level : COALevel,
+        parent : COALevel,
+    });
+    const {
+        data: CoAListOption,
+        refetch: refetchCoaOption,
+    } = useGetOptionCOAQuery({
+        orderBy: sortStatus.columnAccessor === 'coaCode' ? 'coaCode' : sortStatus.columnAccessor,
+        orderType: sortStatus.direction,
+        pageSize:1000,
+        status,
+        level : 4,
     });
     const { data: rolesList, refetch: rolesListRefetch } = useGetRolesQuery({});
     const [deleted, { isError }] = useDeleteCOAMutation();
@@ -113,7 +123,9 @@ const Index = () => {
                             </select>
                             <select id="ctnSelect2" className="form-select text-white-dark" onChange={(e) => setCOALevel(e.target.value)}>
                                 <option value={""}>COA Level</option>
-                                <option value={4}>4</option>
+                                {CoAListOption?.map((d: OptionType, i: number) => {
+                                    return <option value={d.value}>{d.label}</option>;
+                                })}
                             </select>
                             <button
                                 type="button"
