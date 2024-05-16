@@ -30,7 +30,7 @@ const Index = () => {
     useEffect(() => {
         dispatch(setPageTitle('COA'));
         dispatch(setTitle('COA'));
-        dispatch(setBreadcrumbTitle(['Dashboard','Master','COA']));
+        dispatch(setBreadcrumbTitle(['Dashboard','Master','COA','List']));
     });
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const [page, setPage] = useState<number>(1);
@@ -64,6 +64,7 @@ const Index = () => {
         pageSize:1000,
         status,
         level : 4,
+        accounttype : 1,
     });
     const { data: rolesList, refetch: rolesListRefetch } = useGetRolesQuery({});
     const [deleted, { isError }] = useDeleteCOAMutation();
@@ -99,20 +100,8 @@ const Index = () => {
 
     return (
         <div>
-            <div className={`panel flex `}>
-                <ol className="flex space-x-2 rtl:space-x-reverse">
-                    <li>
-                        <Link to="/coa" className="text-primary hover:underline">
-                            COA
-                        </Link>
-                    </li>
-                    <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                        <span>List</span>
-                    </li>
-                </ol>
-            </div>
             <div className="panel mt-6">
-                <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
+                <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5 max-w-64">
                     <div className="rtl:ml-auto rtl:mr-auto">
                         <div className="grid grid-cols-3 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
@@ -121,10 +110,10 @@ const Index = () => {
                                 <option value={'active'}>Active</option>
                                 <option value={'inactive'}>In Active</option>
                             </select>
-                            <select id="ctnSelect2" className="form-select text-white-dark" onChange={(e) => setCOALevel(e.target.value)}>
+                            <select id="ctnSelect2" className="form-select text-white-dark w-48" onChange={(e) => setCOALevel(e.target.value)}>
                                 <option value={""}>COA Level</option>
                                 {CoAListOption?.map((d: OptionType, i: number) => {
-                                    return <option value={d.value}>{d.label}</option>;
+                                    return <option value={d.value} className='truncate'>{d.label}</option>;
                                 })}
                             </select>
                             <button
@@ -169,7 +158,7 @@ const Index = () => {
                                 sortable: true, 
                                 render: (row: COAType,index: number) => (
                                     <>
-                                        <span style={{ fontWeight: row.accountTypeName == "Header" ? 'bold' : 'normal', paddingLeft: (row.coaLevel > 4) ?`${(row.coaLevel-3) * 1}rem` : '1rem' }}>
+                                        <span style={{ fontWeight: row.accountTypeName == "Header" ? 'bold' : 'normal', paddingLeft: (row.coaLevel > 4) ?`${(row.coaLevel-3) * 0.5}rem` : '0rem' }}>
                                             {row.coaCode}
                                         </span>
                                     </>
@@ -182,7 +171,7 @@ const Index = () => {
                                 sortable: true,
                                 render: (row: COAType,index: number) => (
                                     <>
-                                        <span style={{ fontWeight: row.accountTypeName == "Header" ? 'bold' : 'normal', paddingLeft: (row.coaLevel > 4) ?`${(row.coaLevel-3) * 1}rem` : '1rem' }}>
+                                        <span style={{ fontWeight: row.accountTypeName == "Header" ? 'bold' : 'normal', paddingLeft: (row.coaLevel > 4) ?`${(row.coaLevel-3) * 0.5}rem` : '0rem' }}>
                                             {row.coaName}
                                         </span>
                                     </>

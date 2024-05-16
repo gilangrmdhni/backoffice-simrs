@@ -73,7 +73,7 @@ const Form = () => {
     useEffect(() => {
         dispatch(setPageTitle('COA'));
         dispatch(setTitle('COA'));
-        dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'COA', 'Form']));
+        dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'COA',type,lastSegment]));
         rolesListRefetch();
     }, [dispatch]);
 
@@ -93,27 +93,6 @@ const Form = () => {
 
     return (
         <div>
-            <ToastContainer />
-            <div className='panel flex'>
-                <ol className="flex space-x-2 rtl:space-x-reverse">
-                    <li>
-                        <Link to="/COA" className="text-primary hover:underline">
-                            COA
-                        </Link>
-                    </li>
-                    <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                        <span>{type}</span>
-                    </li>
-
-                    {type === 'update' ? (
-                        <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                            <span>{lastSegment}</span>
-                        </li>
-                    ) : (
-                        ''
-                    )}
-                </ol>
-            </div>
             <div className="panel mt-6">
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(submitForm)}>
                     <div className="grid md:grid-cols-2 gap-4 w-full ">

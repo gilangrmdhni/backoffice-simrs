@@ -28,17 +28,17 @@ const routes = [
         layout: 'default',
     },
     {
-        path: '/user',
+        path: '/users',
         element: <UserIndex />,
         layout: 'default',
     },
     {
-        path: '/user/create',
+        path: '/users/create',
         element: <UserCreate />,
         layout: 'default',
     },
     {
-        path: '/user/update/:id',
+        path: '/users/update/:id',
         element: <UserUpdate />,
         layout: 'default',
     },
@@ -48,17 +48,17 @@ const routes = [
         layout: 'blank',
     },
     {
-        path: '/role',
+        path: '/roles',
         element: <RoleIndex />,
         layout: 'default',
     },
     {
-        path: '/role/create',
+        path: '/roles/create',
         element: <RoleCreate />,
         layout: 'default',
     },
     {
-        path: '/role/update/:id',
+        path: '/roles/update/:id',
         element: <RoleUpdate />,
         layout: 'default',
     },

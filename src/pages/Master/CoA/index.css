@@ -1,7 +1,7 @@
 .mantine-Table-root .mantine-1s8spa1 {
      padding: 0
 }
-table > thead > tr > th, table > tbody > tr > td.mantine-1s8spa1 {
+table > tbody > tr > td.mantine-1s8spa1 {
      padding-top: 0rem !important;
      padding-bottom: 0rem !important;
      padding-left: 1rem !important;

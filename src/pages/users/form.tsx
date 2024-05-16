@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { setPageTitle } from '../../store/themeConfigSlice';
+import { setPageTitle,setTitle,setBreadcrumbTitle } from '../../store/themeConfigSlice';
 import { useGetEmployeeQuery } from '@/store/api/employee/employeeApiSlice';
 import IconMail from '@/components/Icon/IconMail';
 import * as yup from 'yup';
@@ -71,7 +71,6 @@ const Form = () => {
     };
 
     useEffect(() => {
-        dispatch(setPageTitle('Users'));
         rolesListRefetch();
     }, [dispatch]);
 
@@ -88,29 +87,17 @@ const Form = () => {
             });
         }
     }, [detailUsers, setValue]);
-
+    useEffect(() =>{
+        dispatch(setPageTitle('Users'));
+        dispatch(setTitle('Users'));
+        if(type == "create"){
+            dispatch(setBreadcrumbTitle(['Dashboard','Users',type]));
+        }else{
+            dispatch(setBreadcrumbTitle(['Dashboard','Users',type,lastSegment]));
+        }
+    })
     return (
         <div>
-            <div className='panel flex'>
-                <ol className="flex space-x-2 rtl:space-x-reverse">
-                    <li>
-                        <Link to="/user" className="text-primary hover:underline">
-                            Users
-                        </Link>
-                    </li>
-                    <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                        <span>{type}</span>
-                    </li>
-
-                    {type === 'update' ? (
-                        <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                            <span>{lastSegment}</span>
-                        </li>
-                    ) : (
-                        ''
-                    )}
-                </ol>
-            </div>
             <div className="panel mt-6">
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(submitForm)}>
                     <div className="grid md:grid-cols-2 gap-4 w-full ">

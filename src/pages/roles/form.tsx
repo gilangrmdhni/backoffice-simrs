@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { setPageTitle } from '../../store/themeConfigSlice';
+import { setPageTitle,setTitle,setBreadcrumbTitle } from '../../store/themeConfigSlice';
 import * as yup from 'yup';
 import { useForm, SubmitHandler, SubmitErrorHandler, FieldError, set } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -84,6 +84,8 @@ const Form = () => {
 
     useEffect(() => {
         dispatch(setPageTitle('Roles'));
+        dispatch(setTitle('Roles'));
+        dispatch(setBreadcrumbTitle(['Dashboard','Master','Roles',type,lastSegment]));
         if (id) {
             detailRolesRefetch();
         } else {
@@ -122,26 +124,6 @@ const Form = () => {
 
     return (
         <div>
-            <div className='panel flex'>
-                <ol className="flex space-x-2 rtl:space-x-reverse">
-                    <li>
-                        <Link to="/role" className="text-primary hover:underline">
-                            Roles
-                        </Link>
-                    </li>
-                    <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                        <span>{type}</span>
-                    </li>
-
-                    {type === 'update' ? (
-                        <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                            <span>{lastSegment}</span>
-                        </li>
-                    ) : (
-                        ''
-                    )}
-                </ol>
-            </div>
             <div className="panel mt-6">
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(submitForm)}>
                     <div className="w-full md:w-1/2">
