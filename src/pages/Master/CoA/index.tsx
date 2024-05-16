@@ -1,8 +1,8 @@
-import { createDispatchHook, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, Navigate } from 'react-router-dom';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { Fragment, useEffect, useState } from 'react';
-import { setBreadcrumbTitle, setPageTitle,setTitle } from '../../../store/themeConfigSlice';
+import { setBreadcrumbTitle, setPageTitle, setTitle } from '../../../store/themeConfigSlice';
 import { useDeleteUsersMutation, useGetUsersQuery } from '@/store/api/users/usersApiSlice';
 import IconServer from '@/components/Icon/IconServer';
 import AnimateHeight from 'react-animate-height';
@@ -15,12 +15,14 @@ import IconX from '@/components/Icon/IconX';
 import IconPlus from '@/components/Icon/IconPlus';
 import IconDownload from '@/components/Icon/IconDownload';
 import { useNavigate } from 'react-router-dom';
-import { usersType } from '@/types';
+import { COAType, usersType } from '@/types';
 import { number } from 'yup';
 import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
 import { rolesType } from '@/types/rolesType';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
+import { useGetCoAQuery,useDeleteCoAMutation } from '@/store/api/CoA/CoAApiSlice';
+import '@/pages/Master/CoA/index.css';
 
 const Index = () => {
     // const user = useSelector((state: any) => state.auth.user);
@@ -28,7 +30,7 @@ const Index = () => {
     useEffect(() => {
         dispatch(setPageTitle('CoA'));
         dispatch(setTitle('CoA'));
-        dispatch(setBreadcrumbTitle(["Dashboard","Master","CoA"]))
+        dispatch(setBreadcrumbTitle(['Dashboard','Master','CoA']));
     });
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const [page, setPage] = useState<number>(1);
@@ -38,23 +40,21 @@ const Index = () => {
     const [status, setStatus] = useState<string>('');
     const [role, setRole] = useState<string>('');
     const [showFilter, setShowFilter] = useState<boolean>(false);
-    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'id', direction: 'asc' });
+    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'coaCode', direction: 'asc' });
     const {
-        data: usersList,
+        data: CoAList,
         refetch,
         error,
         isLoading,
-    } = useGetUsersQuery({
+    } = useGetCoAQuery({
         keyword: search,
-        page: page,
-        role: role,
-        pageSize: pageSize,
-        orderBy: sortStatus.columnAccessor === 'email' ? 'email' : sortStatus.columnAccessor,
+        orderBy: sortStatus.columnAccessor === 'coaCode' ? 'coaCode' : sortStatus.columnAccessor,
         orderType: sortStatus.direction,
+        pageSize:1000,
         status,
     });
     const { data: rolesList, refetch: rolesListRefetch } = useGetRolesQuery({});
-    const [deleted, { isError }] = useDeleteUsersMutation();
+    const [deleted, { isError }] = useDeleteCoAMutation();
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<number>(0);
     const [selectedRecords, setSelectedRecords] = useState<any>([]);
@@ -87,16 +87,18 @@ const Index = () => {
 
     return (
         <div>
-            <ul className="flex space-x-2 rtl:space-x-reverse">
-                <li>
-                    <Link to="/coa" className="text-primary hover:underline">
-                        CoA
-                    </Link>
-                </li>
-                <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                    <span>List</span>
-                </li>
-            </ul>
+            <div className={`panel flex `}>
+                <ol className="flex space-x-2 rtl:space-x-reverse">
+                    <li>
+                        <Link to="/coa" className="text-primary hover:underline">
+                            CoA
+                        </Link>
+                    </li>
+                    <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
+                        <span>List</span>
+                    </li>
+                </ol>
+            </div>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
                     <div className="rtl:ml-auto rtl:mr-auto">
@@ -106,12 +108,6 @@ const Index = () => {
                                 <option value={''}>All Status</option>
                                 <option value={'active'}>Active</option>
                                 <option value={'inactive'}>In Active</option>
-                            </select>
-                            <select id="ctnSelect2" className="form-select text-white-dark" onChange={(e) => setRole(e.target.value)}>
-                                <option value={''}>All Role</option>
-                                {rolesList?.data?.map((d: rolesType, i: number) => {
-                                    return <option value={d.roleID}>{d.roleName}</option>;
-                                })}
                             </select>
                             <button
                                 type="button"
@@ -126,7 +122,7 @@ const Index = () => {
                     </div>
                     <div className="ltr:ml-auto">
                         <div className="grid grid-cols-2 gap-2">
-                            <Tippy content="Add COA">
+                            <Tippy content="Add CoA">
                                 <button
                                     onClick={() => navigate(`/coa/create`)}
                                     type="button"
@@ -143,57 +139,44 @@ const Index = () => {
                         </div>
                     </div>
                 </div>
-                <div>
-                    {/* filter */}
-                    {/* <AnimateHeight duration={300} height={showFilter ? 'auto' : 0}> */}
-                    <AnimateHeight duration={300} height={0}>
-                        <div className="space-y-2 p-4 text-white-dark text-[13px] border-t border-[#d3d3d3] dark:border-[#1b2e4b]">
-                            <div className="grid grid-cols-8 gap-2">
-                                <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                                <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
-                                    <option value={''}>All Status</option>
-                                    <option value={'started'}>Started</option>
-                                    <option value={'completed'}>Completed</option>
-                                </select>
-                                <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                                <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
-                                    <option value={''}>All Status</option>
-                                    <option value={'started'}>Started</option>
-                                    <option value={'completed'}>Completed</option>
-                                </select>
-                                <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                                <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
-                                    <option value={''}>All Status</option>
-                                    <option value={'started'}>Started</option>
-                                    <option value={'completed'}>Completed</option>
-                                </select>
-                            </div>
-                        </div>
-                    </AnimateHeight>
-                </div>
                 <div className="datatables">
                     <DataTable
                         highlightOnHover
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
-                        records={usersList?.data}
+                        records={CoAList?.data}
                         columns={[
-                            { accessor: 'userID', title: 'ID', sortable: true },
-                            { accessor: 'userName', title: 'Username', sortable: true },
-                            { accessor: 'email', title: 'Email', sortable: true },
-                            { accessor: 'roleName', title: 'Role Name', sortable: true },
-                            {
-                                accessor: 'status',
-                                title: 'Status',
-                                sortable: true,
-                                render: (s: usersType) => <span className={`badge whitespace-nowrap badge-outline-${colorStatus(s.status)}`}>{s.status}</span>,
+                            { 
+                                accessor: 'coaCode', 
+                                title: 'CoA Code', 
+                                sortable: true, 
+                                render: (row: COAType,index: number) => (
+                                    <>
+                                        <span style={{ fontWeight: row.accountTypeName == "Header" ? 'bold' : 'normal', paddingLeft: (row.coaLevel > 4) ?`${(row.coaLevel-3) * 1}rem` : '1rem' }}>
+                                            {row.coaCode}
+                                        </span>
+                                    </>
+                                )
                             },
+                            { 
+                                accessor: 'coaName', 
+                                title: 'CoA Name', 
+                                sortable: true,
+                                render: (row: COAType,index: number) => (
+                                    <>
+                                        <span style={{ fontWeight: row.accountTypeName == "Header" ? 'bold' : 'normal', paddingLeft: (row.coaLevel > 4) ?`${(row.coaLevel-3) * 1}rem` : '1rem' }}>
+                                            {row.coaName}
+                                        </span>
+                                    </>
+                                )
+                            },
+                            // ini gmn caranya biar gk ada paddingnya gua dah aklin gkbisa bisa
                             {
                                 accessor: '',
                                 title: 'action',
-                                render: (s: usersType) => (
+                                render: (s: COAType) => (
                                     <>
                                         <Tippy content="Edit">
-                                            <button type="button" onClick={() => navigate(`/user/update/${s.userID}`)}>
+                                            <button type="button" onClick={() => navigate(`/CoA/update/${s.coaId}`)}>
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>
@@ -201,7 +184,7 @@ const Index = () => {
                                             <button
                                                 type="button"
                                                 onClick={async () => {
-                                                    setDeleteId(s.userID as number);
+                                                    setDeleteId(s.coaId as number);
                                                     setShowDeleteModal(true);
                                                 }}
                                             >
@@ -212,18 +195,12 @@ const Index = () => {
                                 ),
                             },
                         ]}
-                        totalRecords={usersList?.totalCount}
-                        recordsPerPage={pageSize}
-                        page={page}
-                        onPageChange={(p) => setPage(p)}
-                        recordsPerPageOptions={PAGE_SIZES}
-                        onRecordsPerPageChange={setPageSize}
-                        sortStatus={sortStatus}
-                        onSortStatusChange={setSortStatus}
-                        selectedRecords={selectedRecords}
-                        onSelectedRecordsChange={setSelectedRecords}
+                        horizontalSpacing={`xs`}
+                        verticalSpacing={`xs`}
+                        totalRecords={CoAList?.totalData}
+                        rowStyle={(state: COAType) => (state ? { padding: 0 } : { padding: 0 })}
+                        fetching={isLoading}
                         minHeight={200}
-                        paginationText={({ from, to, totalRecords }) => `Showing  ${from} to ${to} of ${totalRecords} entries`}
                     />
                 </div>
             </div>

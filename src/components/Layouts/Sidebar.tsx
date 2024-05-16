@@ -144,7 +144,7 @@ const Sidebar = () => {
                                     <ul className={`sub-menu ${currentMenu === 'coa' ? 'text-white bg-[#9C6ACD]' : 'text-black bg-white'}`}>
                                         <li>
                                             <NavLink to="/coa">
-                                                CoA
+                                                COA
                                             </NavLink>
                                         </li>
                                         <li>

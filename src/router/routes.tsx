@@ -13,8 +13,8 @@ const RoleCreate = lazy(() => import('../pages/roles/form'));
 const RoleUpdate = lazy(() => import('../pages/roles/form'));
 
 // Buku Besar
-const CoAIndex = lazy(() => import('../pages/Master/CoA'));
-const CoACreate = lazy(() => import('../pages/Master/CoA/form'));
+const CoAIndex = lazy(() => import('../pages/Master/COA'));
+const CoACreate = lazy(() => import('../pages/Master/COA/form'));
 
 const CurrencyIndex = lazy(() => import('../pages/Master/Currency'));
 const CurrencyCreate = lazy(() => import('../pages/Master/Currency/form'));

@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { setPageTitle,setBreadcrumbTitle,setTitle } from '../../../store/themeConfigSlice';
+import { setPageTitle, setBreadcrumbTitle, setTitle } from '../../../store/themeConfigSlice';
 import { useGetEmployeeQuery } from '@/store/api/employee/employeeApiSlice';
 import IconMail from '@/components/Icon/IconMail';
 import * as yup from 'yup';
@@ -27,7 +27,7 @@ const Form = () => {
     const type = pathSegments[2];
 
     const { id } = useParams();
-    const { data: detailUsers, refetch: detailUsersRefetch } = id ? useGetDetailUsersQuery(id) : { data: null, refetch: () => {} };
+    const { data: detailUsers, refetch: detailUsersRefetch } = id ? useGetDetailUsersQuery(id) : { data: null, refetch: () => { } };
     const { data: rolesList, refetch: rolesListRefetch } = useGetRolesQuery({});
 
     const schema = yup
@@ -63,7 +63,7 @@ const Form = () => {
                 response = await post(data);
             }
             responseCallback(response, (data: any) => {
-              // navigate('/user')
+                // navigate('/user')
             }, null);
         } catch (err: any) {
             toastMessage(err.message, 'error');
@@ -71,9 +71,9 @@ const Form = () => {
     };
 
     useEffect(() => {
-        dispatch(setPageTitle('CoA'));
-        dispatch(setTitle('CoA'));
-        dispatch(setBreadcrumbTitle(['Dashboard','Master','CoA','Form']));
+        dispatch(setPageTitle('COA'));
+        dispatch(setTitle('COA'));
+        dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'COA', 'Form']));
         rolesListRefetch();
     }, [dispatch]);
 
@@ -97,8 +97,8 @@ const Form = () => {
             <div className='panel flex'>
                 <ol className="flex space-x-2 rtl:space-x-reverse">
                     <li>
-                        <Link to="/coa" className="text-primary hover:underline">
-                            CoA
+                        <Link to="/COA" className="text-primary hover:underline">
+                            COA
                         </Link>
                     </li>
                     <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
