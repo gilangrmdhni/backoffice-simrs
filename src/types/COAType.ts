@@ -8,7 +8,7 @@ export interface COAType {
     parentId: number | 1;
     parentName: string | null;
     parentCode: string;
-    normalPosition: string;
+    normalPosition?: string;
     accountGroupId: number;
     accountGroupName: string;
     isCashFlow: boolean;

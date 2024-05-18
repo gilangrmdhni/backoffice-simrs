@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { setPageTitle, setBreadcrumbTitle, setTitle } from '../../../store/themeConfigSlice';
 import { useGetEmployeeQuery } from '@/store/api/employee/employeeApiSlice';
 import IconMail from '@/components/Icon/IconMail';
@@ -9,6 +9,7 @@ import { useForm, FieldError } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { usersType,COAType,OptionType } from '@/types';
 import { useGetDetailCOAQuery, usePostCOAMutation, useUpdateCOAMutation } from '@/store/api/coa/coaApiSlice';
+import { useGetAccountTypesQuery,useGetOptionAccountTypeOptionQuery } from '@/store/api/accountType/accountTypeApiSlice';
 import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
 import { useGetOptionCOAQuery } from '@/store/api/coa/coaApiSlice';
 import { rolesType } from '@/types/rolesType';
@@ -20,6 +21,9 @@ import SelectSearch from 'react-select';
 
 const Form = () => {
     const user = useSelector((state: any) => state.auth.user);
+    const accountTypeRef = useRef();
+    const accountGroupRef = useRef();
+    const COARef = useRef();
     const [searchParent,setSearchParent] = useState<string>('');
     const [post, { isLoading: isLoadingPost, error: isErrorPost }] = usePostCOAMutation();
     const [update, { isLoading: isLoadingUpdate, error: isErrorUpdate }] = useUpdateCOAMutation();
@@ -32,11 +36,11 @@ const Form = () => {
 
     const { id } = useParams();
     const { data: detailCOA, refetch: detailCOARefetch } = id ? useGetDetailCOAQuery(id) : { data: null, refetch: () => { } };
-    const { data: accountTypeList, refetch: accountTypeListRefetch } = useGetOptionCOAQuery({
-        orderBy: 'coaCode',
+    const { data: accountTypeList, refetch: accountTypeListRefetch } = useGetOptionAccountTypeOptionQuery({
+        orderBy: 'accountTypeId',
         orderType: 'asc',
         pageSize:20,
-        status : 'Active',
+        status,
     });
     const { data: ParentList, refetch: ParentListRefetch } = useGetOptionCOAQuery({
         orderBy: 'coaCode',
@@ -75,6 +79,7 @@ const Form = () => {
     const submitForm = async (data: COAType) => {
         try {
             let response: any;
+            data.accountTypeId = Number(data.accountTypeId);
             if (id) {
                 response = await update(data);
             } else {
@@ -144,10 +149,10 @@ const Form = () => {
                             <div className="relative text-white-dark">
                                 <select id="accountTypeId" {...register('accountTypeId')} className="form-select">
                                     <option value="">Enter Account Type</option>
-                                    {accountTypeList?.data?.map((d: rolesType, i: number) => {
+                                    {accountTypeList?.map((d: OptionType, i: number) => {
                                         return (
-                                            <option value={d.roleID} selected={detailCOA?.data?.accounttype === d.roleID }>
-                                                {d.roleName}
+                                            <option value={d?.value} selected={detailCOA?.data?.accounttype === d.value }>
+                                                {d?.label}
                                             </option>
                                         );
                                     })}
@@ -167,15 +172,15 @@ const Form = () => {
                             <span className="text-danger text-xs">{(errors.parentId as FieldError)?.message}</span>
                         </div>
                         <div>
-                            <label htmlFor="accountTypeId">Normal Position</label>
+                            <label htmlFor="normalPosition">Normal Position</label>
                             <div className="relative text-white-dark">
-                                <select id="accountTypeId" {...register('accountTypeId')} className="form-select">
+                                <select id="normalPosition" {...register('normalPosition')} className="form-select">
                                     <option value="">Enter Normal Position</option>
                                     <option value="Credit">Credit</option>
                                     <option value="Debit">Debit</option>
                                 </select>
                             </div>
-                            <span className="text-danger text-xs">{(errors.accountTypeId as FieldError)?.message}</span>
+                            <span className="text-danger text-xs">{(errors.normalPosition as FieldError)?.message}</span>
                         </div>
                         <div>
                             <label>Status</label>
