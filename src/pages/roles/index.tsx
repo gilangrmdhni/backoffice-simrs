@@ -78,7 +78,6 @@ const Index = () => {
         <div>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
-                    <h5 className="font-semibold text-lg dark:text-white-light">Roles</h5>
                     <div className="rtl:ml-auto rtl:mr-auto">
                         <div className="grid grid-cols-3 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
@@ -169,15 +168,14 @@ const Index = () => {
                             <div className="flex items-start justify-center min-h-screen px-4">
                                 <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-lg my-8 text-black dark:text-white-dark animate__animated animate__fadeIn">
                                     <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
-                                        <h5 className="font-bold text-lg">Modal Title</h5>
+                                        <h5 className="font-bold text-lg">Confirmation</h5>
                                         <button onClick={() => setShowDeleteModal(false)} type="button" className="text-white-dark hover:text-dark">
                                             <IconX />
                                         </button>
                                     </div>
                                     <div className="p-5">
                                         <p>
-                                            Mauris mi tellus, pharetra vel mattis sed, tempus ultrices eros. Phasellus egestas sit amet velit sed luctus. Orci varius natoque penatibus et magnis dis
-                                            parturient montes, nascetur ridiculus mus. Suspendisse potenti. Vivamus ultrices sed urna ac pulvinar. Ut sit amet ullamcorper mi.
+                                            You will lose your data!
                                         </p>
                                         <div className="flex justify-end items-center mt-8">
                                             <button onClick={() => setShowDeleteModal(false)} type="button" className="btn btn-outline-dark">

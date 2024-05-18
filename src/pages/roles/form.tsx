@@ -76,7 +76,7 @@ const Form = () => {
             } else {
                 response = await post(data);
             }
-            responseCallback(response, (data: any) => setTimeout(() => navigate('/role'), 2000), null);
+            responseCallback(response, (data: any) => navigate(`/roles`), null);
         } catch (err: any) {
             toastMessage(err.message, 'error');
         }
@@ -85,7 +85,12 @@ const Form = () => {
     useEffect(() => {
         dispatch(setPageTitle('Roles'));
         dispatch(setTitle('Roles'));
-        dispatch(setBreadcrumbTitle(['Dashboard','Master','Roles',type,lastSegment]));
+        if(type == 'create'){
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Roles',type]));
+
+        }else{
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Roles',type,lastSegment]));
+        }
         if (id) {
             detailRolesRefetch();
         } else {

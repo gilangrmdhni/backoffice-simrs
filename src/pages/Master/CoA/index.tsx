@@ -23,6 +23,7 @@ import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
 import { useGetCOAQuery,useDeleteCOAMutation,useGetOptionCOAQuery } from '@/store/api/coa/coaApiSlice';
 import '@/pages/Master/COA/index.css';
+import SelectSearch from 'react-select';
 
 const Index = () => {
     const user = useSelector((state: any) => state.auth.user);
@@ -37,6 +38,7 @@ const Index = () => {
     const PAGE_SIZES: number[] = [10, 20, 30, 50, 100];
     const [pageSize, setPageSize] = useState<number>(PAGE_SIZES[0]);
     const [search, setSearch] = useState<string>('');
+    const [searchType, setSearchType] = useState<string>('');
     const [status, setStatus] = useState<string>('');
     const [COALevel, setCOALevel] = useState<string>('');
     const [role, setRole] = useState<string>('');
@@ -61,11 +63,28 @@ const Index = () => {
     } = useGetOptionCOAQuery({
         orderBy: sortStatus.columnAccessor === 'coaCode' ? 'coaCode' : sortStatus.columnAccessor,
         orderType: sortStatus.direction,
-        pageSize:1000,
+        pageSize:20,
         status,
         level : 4,
         accounttype : 1,
+        keyword:searchType
     });
+
+    let TypeListOption = []
+        TypeListOption.push({
+            value: "",
+            label: "All Type",
+            level: "",
+        })
+    {
+        CoAListOption?.map((option: any) =>{
+            TypeListOption.push({
+                value: option.value,
+                label: option.label,
+                level: option.level ? option.level : '',
+            })
+        })
+    }
     const { data: rolesList, refetch: rolesListRefetch } = useGetRolesQuery({});
     const [deleted, { isError }] = useDeleteCOAMutation();
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
@@ -84,6 +103,32 @@ const Index = () => {
             toastMessage(err.message, 'error');
         }
     };
+
+    useEffect(() => {
+        setTimeout(() => {
+            refetchCoaOption();
+            TypeListOption = []
+            TypeListOption.push({
+                value: "",
+                label: "All Type",
+                level: "",
+            })
+            {
+                CoAListOption?.map((option: any) =>{
+                    TypeListOption.push({
+                        value: option.value,
+                        label: option.label,
+                        level: option.level ? option.level : '',
+                    })
+                })
+            }
+        }, 3000);
+    }, [searchType]);
+
+    useEffect(() => {
+        refetch();
+    }, [COALevel]);
+    
 
     useEffect(() => {
         refetch();
@@ -110,12 +155,20 @@ const Index = () => {
                                 <option value={'active'}>Active</option>
                                 <option value={'inactive'}>In Active</option>
                             </select>
-                            <select id="ctnSelect2" className="form-select text-white-dark w-48" onChange={(e) => setCOALevel(e.target.value)}>
+                            {/* <select id="ctnSelect2" className="form-select text-white-dark w-48" onChange={(e) => setCOALevel(e.target.value)}>
                                 <option value={""}>COA Level</option>
                                 {CoAListOption?.map((d: OptionType, i: number) => {
                                     return <option value={d.value} className='truncate'>{d.label}</option>;
                                 })}
-                            </select>
+                                
+                            </select> */}
+                            <SelectSearch 
+                                    placeholder="All Type"
+                                    options={TypeListOption}
+                                    className="z-10"
+                                    onInputChange={(e)=> setSearchType(e)}
+                                    onChange={(dt: any)=>{setCOALevel(dt.value)}}
+                                />
                             <button
                                 type="button"
                                 className="hidden w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
@@ -138,15 +191,15 @@ const Index = () => {
                                     <IconPlus />
                                 </button>
                             </Tippy>
-                            <Tippy content="Download">
+                            {/* <Tippy content="Download">
                                 <Link to="" className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60">
                                     <IconDownload />
                                 </Link>
-                            </Tippy>
+                            </Tippy> */}
                         </div>
                     </div>
                 </div>
-                <div className="datatables">
+                <div className="datatables z-0">
                     <DataTable
                         highlightOnHover
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
@@ -243,15 +296,14 @@ const Index = () => {
                             <div className="flex items-start justify-center min-h-screen px-4">
                                 <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-lg my-8 text-black dark:text-white-dark animate__animated animate__fadeIn">
                                     <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
-                                        <h5 className="font-bold text-lg">Modal Title</h5>
+                                        <h5 className="font-bold text-lg">Confimation</h5>
                                         <button onClick={() => setShowDeleteModal(false)} type="button" className="text-white-dark hover:text-dark">
                                             <IconX />
                                         </button>
                                     </div>
                                     <div className="p-5">
                                         <p>
-                                            Mauris mi tellus, pharetra vel mattis sed, tempus ultrices eros. Phasellus egestas sit amet velit sed luctus. Orci varius natoque penatibus et magnis dis
-                                            parturient montes, nascetur ridiculus mus. Suspendisse potenti. Vivamus ultrices sed urna ac pulvinar. Ut sit amet ullamcorper mi.
+                                            You will lose your data!
                                         </p>
                                         <div className="flex justify-end items-center mt-8">
                                             <button onClick={() => setShowDeleteModal(false)} type="button" className="btn btn-outline-dark">

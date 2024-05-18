@@ -7,18 +7,22 @@ import IconMail from '@/components/Icon/IconMail';
 import * as yup from 'yup';
 import { useForm, FieldError } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { usersType } from '@/types';
-import { useGetDetailUsersQuery, usePostUsersMutation, useUpdateUsersMutation } from '@/store/api/users/usersApiSlice';
+import { usersType,COAType,OptionType } from '@/types';
+import { useGetDetailCOAQuery, usePostCOAMutation, useUpdateCOAMutation } from '@/store/api/coa/coaApiSlice';
 import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
+import { useGetOptionCOAQuery } from '@/store/api/coa/coaApiSlice';
 import { rolesType } from '@/types/rolesType';
 import { ToastContainer, toast } from 'react-toastify';
 import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
+import SelectSearch from 'react-select';
+
 
 const Form = () => {
     const user = useSelector((state: any) => state.auth.user);
-    const [post, { isLoading: isLoadingPost, error: isErrorPost }] = usePostUsersMutation();
-    const [update, { isLoading: isLoadingUpdate, error: isErrorUpdate }] = useUpdateUsersMutation();
+    const [searchParent,setSearchParent] = useState<string>('');
+    const [post, { isLoading: isLoadingPost, error: isErrorPost }] = usePostCOAMutation();
+    const [update, { isLoading: isLoadingUpdate, error: isErrorUpdate }] = useUpdateCOAMutation();
     const dispatch = useDispatch();
     const location = useLocation();
     const navigate = useNavigate();
@@ -27,16 +31,31 @@ const Form = () => {
     const type = pathSegments[2];
 
     const { id } = useParams();
-    const { data: detailUsers, refetch: detailUsersRefetch } = id ? useGetDetailUsersQuery(id) : { data: null, refetch: () => { } };
-    const { data: rolesList, refetch: rolesListRefetch } = useGetRolesQuery({});
+    const { data: detailCOA, refetch: detailCOARefetch } = id ? useGetDetailCOAQuery(id) : { data: null, refetch: () => { } };
+    const { data: accountTypeList, refetch: accountTypeListRefetch } = useGetOptionCOAQuery({
+        orderBy: 'coaCode',
+        orderType: 'asc',
+        pageSize:20,
+        status : 'Active',
+    });
+    const { data: ParentList, refetch: ParentListRefetch } = useGetOptionCOAQuery({
+        orderBy: 'coaCode',
+        orderType: 'asc',
+        pageSize:20,
+        status : 'Active',
+        keyword: searchParent,
+    });
+
+    useEffect(() => {
+        ParentListRefetch();
+    },[searchParent]);
+
 
     const schema = yup
         .object({
-            email: yup.string().email('email format salah').required('Email is Required'),
-            password: id ? yup.string() : yup.string().required('Password is Required'),
-            userName: yup.string().required('Username is Required'),
-            displayName: yup.string().required('Name is Required'),
-            roleID: yup.string().required('Role is Required'),
+            coaCode: yup.string().required('coaCode is Required'),
+            coaName: yup.string().required('coaName is Required'),
+            accountTypeId: yup.string().required('accountType is Required'),
             status: yup.string().required('Status is Required'),
         })
         .required();
@@ -46,15 +65,14 @@ const Form = () => {
         formState: { errors },
         handleSubmit,
         setValue,
-    } = useForm<usersType>({
+    } = useForm<COAType>({
         resolver: yupResolver(schema),
         mode: 'all',
         defaultValues: {
             status: 'Active',
         },
     });
-
-    const submitForm = async (data: usersType) => {
+    const submitForm = async (data: COAType) => {
         try {
             let response: any;
             if (id) {
@@ -63,7 +81,7 @@ const Form = () => {
                 response = await post(data);
             }
             responseCallback(response, (data: any) => {
-                // navigate('/user')
+                navigate('/coa')
             }, null);
         } catch (err: any) {
             toastMessage(err.message, 'error');
@@ -73,23 +91,28 @@ const Form = () => {
     useEffect(() => {
         dispatch(setPageTitle('COA'));
         dispatch(setTitle('COA'));
-        dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'COA',type,lastSegment]));
-        rolesListRefetch();
+        if(type == 'create'){
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'COA',type]));
+
+        }else{
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'COA',type,lastSegment]));
+        }
+        ParentListRefetch();
     }, [dispatch]);
 
     useEffect(() => {
         if (id) {
-            detailUsersRefetch();
+            detailCOARefetch();
         }
     }, [id]);
 
     useEffect(() => {
-        if (detailUsers?.data) {
-            Object.keys(detailUsers.data).forEach((key) => {
-                setValue(key as keyof usersType, detailUsers.data[key]);
+        if (detailCOA?.data) {
+            Object.keys(detailCOA.data).forEach((key) => {
+                setValue(key as keyof COAType, detailCOA.data[key]);
             });
         }
-    }, [detailUsers, setValue]);
+    }, [detailCOA, setValue]);
 
     return (
         <div>
@@ -97,60 +120,62 @@ const Form = () => {
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(submitForm)}>
                     <div className="grid md:grid-cols-2 gap-4 w-full ">
                         <div>
-                            <label htmlFor="userName">Username</label>
+                            <label htmlFor="coaCode">COA Code</label>
                             <div className="relative text-white-dark">
-                                <input id="userName" type="text" placeholder="Enter Username" {...register('userName')} className="form-input placeholder:text-white-dark" />
+                                <input id="coaCode" type="text" placeholder="Enter coaCode" {...register('coaCode')} className="form-input placeholder:text-white-dark" />
                                 {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                     <IconMail fill={true} />
                                 </span> */}
                             </div>
-                            <span className="text-danger text-xs">{(errors.userName as FieldError)?.message}</span>
+                            <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
                         </div>
                         <div>
-                            <label htmlFor="displayName">Name</label>
+                            <label htmlFor="coaName">COA Name</label>
                             <div className="relative text-white-dark">
-                                <input id="displayName" type="text" placeholder="Enter Name" {...register('displayName')} className="form-input placeholder:text-white-dark" />
+                                <input id="coaName" type="text" placeholder="Enter Name" {...register('coaName')} className="form-input placeholder:text-white-dark" />
                                 {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                     <IconMail fill={true} />
                                 </span> */}
                             </div>
-                            <span className="text-danger text-xs">{(errors.displayName as FieldError)?.message}</span>
+                            <span className="text-danger text-xs">{(errors.coaName as FieldError)?.message}</span>
                         </div>
                         <div>
-                            <label htmlFor="Email">Email</label>
+                            <label htmlFor="accountTypeId">Account Type</label>
                             <div className="relative text-white-dark">
-                                <input id="Email" type="email" placeholder="Enter Email" {...register('email')} className="form-input placeholder:text-white-dark" />
-                                {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                                    <IconMail fill={true} />
-                                </span> */}
-                            </div>
-                            <span className="text-danger text-xs">{(errors.email as FieldError)?.message}</span>
-                        </div>
-                        <div>
-                            <label htmlFor="Password">Password</label>
-                            <div className="relative text-white-dark">
-                                <input id="Password" type="password" placeholder="Enter Password" {...register('password')} className="form-input placeholder:text-white-dark" />
-                                {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                                    <IconMail fill={true} />
-                                </span> */}
-                            </div>
-                            <span className="text-danger text-xs">{(errors.password as FieldError)?.message}</span>
-                        </div>
-                        <div>
-                            <label htmlFor="roleID">Role</label>
-                            <div className="relative text-white-dark">
-                                <select id="roleID" {...register('roleID')} className="form-select">
-                                    <option value="">Enter Role</option>
-                                    {rolesList?.data?.map((d: rolesType, i: number) => {
+                                <select id="accountTypeId" {...register('accountTypeId')} className="form-select">
+                                    <option value="">Enter Account Type</option>
+                                    {accountTypeList?.data?.map((d: rolesType, i: number) => {
                                         return (
-                                            <option value={d.roleID} selected={detailUsers?.data?.roleID === d.roleID}>
+                                            <option value={d.roleID} selected={detailCOA?.data?.accounttype === d.roleID }>
                                                 {d.roleName}
                                             </option>
                                         );
                                     })}
                                 </select>
                             </div>
-                            <span className="text-danger text-xs">{(errors.roleName as FieldError)?.message}</span>
+                            <span className="text-danger text-xs">{(errors.accountTypeId as FieldError)?.message}</span>
+                        </div>
+                        <div>
+                            <label htmlFor="parentId">Parent</label>
+                            <div className="relative text-white-dark">
+                                <SelectSearch 
+                                    placeholder="Enter Parent" 
+                                    options={ParentList} 
+                                    onInputChange={(e) => setSearchParent(e)} 
+                                />
+                            </div>
+                            <span className="text-danger text-xs">{(errors.parentId as FieldError)?.message}</span>
+                        </div>
+                        <div>
+                            <label htmlFor="accountTypeId">Normal Position</label>
+                            <div className="relative text-white-dark">
+                                <select id="accountTypeId" {...register('accountTypeId')} className="form-select">
+                                    <option value="">Enter Normal Position</option>
+                                    <option value="Credit">Credit</option>
+                                    <option value="Debit">Debit</option>
+                                </select>
+                            </div>
+                            <span className="text-danger text-xs">{(errors.accountTypeId as FieldError)?.message}</span>
                         </div>
                         <div>
                             <label>Status</label>
