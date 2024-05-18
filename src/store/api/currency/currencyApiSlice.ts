@@ -38,4 +38,10 @@ export const currencyApi = apiSlice.injectEndpoints({
     }),
 });
 
-export const { useGetCurrencyQuery, useDeleteCurrencyMutation, usePostCurrencyMutation, useUpdateCurrencyMutation, useGetDetailCurrencyQuery } = currencyApi;
+export const {
+    useGetCurrencyQuery,
+    useDeleteCurrencyMutation,
+    usePostCurrencyMutation,
+    useUpdateCurrencyMutation,
+    useGetDetailCurrencyQuery
+} = currencyApi;
