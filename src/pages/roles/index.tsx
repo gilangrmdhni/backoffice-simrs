@@ -23,7 +23,7 @@ const Index = () => {
     useEffect(() => {
         dispatch(setPageTitle('Roles'));
         dispatch(setTitle('Roles'));
-        dispatch(setBreadcrumbTitle(["Dashboard","Roles"]));
+        dispatch(setBreadcrumbTitle(["Dashboard","Roles","List"]));
     });
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const [page, setPage] = useState<number>(1);
@@ -76,17 +76,6 @@ const Index = () => {
 
     return (
         <div>
-            <ToastContainer />
-            <ul className="flex space-x-2 rtl:space-x-reverse">
-                <li>
-                    <Link to="/role" className="text-primary hover:underline">
-                        Roles
-                    </Link>
-                </li>
-                <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                    <span>List</span>
-                </li>
-            </ul>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
                     <h5 className="font-semibold text-lg dark:text-white-light">Roles</h5>
@@ -99,7 +88,7 @@ const Index = () => {
                         <div className="grid grid-cols-2 gap-2">
                             <Tippy content="Add User">
                                 <button
-                                    onClick={() => navigate(`/role/create`)}
+                                    onClick={() => navigate(`/roles/create`)}
                                     type="button"
                                     className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
                                 >
@@ -128,7 +117,7 @@ const Index = () => {
                                 render: (s: rolesType) => (
                                     <>
                                         <Tippy content="Edit">
-                                            <button type="button" onClick={() => navigate(`/role/update/${s.roleID}`)}>
+                                            <button type="button" onClick={() => navigate(`/roles/update/${s.roleID}`)}>
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>

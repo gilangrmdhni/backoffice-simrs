@@ -89,7 +89,7 @@ const Sidebar = () => {
                             </li>
 
                             <li className={`menu nav-item ${currentMenu === 'users' ? 'bg-[#9C6ACD]' : ''} hover:bg-purple-300`}>
-                                <NavLink to="/user">
+                                <NavLink to="/users">
                                     <button type="button" className={`nav-link group w-full`} onClick={() => toggleMenu('users')}>
                                         <div className="flex items-center">
                                             <IconMenuUsers fill={`${currentMenu === "users" ? "white" : 'black'}`} className="group-hover:!text-primary text-black shrink-0" />
@@ -99,7 +99,7 @@ const Sidebar = () => {
                                 </NavLink>
                             </li>
                             <li className={`menu nav-item ${currentMenu === 'role' ? 'bg-[#9C6ACD]' : ''} hover:bg-purple-300`}>
-                                <NavLink to="/role">
+                                <NavLink to="/roles">
                                     <button type="button" className={`${currentMenu === 'role' ? 'active' : ''} nav-link group w-full`} onClick={() => toggleMenu('role')}>
                                         <div className="flex items-center">
                                             <IconMenuUsers fill={`${currentMenu === "role" ? "white" : 'black'}`} className="group-hover:!text-primary shrink-0" />
@@ -154,7 +154,7 @@ const Sidebar = () => {
                                         </li>
                                         <li>
                                             <NavLink to="/coa">
-                                                CoA
+                                                COA
                                             </NavLink>
                                         </li>
                                         <li>

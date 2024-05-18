@@ -20,8 +20,8 @@ const AccountTypeIndex = lazy(() => import('../pages/Master/AccountType'));
 const AccountTypeCreate = lazy(() => import('../pages/Master/AccountType/form'));
 
 // Buku Besar
-const CoAIndex = lazy(() => import('../pages/Master/CoA'));
-const CoACreate = lazy(() => import('../pages/Master/CoA/form'));
+const CoAIndex = lazy(() => import('../pages/Master/COA'));
+const CoACreate = lazy(() => import('../pages/Master/COA/form'));
 
 const CurrencyIndex = lazy(() => import('../pages/Master/Currency'));
 const CurrencyCreate = lazy(() => import('../pages/Master/Currency/form'));
@@ -45,17 +45,17 @@ const routes = [
         layout: 'default',
     },
     {
-        path: '/user',
+        path: '/users',
         element: <UserIndex />,
         layout: 'default',
     },
     {
-        path: '/user/create',
+        path: '/users/create',
         element: <UserCreate />,
         layout: 'default',
     },
     {
-        path: '/user/update/:id',
+        path: '/users/update/:id',
         element: <UserUpdate />,
         layout: 'default',
     },
@@ -65,17 +65,17 @@ const routes = [
         layout: 'blank',
     },
     {
-        path: '/role',
+        path: '/roles',
         element: <RoleIndex />,
         layout: 'default',
     },
     {
-        path: '/role/create',
+        path: '/roles/create',
         element: <RoleCreate />,
         layout: 'default',
     },
     {
-        path: '/role/update/:id',
+        path: '/roles/update/:id',
         element: <RoleUpdate />,
         layout: 'default',
     },
