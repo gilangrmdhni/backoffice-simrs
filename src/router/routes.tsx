@@ -24,6 +24,7 @@ const AccountTypeUpdate = lazy(() => import('../pages/Master/AccountType/form'))
 // Buku Besar
 const CoAIndex = lazy(() => import('../pages/Master/COA'));
 const CoACreate = lazy(() => import('../pages/Master/COA/form'));
+const CoAUpdate = lazy(() => import('../pages/Master/COA/form'));
 
 const CurrencyIndex = lazy(() => import('../pages/Master/Currency'));
 const CurrencyCreate = lazy(() => import('../pages/Master/Currency/form'));
@@ -120,6 +121,11 @@ const routes = [
     {
         path: 'coa/create',
         element: <CoACreate />,
+        layout: 'default',
+    },
+    {
+        path: 'coa/update/:id',
+        element: <CoAUpdate />,
         layout: 'default',
     },
     {

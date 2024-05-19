@@ -36,6 +36,9 @@ export const branchApi = apiSlice.injectEndpoints({
         getDetailBranch: builder.query({
             query: (id?: string) => `/Branch/${id}`,
         }),
+        getOptionBranch: builder.query({
+            query: (params) => `/branch/option?${new URLSearchParams(params).toString()}`,
+        }),
     }),
 });
 
@@ -44,6 +47,7 @@ export const {
     useDeleteBranchMutation,
     usePostBranchMutation,
     useUpdateBranchMutation,
-    useGetDetailBranchQuery
+    useGetDetailBranchQuery,
+    useGetOptionBranchQuery
 } = branchApi;
 

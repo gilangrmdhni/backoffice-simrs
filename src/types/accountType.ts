@@ -1,5 +1,5 @@
 export interface AccountType {
-    accountTypeId: number;
+    accountTypeId?: number;
     accountTypeName: string;
     branchId: number;
 }

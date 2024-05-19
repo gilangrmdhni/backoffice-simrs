@@ -30,7 +30,7 @@ export const accountGroupApi = apiSlice.injectEndpoints({
             query: (id) => `/AccountGroup/${id}`,
         }),
 
-        getOptionGroupDetail: builder.query({
+        getOptionAccountGroupDetail: builder.query({
             query: (params) => `/AccountGroup/option?${new URLSearchParams(params).toString()}`,
         }),
     }),
@@ -42,5 +42,5 @@ export const {
     useCreateAccountGroupMutation,
     useUpdateAccountGroupMutation,
     useGetAccountGroupDetailQuery,
-    useGetOptionGroupDetailQuery,
+    useGetOptionAccountGroupDetailQuery,
 } = accountGroupApi;

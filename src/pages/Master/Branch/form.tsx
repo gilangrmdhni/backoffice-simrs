@@ -56,7 +56,6 @@ const BranchForm = () => {
     const { data: companyList } = useGetCompaniesQuery([]);
 
     const submitForm = async (data: branchType) => {
-        console.log("test")
         if (currencyRef.current) {
             data.currencyName = currencyRef.current.options[data.currencyId].text;
         }

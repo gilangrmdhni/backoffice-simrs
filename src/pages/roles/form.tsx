@@ -149,7 +149,7 @@ const Form = () => {
                             {getAccessList?.data?.pageList?.map((dt: any, idx: number) => (
                                 <div key={idx}>
                                     <div className="relative flex items-center">
-                                        <input id={`checkBoxPage_${idx}`} type="checkbox" value={dt?.pageCode} {...register(`accessList.${idx}.pageCode`)} className="form-checkbox" />
+                                        {/* <input id={`checkBoxPage_${idx}`} type="checkbox" value={dt?.pageCode} {...register(`accessList.${idx}.pageCode`)} className="form-checkbox" /> */}
                                         <label htmlFor={`checkBoxPage_${idx}`} className="mt-[0.365rem]">
                                             {dt?.page}
                                         </label>

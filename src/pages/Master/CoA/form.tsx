@@ -7,9 +7,11 @@ import IconMail from '@/components/Icon/IconMail';
 import * as yup from 'yup';
 import { useForm, FieldError } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { usersType,COAType,OptionType } from '@/types';
+import { usersType,COAType,OptionType, AccountType, AccountGroupType } from '@/types';
 import { useGetDetailCOAQuery, usePostCOAMutation, useUpdateCOAMutation } from '@/store/api/coa/coaApiSlice';
 import { useGetAccountTypesQuery,useGetOptionAccountTypeOptionQuery } from '@/store/api/accountType/accountTypeApiSlice';
+import { useGetAccountGroupsQuery, useGetOptionAccountGroupDetailQuery } from '@/store/api/accountGroup/accountGroupApiSlice';
+import { useGetOptionBranchQuery } from '@/store/api/branch/branchApiSlice';
 import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
 import { useGetOptionCOAQuery } from '@/store/api/coa/coaApiSlice';
 import { rolesType } from '@/types/rolesType';
@@ -20,10 +22,13 @@ import SelectSearch from 'react-select';
 
 
 const Form = () => {
-    const user = useSelector((state: any) => state.auth.user);
-    const accountTypeRef = useRef();
-    const accountGroupRef = useRef();
-    const COARef = useRef();
+    // const user = useSelector((state: any) => state.auth.user);
+    const accountTypeRef = useRef<HTMLSelectElement>(null);
+    const accountGroupRef = useRef<HTMLSelectElement>(null);
+    const parentRef = useRef<HTMLSelectElement>(null);
+    const [parentId,setParentId] = useState<string>('');
+    const [isCashFlow,setIsCashFlow] = useState<boolean>(false);
+    const [isCashBank,setIsCashBank] = useState<boolean>(false);
     const [searchParent,setSearchParent] = useState<string>('');
     const [post, { isLoading: isLoadingPost, error: isErrorPost }] = usePostCOAMutation();
     const [update, { isLoading: isLoadingUpdate, error: isErrorUpdate }] = useUpdateCOAMutation();
@@ -42,6 +47,16 @@ const Form = () => {
         pageSize:20,
         status,
     });
+    const { data: accountGroupList, refetch: accountGroupListRefetch } = useGetOptionAccountGroupDetailQuery({
+        orderBy: 'accountGroupId',
+        orderType: 'asc',
+        pageSize:20,
+    });
+    const { data: BranchList, refetch: BranchListRefetch } = useGetOptionBranchQuery({
+        orderBy: 'branchId',
+        orderType: 'asc',
+        pageSize:20,
+    });
     const { data: ParentList, refetch: ParentListRefetch } = useGetOptionCOAQuery({
         orderBy: 'coaCode',
         orderType: 'asc',
@@ -49,9 +64,39 @@ const Form = () => {
         status : 'Active',
         keyword: searchParent,
     });
+    let ParentListOption = []
+        ParentListOption.push({
+            value: "",
+            label: "None",
+            level: "",
+        })
+        {
+            ParentList?.map((option: any) =>{
+                ParentListOption.push({
+                    value: option.value,
+                    label: option.label,
+                    level: option.level ? option.level : '',
+                })
+            })
+        }
 
     useEffect(() => {
         ParentListRefetch();
+        ParentListOption = []
+        ParentListOption.push({
+            value: "",
+            label: "None",
+            level: "",
+        })
+        {
+            ParentList?.map((option: any) =>{
+                ParentListOption.push({
+                    value: option.value,
+                    label: option.label,
+                    level: option.level ? option.level : '',
+                })
+            })
+        }
     },[searchParent]);
 
 
@@ -59,7 +104,9 @@ const Form = () => {
         .object({
             coaCode: yup.string().required('coaCode is Required'),
             coaName: yup.string().required('coaName is Required'),
-            accountTypeId: yup.string().required('accountType is Required'),
+            accountTypeId: yup.number().required('accountType is Required'),
+            accountGroupId: yup.number().required('accountGroup is Required'),
+            balance: yup.number().required('Balance is Required'),
             status: yup.string().required('Status is Required'),
         })
         .required();
@@ -79,7 +126,20 @@ const Form = () => {
     const submitForm = async (data: COAType) => {
         try {
             let response: any;
-            data.accountTypeId = Number(data.accountTypeId);
+            if (accountTypeRef.current) {
+                data.accountTypeName = accountTypeRef.current.options[data.accountTypeId].text;
+            }
+            if (accountGroupRef.current) {
+                data.accountGroupName = accountGroupRef.current.options[data.accountGroupId].text;
+            }
+            if(parentId != "" && parentId != "None/"){
+                console.log(parentId)
+                let parent = parentId.split('/')
+                data.parentId = Number(parent[1]);
+                data.parentName = parent[0];
+            }
+            data.isCashFlow = isCashFlow;
+            data.isCashBank = isCashBank;
             if (id) {
                 response = await update(data);
             } else {
@@ -151,7 +211,7 @@ const Form = () => {
                                     <option value="">Enter Account Type</option>
                                     {accountTypeList?.map((d: OptionType, i: number) => {
                                         return (
-                                            <option value={d?.value} selected={detailCOA?.data?.accounttype === d.value }>
+                                            <option key={i} value={d?.value} selected={detailCOA?.data?.accountTypeId === d?.value }>
                                                 {d?.label}
                                             </option>
                                         );
@@ -161,12 +221,30 @@ const Form = () => {
                             <span className="text-danger text-xs">{(errors.accountTypeId as FieldError)?.message}</span>
                         </div>
                         <div>
+                            <label htmlFor="accountGroupId">Account Group</label>
+                            <div className="relative text-white-dark">
+                                <select id="accountGroupId" {...register('accountGroupId')} className="form-select">
+                                    <option value="">Enter Account Type</option>
+                                    {accountGroupList?.map((d: OptionType, i: number) => {
+                                        return (
+                                            <option value={d?.value} selected={detailCOA?.data?.accountGroupId === d.value }>
+                                                {d?.label}
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+                            </div>
+                            <span className="text-danger text-xs">{(errors.accountGroupId as FieldError)?.message}</span>
+                        </div>
+                        <div>
                             <label htmlFor="parentId">Parent</label>
                             <div className="relative text-white-dark">
                                 <SelectSearch 
-                                    placeholder="Enter Parent" 
-                                    options={ParentList} 
+                                    placeholder="Enter Parent"
+                                    options={ParentListOption} 
                                     onInputChange={(e) => setSearchParent(e)} 
+                                    onChange={(e: any) => setParentId(`${e.label}/${e.value}`)}
+                                    defaultValue={detailCOA?.data?.parentId != null ? detailCOA?.data?.parentId : ""}
                                 />
                             </div>
                             <span className="text-danger text-xs">{(errors.parentId as FieldError)?.message}</span>
@@ -181,6 +259,44 @@ const Form = () => {
                                 </select>
                             </div>
                             <span className="text-danger text-xs">{(errors.normalPosition as FieldError)?.message}</span>
+                        </div>
+                        <div>
+                            <label htmlFor="balance">Balance</label>
+                            <div className="relative text-white-dark">
+                                <input id="balance" type="text" placeholder="Enter balance" {...register('balance')} className="form-input placeholder:text-white-dark" />
+                                {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
+                                    <IconMail fill={true} />
+                                </span> */}
+                            </div>
+                            <span className="text-danger text-xs">{(errors.balance as FieldError)?.message}</span>
+                        </div>
+                        <div>
+                            <label>Is Cash Flow</label>
+                            <div className="flex space-x-4">
+                                <label className="flex items-center">
+                                    <input type="radio" onClick={(e)=>setIsCashFlow(true)} {...register('isCashFlow')} className="form-radio" />
+                                    <span className="ml-2 text-white-dark">True</span>
+                                </label>
+                                <label className="flex items-center">
+                                    <input type="radio" {...register('isCashFlow')} className="form-radio" />
+                                    <span className="ml-2 text-white-dark">False</span>
+                                </label>
+                            </div>
+                            <span className="text-danger text-xs">{(errors.isCashFlow as FieldError)?.message}</span>
+                        </div>
+                        <div>
+                            <label>Is Cash Bank</label>
+                            <div className="flex space-x-4">
+                                <label className="flex items-center">
+                                    <input type="radio" onClick={(e)=>{setIsCashBank(true)}} {...register('isCashBank')} className="form-radio" />
+                                    <span className="ml-2 text-white-dark">True</span>
+                                </label>
+                                <label className="flex items-center">
+                                    <input type="radio" {...register('isCashBank')} className="form-radio" />
+                                    <span className="ml-2 text-white-dark">False</span>
+                                </label>
+                            </div>
+                            <span className="text-danger text-xs">{(errors.isCashBank as FieldError)?.message}</span>
                         </div>
                         <div>
                             <label>Status</label>
