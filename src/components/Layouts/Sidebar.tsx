@@ -11,6 +11,7 @@ import IconCaretDown from '../Icon/IconCaretDown';
 import IconHome from '../Icon/IconHome';
 
 const Sidebar = () => {
+    const user = useSelector((state: any) => state.auth.user);
     const [currentMenu, setCurrentMenu] = useState<string>('');
     const [errorSubMenu, setErrorSubMenu] = useState(false);
     const themeConfig = useSelector((state: any) => state.themeConfig);
@@ -53,10 +54,16 @@ const Sidebar = () => {
                 className={`sidebar fixed min-h-screen h-full top-0 bottom-0 w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] z-50 transition-all duration-300 ${semidark ? 'text-white-dark' : ''}`}
             >
                 <div className="bg-white h-full">
-                    <div className="flex justify-between items-center px-4 py-3">
-                        <NavLink to="/" className="main-logo flex items-center shrink-0">
-                            <img className="w-8 ml-[5px] flex-none h-[45px] w-auto" src="https://placehold.co/150x45" alt="logo" />
-                        </NavLink>
+                    <div className="flex justify-between items-center px-4 py-3 ">
+                        <div className="flex flex-col justify-center items-center">
+                            <h3 className='font-semibold text-2xl'>RS Setia Mitra</h3>
+                            <NavLink to="/" className="main-logo flex items-center shrink-0">
+                                {/* <img className="w-8 ml-[5px] flex-none h-[45px] w-auto" src="https://placehold.co/150x45" alt="logo" /> */}
+                                <img src="/assets/images/user-profile.jpeg" alt="img" className="w-24 h-24 rounded-full object-cover mt-5 mb-5"></img>
+                            </NavLink>
+                            <p className='font-semibold text-xl'>{user.displayName}</p>
+                            <p className='font-semibold text-l'>{user.role.roleName}</p>
+                        </div>
 
                         <button
                             type="button"

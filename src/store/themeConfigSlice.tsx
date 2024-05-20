@@ -111,7 +111,7 @@ const themeConfigSlice = createSlice({
         },
 
         setPageTitle(state, { payload }) {
-            document.title = `${payload} | Ilumnix - Starter Project`;
+            document.title = `${payload} | SIM-RS`;
         },
         setTitle(state, { payload }) {
             state.Title = `${payload}`;
