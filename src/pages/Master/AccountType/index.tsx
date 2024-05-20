@@ -23,7 +23,7 @@ const Index = () => {
     useEffect(() => {
         dispatch(setPageTitle('AccountType'));
         dispatch(setTitle('AccountType'));
-        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "AccountType"]));
+        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "AccountType","List"]));
     }, [dispatch]);
 
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
@@ -166,7 +166,7 @@ const Index = () => {
                                 render: (s: AccountType) => (
                                     <>
                                         <Tippy content="Edit">
-                                            <button type="button" onClick={() => navigate(`/accountType/update/${s.userID}`)}>
+                                            <button type="button" onClick={() => navigate(`/accountType/update/${s.accountTypeId}`)}>
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>

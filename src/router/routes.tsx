@@ -14,14 +14,17 @@ const RoleUpdate = lazy(() => import('../pages/roles/form'));
 // AccountGroup
 const AccountGroupIndex = lazy(() => import('../pages/Master/AccountGroup'));
 const AccountGroupCreate = lazy(() => import('../pages/Master/AccountGroup/form'));
+const AccountGroupUpdate = lazy(() => import('../pages/Master/AccountGroup/form'));
 
 // AccountType
 const AccountTypeIndex = lazy(() => import('../pages/Master/AccountType'));
 const AccountTypeCreate = lazy(() => import('../pages/Master/AccountType/form'));
+const AccountTypeUpdate = lazy(() => import('../pages/Master/AccountType/form'));
 
 // Buku Besar
 const CoAIndex = lazy(() => import('../pages/Master/COA'));
 const CoACreate = lazy(() => import('../pages/Master/COA/form'));
+const CoAUpdate = lazy(() => import('../pages/Master/COA/form'));
 
 const CurrencyIndex = lazy(() => import('../pages/Master/Currency'));
 const CurrencyCreate = lazy(() => import('../pages/Master/Currency/form'));
@@ -36,6 +39,7 @@ const CompanyUpdate = lazy(() => import('../pages/Master/Company/form'));
 // Company
 const BranchIndex = lazy(() => import('../pages/Master/Branch'));
 const BranchCreate= lazy(() => import('../pages/Master/Branch/form'));
+const BranchUpdate= lazy(() => import('../pages/Master/Branch/form'));
 
 const routes = [
     // dashboard
@@ -90,8 +94,18 @@ const routes = [
         layout: 'default',
     },
     {
+        path: 'accountGroup/update/:id',
+        element: <AccountGroupUpdate />,
+        layout: 'default',
+    },
+    {
         path: 'accountType',
         element: <AccountTypeIndex />,
+        layout: 'default',
+    },
+    {
+        path: 'accountType/update/:id',
+        element: <AccountTypeUpdate />,
         layout: 'default',
     },
     {
@@ -110,6 +124,11 @@ const routes = [
         layout: 'default',
     },
     {
+        path: 'coa/update/:id',
+        element: <CoAUpdate />,
+        layout: 'default',
+    },
+    {
         path: 'company',
         element: <CompanyIndex />,
         layout: 'default',
@@ -117,6 +136,11 @@ const routes = [
     {
         path: 'company/create',
         element: <CompanyCreate/>,
+        layout: 'default',
+    },
+    {
+        path: 'company/update/:id',
+        element: <CompanyUpdate/>,
         layout: 'default',
     },
     {
@@ -132,6 +156,11 @@ const routes = [
     {
         path: 'branch/create',
         element: <BranchCreate/>,
+        layout: 'default',
+    },
+    {
+        path: 'branch/update/:id',
+        element: <BranchUpdate />,
         layout: 'default',
     },
     {

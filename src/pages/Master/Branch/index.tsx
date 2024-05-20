@@ -27,7 +27,7 @@ const Index = () => {
     useEffect(() => {
         dispatch(setPageTitle('Branch'));
         dispatch(setTitle('Branch'));
-        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "Branch"]));
+        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "Branch","List"]));
     }, [dispatch]);
 
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
@@ -164,7 +164,7 @@ const Index = () => {
                                 render: (s: branchType) => (
                                     <>
                                         <Tippy content="Edit">
-                                            <button type="button" onClick={() => navigate(`/currency/update/${s.currencyId}`)}>
+                                            <button type="button" onClick={() => navigate(`/branch/update/${s.branchId}`)}>
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>

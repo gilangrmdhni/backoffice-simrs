@@ -35,7 +35,10 @@ export const rolesApi = apiSlice.injectEndpoints({
         getDetailRoles: builder.query({
             query: (id?: string) => `/Role/${id}`,
         }),
+        getOptionRoles: builder.query({
+            query: (params) => `/Role/option?${new URLSearchParams(params).toString()}`,
+        }),
     }),
 });
 
-export const { useGetRolesQuery, useDeleteRolesMutation, usePostRolesMutation, useUpdateRolesMutation, useGetDetailRolesQuery } = rolesApi;
+export const { useGetRolesQuery, useDeleteRolesMutation, usePostRolesMutation, useUpdateRolesMutation, useGetDetailRolesQuery, useGetOptionRolesQuery } = rolesApi;

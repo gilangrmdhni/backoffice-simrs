@@ -63,7 +63,7 @@ const Form = () => {
                 response = await post(data);
             }
             responseCallback(response, (data: any) => {
-              // navigate('/user')
+              navigate('/users')
             }, null);
         } catch (err: any) {
             toastMessage(err.message, 'error');

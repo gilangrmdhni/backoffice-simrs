@@ -61,7 +61,7 @@ const Form = () => {
                 response = await post(data);
             }
             responseCallback(response, (data: any) => {
-              // navigate('/user')
+            navigate('/currency')
             }, null);
         } catch (err: any) {
             toastMessage(err.message, 'error');
@@ -71,7 +71,12 @@ const Form = () => {
     useEffect(() => {
         dispatch(setPageTitle('Currency'));
         dispatch(setTitle('Currency'));
-        dispatch(setBreadcrumbTitle(['Dashboard','Master','Currency',type,lastSegment]));
+        if(type == 'create'){
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'Currency',type]));
+
+        }else{
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'Currency',type,lastSegment]));
+        }
     }, [dispatch]);
 
     useEffect(() => {

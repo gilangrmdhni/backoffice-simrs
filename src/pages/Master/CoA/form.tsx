@@ -1,24 +1,37 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { setPageTitle, setBreadcrumbTitle, setTitle } from '../../../store/themeConfigSlice';
 import { useGetEmployeeQuery } from '@/store/api/employee/employeeApiSlice';
 import IconMail from '@/components/Icon/IconMail';
 import * as yup from 'yup';
 import { useForm, FieldError } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { usersType } from '@/types';
-import { useGetDetailUsersQuery, usePostUsersMutation, useUpdateUsersMutation } from '@/store/api/users/usersApiSlice';
+import { usersType,COAType,OptionType, AccountType, AccountGroupType } from '@/types';
+import { useGetDetailCOAQuery, usePostCOAMutation, useUpdateCOAMutation } from '@/store/api/coa/coaApiSlice';
+import { useGetAccountTypesQuery,useGetOptionAccountTypeOptionQuery } from '@/store/api/accountType/accountTypeApiSlice';
+import { useGetAccountGroupsQuery, useGetOptionAccountGroupDetailQuery } from '@/store/api/accountGroup/accountGroupApiSlice';
+import { useGetOptionBranchQuery } from '@/store/api/branch/branchApiSlice';
 import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
+import { useGetOptionCOAQuery } from '@/store/api/coa/coaApiSlice';
 import { rolesType } from '@/types/rolesType';
 import { ToastContainer, toast } from 'react-toastify';
 import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
+import SelectSearch from 'react-select';
+
 
 const Form = () => {
-    const user = useSelector((state: any) => state.auth.user);
-    const [post, { isLoading: isLoadingPost, error: isErrorPost }] = usePostUsersMutation();
-    const [update, { isLoading: isLoadingUpdate, error: isErrorUpdate }] = useUpdateUsersMutation();
+    // const user = useSelector((state: any) => state.auth.user);
+    const accountTypeRef = useRef<HTMLSelectElement>(null);
+    const accountGroupRef = useRef<HTMLSelectElement>(null);
+    const parentRef = useRef<HTMLSelectElement>(null);
+    const [parentId,setParentId] = useState<string>('');
+    const [isCashFlow,setIsCashFlow] = useState<boolean>(false);
+    const [isCashBank,setIsCashBank] = useState<boolean>(false);
+    const [searchParent,setSearchParent] = useState<string>('');
+    const [post, { isLoading: isLoadingPost, error: isErrorPost }] = usePostCOAMutation();
+    const [update, { isLoading: isLoadingUpdate, error: isErrorUpdate }] = useUpdateCOAMutation();
     const dispatch = useDispatch();
     const location = useLocation();
     const navigate = useNavigate();
@@ -27,16 +40,73 @@ const Form = () => {
     const type = pathSegments[2];
 
     const { id } = useParams();
-    const { data: detailUsers, refetch: detailUsersRefetch } = id ? useGetDetailUsersQuery(id) : { data: null, refetch: () => { } };
-    const { data: rolesList, refetch: rolesListRefetch } = useGetRolesQuery({});
+    const { data: detailCOA, refetch: detailCOARefetch } = id ? useGetDetailCOAQuery(id) : { data: null, refetch: () => { } };
+    const { data: accountTypeList, refetch: accountTypeListRefetch } = useGetOptionAccountTypeOptionQuery({
+        orderBy: 'accountTypeId',
+        orderType: 'asc',
+        pageSize:20,
+        status,
+    });
+    const { data: accountGroupList, refetch: accountGroupListRefetch } = useGetOptionAccountGroupDetailQuery({
+        orderBy: 'accountGroupId',
+        orderType: 'asc',
+        pageSize:20,
+    });
+    const { data: BranchList, refetch: BranchListRefetch } = useGetOptionBranchQuery({
+        orderBy: 'branchId',
+        orderType: 'asc',
+        pageSize:20,
+    });
+    const { data: ParentList, refetch: ParentListRefetch } = useGetOptionCOAQuery({
+        orderBy: 'coaCode',
+        orderType: 'asc',
+        pageSize:20,
+        status : 'Active',
+        keyword: searchParent,
+    });
+    let ParentListOption = []
+        ParentListOption.push({
+            value: "",
+            label: "None",
+            level: "",
+        })
+        {
+            ParentList?.map((option: any) =>{
+                ParentListOption.push({
+                    value: option.value,
+                    label: option.label,
+                    level: option.level ? option.level : '',
+                })
+            })
+        }
+
+    useEffect(() => {
+        ParentListRefetch();
+        ParentListOption = []
+        ParentListOption.push({
+            value: "",
+            label: "None",
+            level: "",
+        })
+        {
+            ParentList?.map((option: any) =>{
+                ParentListOption.push({
+                    value: option.value,
+                    label: option.label,
+                    level: option.level ? option.level : '',
+                })
+            })
+        }
+    },[searchParent]);
+
 
     const schema = yup
         .object({
-            email: yup.string().email('email format salah').required('Email is Required'),
-            password: id ? yup.string() : yup.string().required('Password is Required'),
-            userName: yup.string().required('Username is Required'),
-            displayName: yup.string().required('Name is Required'),
-            roleID: yup.string().required('Role is Required'),
+            coaCode: yup.string().required('coaCode is Required'),
+            coaName: yup.string().required('coaName is Required'),
+            accountTypeId: yup.number().required('accountType is Required'),
+            accountGroupId: yup.number().required('accountGroup is Required'),
+            balance: yup.number().required('Balance is Required'),
             status: yup.string().required('Status is Required'),
         })
         .required();
@@ -46,24 +116,37 @@ const Form = () => {
         formState: { errors },
         handleSubmit,
         setValue,
-    } = useForm<usersType>({
+    } = useForm<COAType>({
         resolver: yupResolver(schema),
         mode: 'all',
         defaultValues: {
             status: 'Active',
         },
     });
-
-    const submitForm = async (data: usersType) => {
+    const submitForm = async (data: COAType) => {
         try {
             let response: any;
+            if (accountTypeRef.current) {
+                data.accountTypeName = accountTypeRef.current.options[data.accountTypeId].text;
+            }
+            if (accountGroupRef.current) {
+                data.accountGroupName = accountGroupRef.current.options[data.accountGroupId].text;
+            }
+            if(parentId != "" && parentId != "None/"){
+                console.log(parentId)
+                let parent = parentId.split('/')
+                data.parentId = Number(parent[1]);
+                data.parentName = parent[0];
+            }
+            data.isCashFlow = isCashFlow;
+            data.isCashBank = isCashBank;
             if (id) {
                 response = await update(data);
             } else {
                 response = await post(data);
             }
             responseCallback(response, (data: any) => {
-                // navigate('/user')
+                navigate('/coa')
             }, null);
         } catch (err: any) {
             toastMessage(err.message, 'error');
@@ -73,23 +156,28 @@ const Form = () => {
     useEffect(() => {
         dispatch(setPageTitle('COA'));
         dispatch(setTitle('COA'));
-        dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'COA',type,lastSegment]));
-        rolesListRefetch();
+        if(type == 'create'){
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'COA',type]));
+
+        }else{
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'COA',type,lastSegment]));
+        }
+        ParentListRefetch();
     }, [dispatch]);
 
     useEffect(() => {
         if (id) {
-            detailUsersRefetch();
+            detailCOARefetch();
         }
     }, [id]);
 
     useEffect(() => {
-        if (detailUsers?.data) {
-            Object.keys(detailUsers.data).forEach((key) => {
-                setValue(key as keyof usersType, detailUsers.data[key]);
+        if (detailCOA?.data) {
+            Object.keys(detailCOA.data).forEach((key) => {
+                setValue(key as keyof COAType, detailCOA.data[key]);
             });
         }
-    }, [detailUsers, setValue]);
+    }, [detailCOA, setValue]);
 
     return (
         <div>
@@ -97,60 +185,120 @@ const Form = () => {
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(submitForm)}>
                     <div className="grid md:grid-cols-2 gap-4 w-full ">
                         <div>
-                            <label htmlFor="userName">Username</label>
+                            <label htmlFor="coaCode">COA Code</label>
                             <div className="relative text-white-dark">
-                                <input id="userName" type="text" placeholder="Enter Username" {...register('userName')} className="form-input placeholder:text-white-dark" />
+                                <input id="coaCode" type="text" placeholder="Enter coaCode" {...register('coaCode')} className="form-input placeholder:text-white-dark" disabled={type == 'update'} />
                                 {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                     <IconMail fill={true} />
                                 </span> */}
                             </div>
-                            <span className="text-danger text-xs">{(errors.userName as FieldError)?.message}</span>
+                            <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
                         </div>
                         <div>
-                            <label htmlFor="displayName">Name</label>
+                            <label htmlFor="coaName">COA Name</label>
                             <div className="relative text-white-dark">
-                                <input id="displayName" type="text" placeholder="Enter Name" {...register('displayName')} className="form-input placeholder:text-white-dark" />
+                                <input id="coaName" type="text" placeholder="Enter Name" {...register('coaName')} className="form-input placeholder:text-white-dark" />
                                 {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                     <IconMail fill={true} />
                                 </span> */}
                             </div>
-                            <span className="text-danger text-xs">{(errors.displayName as FieldError)?.message}</span>
+                            <span className="text-danger text-xs">{(errors.coaName as FieldError)?.message}</span>
                         </div>
                         <div>
-                            <label htmlFor="Email">Email</label>
+                            <label htmlFor="accountTypeId">Account Type</label>
                             <div className="relative text-white-dark">
-                                <input id="Email" type="email" placeholder="Enter Email" {...register('email')} className="form-input placeholder:text-white-dark" />
-                                {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                                    <IconMail fill={true} />
-                                </span> */}
-                            </div>
-                            <span className="text-danger text-xs">{(errors.email as FieldError)?.message}</span>
-                        </div>
-                        <div>
-                            <label htmlFor="Password">Password</label>
-                            <div className="relative text-white-dark">
-                                <input id="Password" type="password" placeholder="Enter Password" {...register('password')} className="form-input placeholder:text-white-dark" />
-                                {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                                    <IconMail fill={true} />
-                                </span> */}
-                            </div>
-                            <span className="text-danger text-xs">{(errors.password as FieldError)?.message}</span>
-                        </div>
-                        <div>
-                            <label htmlFor="roleID">Role</label>
-                            <div className="relative text-white-dark">
-                                <select id="roleID" {...register('roleID')} className="form-select">
-                                    <option value="">Enter Role</option>
-                                    {rolesList?.data?.map((d: rolesType, i: number) => {
+                                <select id="accountTypeId" {...register('accountTypeId')} className="form-select" disabled={type == 'update'}>
+                                    <option value="">Enter Account Type</option>
+                                    {accountTypeList?.map((d: OptionType, i: number) => {
                                         return (
-                                            <option value={d.roleID} selected={detailUsers?.data?.roleID === d.roleID}>
-                                                {d.roleName}
+                                            <option key={i} value={d?.value} selected={detailCOA?.data?.accountTypeId === d?.value }>
+                                                {d?.label}
                                             </option>
                                         );
                                     })}
                                 </select>
                             </div>
-                            <span className="text-danger text-xs">{(errors.roleName as FieldError)?.message}</span>
+                            <span className="text-danger text-xs">{(errors.accountTypeId as FieldError)?.message}</span>
+                        </div>
+                        <div>
+                            <label htmlFor="accountGroupId">Account Group</label>
+                            <div className="relative text-white-dark">
+                                <select id="accountGroupId" {...register('accountGroupId')} className="form-select" disabled={type == 'update'}>
+                                    <option value="">Enter Account Type</option>
+                                    {accountGroupList?.map((d: OptionType, i: number) => {
+                                        return (
+                                            <option value={d?.value} selected={detailCOA?.data?.accountGroupId === d.value }>
+                                                {d?.label}
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+                            </div>
+                            <span className="text-danger text-xs">{(errors.accountGroupId as FieldError)?.message}</span>
+                        </div>
+                        <div>
+                            <label htmlFor="parentId">Parent</label>
+                            <div className="relative text-white-dark">
+                                <SelectSearch 
+                                    placeholder="Enter Parent"
+                                    options={ParentListOption} 
+                                    onInputChange={(e) => setSearchParent(e)} 
+                                    onChange={(e: any) => setParentId(`${e.label}/${e.value}`)}
+                                    defaultValue={detailCOA?.data?.parentId != null ? detailCOA?.data?.parentId : ""}
+                                    isDisabled={type == 'update'}
+                                    
+                                />
+                            </div>
+                            <span className="text-danger text-xs">{(errors.parentId as FieldError)?.message}</span>
+                        </div>
+                        <div>
+                            <label htmlFor="normalPosition">Normal Position</label>
+                            <div className="relative text-white-dark">
+                                <select id="normalPosition" {...register('normalPosition')} className="form-select" disabled={type == 'update'}>
+                                    <option value="">Enter Normal Position</option>
+                                    <option value="C">Credit</option>
+                                    <option value="D">Debit</option>
+                                </select>
+                            </div>
+                            <span className="text-danger text-xs">{(errors.normalPosition as FieldError)?.message}</span>
+                        </div>
+                        <div>
+                            <label htmlFor="balance">Balance</label>
+                            <div className="relative text-white-dark">
+                                <input id="balance" type="text" placeholder="Enter balance" {...register('balance')} className="form-input placeholder:text-white-dark" disabled={type == 'update'} />
+                                {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
+                                    <IconMail fill={true} />
+                                </span> */}
+                            </div>
+                            <span className="text-danger text-xs">{(errors.balance as FieldError)?.message}</span>
+                        </div>
+                        <div>
+                            <label>Is Cash Flow</label>
+                            <div className="flex space-x-4">
+                                <label className="flex items-center">
+                                    <input type="radio" onClick={(e)=>setIsCashFlow(true)} {...register('isCashFlow')} className="form-radio" checked={detailCOA?.data?.isCashFlow == true} disabled={type == 'update'}/>
+                                    <span className="ml-2 text-white-dark">True</span>
+                                </label>
+                                <label className="flex items-center">
+                                    <input type="radio" {...register('isCashFlow')} className="form-radio" checked={detailCOA?.data?.isCashFlow == false} disabled={type == 'update'}/>
+                                    <span className="ml-2 text-white-dark">False</span>
+                                </label>
+                            </div>
+                            <span className="text-danger text-xs">{(errors.isCashFlow as FieldError)?.message}</span>
+                        </div>
+                        <div>
+                            <label>Is Cash Bank</label>
+                            <div className="flex space-x-4">
+                                <label className="flex items-center">
+                                    <input type="radio" onClick={(e)=>{setIsCashBank(true)}} {...register('isCashBank')} className="form-radio" checked={detailCOA?.data?.isCashBank == true} disabled={type == 'update'}/>
+                                    <span className="ml-2 text-white-dark">True</span>
+                                </label>
+                                <label className="flex items-center">
+                                    <input type="radio" {...register('isCashBank')} className="form-radio" checked={detailCOA?.data?.isCashBank == false} disabled={type == 'update'}/>
+                                    <span className="ml-2 text-white-dark">False</span>
+                                </label>
+                            </div>
+                            <span className="text-danger text-xs">{(errors.isCashBank as FieldError)?.message}</span>
                         </div>
                         <div>
                             <label>Status</label>

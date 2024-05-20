@@ -25,7 +25,7 @@ const Index = () => {
     useEffect(() => {
         dispatch(setPageTitle('Company'));
         dispatch(setTitle('Company'));
-        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "Company"]));
+        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "Company","List"]));
     }, [dispatch]);
 
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
@@ -85,16 +85,6 @@ const Index = () => {
 
     return (
         <div>
-            <ul className="flex space-x-2 rtl:space-x-reverse">
-                <li>
-                    <Link to="/company" className="text-primary hover:underline">
-                        Company
-                    </Link>
-                </li>
-                <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                    <span>List</span>
-                </li>
-            </ul>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
                     <div className="rtl:ml-auto rtl:mr-auto">

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { FieldError, useForm } from 'react-hook-form';
 import * as yup from 'yup';
@@ -15,6 +15,7 @@ import { toastMessage } from '@/utils/toastUtils';
 const CompanyForm = () => {
     const dispatch = useDispatch();
     const location = useLocation();
+    const navigate = useNavigate();
     const pathSegments = location.pathname.split('/');
     const lastSegment = pathSegments[pathSegments.length - 1];
     const type = pathSegments[2];
@@ -57,7 +58,7 @@ const CompanyForm = () => {
                 response = await post(data);
             }
             responseCallback(response, (data: any) => {
-              // navigate('/user')
+            navigate('/company')
             }, null);
         } catch (err: any) {
             toastMessage(err.message, 'error');
@@ -67,7 +68,11 @@ const CompanyForm = () => {
     useEffect(() => {
         dispatch(setPageTitle('Company'));
         dispatch(setTitle('Company'));
-        dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'Company', 'Form']));
+        if(type == 'create'){
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'Company', type]));
+        }else{
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'Company', type,lastSegment]));
+        }
         if (id) {
             detailCompanyRefetch();
         }
@@ -76,31 +81,21 @@ const CompanyForm = () => {
     useEffect(() => {
         if (detailCompany?.data) {
             Object.keys(detailCompany.data).forEach((key) => {
-                setValue(key as keyof companyType, detailCompany.data[key]);
+                if(key === 'financialClosingDate'){
+                    const isoString = detailCompany.data[key];
+                    const date = new Date(isoString);
+                    const formattedDate = date.toISOString().split('T')[0];
+    
+                    setValue(key as keyof companyType, formattedDate);
+                }else{
+                    setValue(key as keyof companyType, detailCompany.data[key]);
+                }
             });
         }
     }, [detailCompany, setValue]);
 
     return (
         <div>
-            <ToastContainer />
-            <div className='panel flex'>
-                <ol className="flex space-x-2 rtl:space-x-reverse">
-                    <li>
-                        <Link to="/company" className="text-primary hover:underline">
-                            Company
-                        </Link>
-                    </li>
-                    <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                        <span>{type}</span>
-                    </li>
-                    {type === 'update' ? (
-                        <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                            <span>{lastSegment}</span>
-                        </li>
-                    ) : null}
-                </ol>
-            </div>
             <div className="panel mt-6">
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(submitForm)}>
                     <div className="grid md:grid-cols-2 gap-4 w-full">
@@ -146,7 +141,7 @@ const CompanyForm = () => {
                                 <select id="currencyId" {...register('currencyId')} className="form-select placeholder:text-white-dark">
                                     <option value="">Select Currency</option>
                                     {currencyList?.data?.map((currency: CurrencyType) => (
-                                        <option key={currency.currencyId} value={currency.currencyId}>
+                                        <option key={currency.currencyId} value={currency.currencyId} selected={ currency?.currencyId === detailCompany?.data?.currencyId &&  true}>
                                             {currency.currencyName}
                                         </option>
                                     ))}

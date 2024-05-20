@@ -6,7 +6,7 @@ import { useForm, FieldError } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { ToastContainer } from 'react-toastify';
-import { useGetAccountTypesQuery, useUpdateAccountTypeMutation, useCreateAccountTypeMutation } from '@/store/api/accountType/accountTypeApiSlice';
+import { useGetAccountTypesQuery, useUpdateAccountTypeMutation, useCreateAccountTypeMutation, useGetAccountTypeDetailQuery } from '@/store/api/accountType/accountTypeApiSlice';
 import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
 import { AccountType } from '@/types';
@@ -15,7 +15,10 @@ const Form = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { id } = useParams();
-    const { data: detailAccountType, refetch: refetchDetailAccountType } = id ? useGetAccountTypesQuery(id) : { data: null, refetch: () => {} };
+    const pathSegments = location.pathname.split('/');
+    const lastSegment = pathSegments[pathSegments.length - 1];
+    const type = pathSegments[2];
+    const { data: detailAccountType, refetch: refetchDetailAccountType } = id ? useGetAccountTypeDetailQuery(id) : { data: null, refetch: () => {} };
     const [createAccountType, { isLoading: isCreating, error: createError }] = useCreateAccountTypeMutation();
     const [updateAccountType, { isLoading: isUpdating, error: updateError }] = useUpdateAccountTypeMutation();
 
@@ -36,7 +39,7 @@ const Form = () => {
         try {
             let response: any;
             if (id) {
-                response = await updateAccountType({ id: parseInt(id), ...data });
+                response = await updateAccountType(data);
             } else {
                 response = await createAccountType(data);
             }
@@ -52,7 +55,11 @@ const Form = () => {
     useEffect(() => {
         dispatch(setPageTitle('Account Type'));
         dispatch(setTitle('Account Type'));
-        dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'Account Type', id ? 'Update' : 'Create']));
+        if(type == 'create'){
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'AccountType', type]));
+        }else{
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'AccountType', type,lastSegment]));
+        }
         if (id) {
             refetchDetailAccountType();
         }
@@ -60,25 +67,14 @@ const Form = () => {
 
     useEffect(() => {
         if (detailAccountType?.data) {
-            setValue('accountTypeName', detailAccountType.data.accountTypeName);
+            Object.keys(detailAccountType.data).forEach((key) => {
+                setValue(key as keyof AccountType, detailAccountType.data[key]);
+            });
         }
     }, [detailAccountType, setValue]);
 
     return (
         <div>
-            <ToastContainer />
-            <div className='panel flex'>
-                <ol className="flex space-x-2 rtl:space-x-reverse">
-                    <li>
-                        <Link to="/accountType" className="text-primary hover:underline">
-                            Account Type
-                        </Link>
-                    </li>
-                    <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                        <span>{id ? 'Update' : 'Create'}</span>
-                    </li>
-                </ol>
-            </div>
             <div className="panel mt-6">
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(onSubmit)}>
                     <div className="grid md:grid-cols-2 gap-4 w-full">

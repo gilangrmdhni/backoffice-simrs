@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, Navigate } from 'react-router-dom';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState,useRef } from 'react';
 import { setBreadcrumbTitle, setPageTitle, setTitle } from '../../../store/themeConfigSlice';
 import { useDeleteUsersMutation, useGetUsersQuery } from '@/store/api/users/usersApiSlice';
 import IconServer from '@/components/Icon/IconServer';
@@ -13,6 +13,7 @@ import IconPencil from '@/components/Icon/IconPencil';
 import { Dialog, Transition } from '@headlessui/react';
 import IconX from '@/components/Icon/IconX';
 import IconPlus from '@/components/Icon/IconPlus';
+import IconFile from '@/components/Icon/IconTxtFile';
 import IconDownload from '@/components/Icon/IconDownload';
 import { useNavigate } from 'react-router-dom';
 import { COAType, usersType,OptionType } from '@/types';
@@ -21,22 +22,27 @@ import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
 import { rolesType } from '@/types/rolesType';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
-import { useGetCOAQuery,useDeleteCOAMutation,useGetOptionCOAQuery } from '@/store/api/coa/coaApiSlice';
+import { useGetCOAQuery,useDeleteCOAMutation,useGetOptionCOAQuery, useDownloadCoaMutation,useCOAUploadMutation } from '@/store/api/coa/coaApiSlice';
 import '@/pages/Master/COA/index.css';
+import SelectSearch from 'react-select';
+import moment from "moment";
+import { ToastContainer } from 'react-toastify';
 
 const Index = () => {
-    const user = useSelector((state: any) => state.auth.user);
+    // const user = useSelector((state: any) => state.auth.user);
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(setPageTitle('COA'));
         dispatch(setTitle('COA'));
         dispatch(setBreadcrumbTitle(['Dashboard','Master','COA','List']));
     });
+    const [isLoadingUpload, setIsLoadingUpload] = useState<boolean>(false);
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const [page, setPage] = useState<number>(1);
     const PAGE_SIZES: number[] = [10, 20, 30, 50, 100];
     const [pageSize, setPageSize] = useState<number>(PAGE_SIZES[0]);
     const [search, setSearch] = useState<string>('');
+    const [searchType, setSearchType] = useState<string>('');
     const [status, setStatus] = useState<string>('');
     const [COALevel, setCOALevel] = useState<string>('');
     const [role, setRole] = useState<string>('');
@@ -61,11 +67,34 @@ const Index = () => {
     } = useGetOptionCOAQuery({
         orderBy: sortStatus.columnAccessor === 'coaCode' ? 'coaCode' : sortStatus.columnAccessor,
         orderType: sortStatus.direction,
-        pageSize:1000,
+        pageSize:20,
         status,
         level : 4,
         accounttype : 1,
+        keyword:searchType
     });
+
+    const [CoaUpload, {isLoading:isLoadingError,isError: isErrorUpload}] = useCOAUploadMutation();
+
+
+    const [downloadTemplateCOA] = useDownloadCoaMutation();
+
+
+    let TypeListOption = [];
+        TypeListOption.push({
+            value: "",
+            label: "All Type",
+            level: "",
+        })
+    {
+        CoAListOption?.map((option: any) =>{
+            TypeListOption.push({
+                value: option.value,
+                label: option.label,
+                level: option.level ? option.level : '',
+            })
+        })
+    }
     const { data: rolesList, refetch: rolesListRefetch } = useGetRolesQuery({});
     const [deleted, { isError }] = useDeleteCOAMutation();
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
@@ -86,6 +115,32 @@ const Index = () => {
     };
 
     useEffect(() => {
+        setTimeout(() => {
+            refetchCoaOption();
+            TypeListOption = []
+            TypeListOption.push({
+                value: "",
+                label: "All Type",
+                level: "",
+            })
+            {
+                CoAListOption?.map((option: any) =>{
+                    TypeListOption.push({
+                        value: option.value,
+                        label: option.label,
+                        level: option.level ? option.level : '',
+                    })
+                })
+            }
+        }, 3000);
+    }, [searchType]);
+
+    useEffect(() => {
+        refetch();
+    }, [COALevel]);
+    
+
+    useEffect(() => {
         refetch();
         rolesListRefetch();
     }, [page]);
@@ -98,6 +153,72 @@ const Index = () => {
         return status === 'InActive' ? 'primary' : 'success';
     };
 
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const handleUploadClick =  () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleFileChange =  async (e: any) => {
+        console.log("loading file")
+        try {
+            setIsLoadingUpload(true);
+            type ResponseType = {
+                data?: any;
+                errors?: any;
+                message?: string;
+            }
+            let file = e.target.files[0];
+            const response: ResponseType = await CoaUpload(file);
+            if (response.data) {
+                console.log("loading success")
+                console.log("successUpload");
+                setIsLoadingUpload(false);
+                responseCallback(response,null,null)
+            } else if (response.errors) {
+                console.log("loading success")
+                console.log("errorUpload");
+                setIsLoadingUpload(false);
+                if (response.message) {
+                    responseCallback(response,(data: any) => {
+                        navigate('/coa')
+                    },null)                    
+                } else {
+                    responseCallback(response,(data: any) => {
+                        navigate('/coa')
+                    },null)
+                }
+            }
+        } catch (error: any) {
+            console.log(error);
+            setIsLoadingUpload(false);
+            toastMessage(error.message, 'error');
+        } finally {
+            setIsLoadingUpload(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = ''; // Reset input file
+            }
+        }
+
+
+    };
+    
+
+    const handleDownload = async () => {
+        try {
+            const res = await downloadTemplateCOA({}).unwrap();
+            const link = document.createElement('a');
+            link.href = res;
+            link.setAttribute('download', `COA_TEMPLATE_${moment().format("yyyyMMDD_Hms")}.xlsx`); // Adjust the file name as needed
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+        } catch (error) {
+            console.error('Failed to download template', error);
+            toastMessage(error.message, 'error');
+        }
+    };
     return (
         <div>
             <div className="panel mt-6">
@@ -110,12 +231,20 @@ const Index = () => {
                                 <option value={'active'}>Active</option>
                                 <option value={'inactive'}>In Active</option>
                             </select>
-                            <select id="ctnSelect2" className="form-select text-white-dark w-48" onChange={(e) => setCOALevel(e.target.value)}>
+                            {/* <select id="ctnSelect2" className="form-select text-white-dark w-48" onChange={(e) => setCOALevel(e.target.value)}>
                                 <option value={""}>COA Level</option>
                                 {CoAListOption?.map((d: OptionType, i: number) => {
                                     return <option value={d.value} className='truncate'>{d.label}</option>;
                                 })}
-                            </select>
+                                
+                            </select> */}
+                            <SelectSearch 
+                                    placeholder="All Type"
+                                    options={TypeListOption}
+                                    className="z-10"
+                                    onInputChange={(e)=> setSearchType(e)}
+                                    onChange={(dt: any)=>{setCOALevel(dt.value)}}
+                                />
                             <button
                                 type="button"
                                 className="hidden w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
@@ -128,7 +257,7 @@ const Index = () => {
                         </div>
                     </div>
                     <div className="ltr:ml-auto">
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-3 gap-2">
                             <Tippy content="Add CoA">
                                 <button
                                     onClick={() => navigate(`/coa/create`)}
@@ -138,15 +267,35 @@ const Index = () => {
                                     <IconPlus />
                                 </button>
                             </Tippy>
-                            <Tippy content="Download">
-                                <Link to="" className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60">
-                                    <IconDownload />
-                                </Link>
+                            <Tippy content="import File">
+                                    <button
+                                        type="button"
+                                        onClick={handleUploadClick}
+                                        className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
+                                    >
+                                        {isLoadingUpload && <span className="animate-spin border-2 border-black border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle"></span>}
+                                        {!isLoadingUpload &&  <IconFile />}
+                                        <input 
+                                            type="file" 
+                                            className={`hidden`}
+                                            onChange={handleFileChange}
+                                            ref={fileInputRef}
+                                        />
+                                    </button>
+                            </Tippy>
+                            <Tippy content="Download Template">
+                                <button
+                                        type="button"
+                                        onClick={handleDownload}
+                                        className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
+                                    >
+                                        <IconDownload />
+                                </button>
                             </Tippy>
                         </div>
                     </div>
                 </div>
-                <div className="datatables">
+                <div className="datatables z-0">
                     <DataTable
                         highlightOnHover
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
@@ -243,15 +392,14 @@ const Index = () => {
                             <div className="flex items-start justify-center min-h-screen px-4">
                                 <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-lg my-8 text-black dark:text-white-dark animate__animated animate__fadeIn">
                                     <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
-                                        <h5 className="font-bold text-lg">Modal Title</h5>
+                                        <h5 className="font-bold text-lg">Confimation</h5>
                                         <button onClick={() => setShowDeleteModal(false)} type="button" className="text-white-dark hover:text-dark">
                                             <IconX />
                                         </button>
                                     </div>
                                     <div className="p-5">
                                         <p>
-                                            Mauris mi tellus, pharetra vel mattis sed, tempus ultrices eros. Phasellus egestas sit amet velit sed luctus. Orci varius natoque penatibus et magnis dis
-                                            parturient montes, nascetur ridiculus mus. Suspendisse potenti. Vivamus ultrices sed urna ac pulvinar. Ut sit amet ullamcorper mi.
+                                            You will lose your data!
                                         </p>
                                         <div className="flex justify-end items-center mt-8">
                                             <button onClick={() => setShowDeleteModal(false)} type="button" className="btn btn-outline-dark">

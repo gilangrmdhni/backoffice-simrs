@@ -16,7 +16,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
 import AnimateHeight from 'react-animate-height';
-import { useDeleteAccountGroupMutation, useGetAccountGroupsQuery } from '@/store/api/accountGrupApiSlice.ts/accountGrupApiSlice';
+import { useDeleteAccountGroupMutation, useGetAccountGroupsQuery } from '@/store/api/accountGroup/accountGroupApiSlice';
 
 const Index = () => {
     const dispatch = useDispatch();
