@@ -59,7 +59,7 @@ const Sidebar = () => {
                             <h3 className='font-semibold text-2xl'>RS Setia Mitra</h3>
                             <NavLink to="/" className="main-logo flex items-center shrink-0">
                                 {/* <img className="w-8 ml-[5px] flex-none h-[45px] w-auto" src="https://placehold.co/150x45" alt="logo" /> */}
-                                <img src="/assets/images/profile-34.jpeg" alt="img" className="w-24 h-24 rounded-full object-cover mt-5 mb-5"></img>
+                                <img src="/assets/images/user-profile.jpeg" alt="img" className="w-24 h-24 rounded-full object-cover mt-5 mb-5"></img>
                             </NavLink>
                             <p className='font-semibold text-xl'>{user.displayName}</p>
                             <p className='font-semibold text-l'>{user.role.roleName}</p>
