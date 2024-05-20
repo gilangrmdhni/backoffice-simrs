@@ -2,9 +2,9 @@ import { COAType } from '@/types';
 import { apiSlice } from '../apiSlice';
 
 export const COAApi = apiSlice.injectEndpoints({
-    endpoints: (builder) => ({
+    endpoints: (builder :any) => ({
         getCOA: builder.query({
-            query: (params) => `/COA?${new URLSearchParams(params).toString()}`,
+            query: (params : any) => `/COA?${new URLSearchParams(params).toString()}`,
         }),
         deleteCOA: builder.mutation({
             query: (id?: number) => {
@@ -23,6 +23,29 @@ export const COAApi = apiSlice.injectEndpoints({
                 };
             },
         }),
+        COAUpload: builder.mutation({
+            query: (file:any) => {
+                let formData = new FormData();
+                formData.append("File", file);
+                return {
+                    url: 'COA/Upload',
+                    method: 'POST',
+                    body: formData,
+                };
+            },
+        }),
+        downloadCoa: builder.mutation({
+            query: () => {
+                return {
+                    url: `Download/coa-template`,
+                    method: 'GET',           
+                    responseHandler: (response: any) => response.blob(),
+                }
+            },
+            transformResponse: (response: Blob) => {
+                return URL.createObjectURL(response);
+            },
+        }),
         updateCOA: builder.mutation({
             query: (body: COAType) => {
                 return {
@@ -37,9 +60,9 @@ export const COAApi = apiSlice.injectEndpoints({
         }),
 
         getOptionCOA: builder.query({
-            query: (params) => `/COA/option?${new URLSearchParams(params).toString()}`,
+            query: (params :any) => `/COA/option?${new URLSearchParams(params).toString()}`,
         }),
     }),
 });
 
-export const { useGetCOAQuery, useDeleteCOAMutation, usePostCOAMutation, useUpdateCOAMutation, useGetDetailCOAQuery,useGetOptionCOAQuery } = COAApi;
+export const { useGetCOAQuery, useDownloadCoaMutation,  useDeleteCOAMutation, usePostCOAMutation, useUpdateCOAMutation, useGetDetailCOAQuery,useGetOptionCOAQuery,useCOAUploadMutation } = COAApi;

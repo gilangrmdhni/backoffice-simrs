@@ -187,7 +187,7 @@ const Form = () => {
                         <div>
                             <label htmlFor="coaCode">COA Code</label>
                             <div className="relative text-white-dark">
-                                <input id="coaCode" type="text" placeholder="Enter coaCode" {...register('coaCode')} className="form-input placeholder:text-white-dark" />
+                                <input id="coaCode" type="text" placeholder="Enter coaCode" {...register('coaCode')} className="form-input placeholder:text-white-dark" disabled={type == 'update'} />
                                 {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                     <IconMail fill={true} />
                                 </span> */}
@@ -207,7 +207,7 @@ const Form = () => {
                         <div>
                             <label htmlFor="accountTypeId">Account Type</label>
                             <div className="relative text-white-dark">
-                                <select id="accountTypeId" {...register('accountTypeId')} className="form-select">
+                                <select id="accountTypeId" {...register('accountTypeId')} className="form-select" disabled={type == 'update'}>
                                     <option value="">Enter Account Type</option>
                                     {accountTypeList?.map((d: OptionType, i: number) => {
                                         return (
@@ -223,7 +223,7 @@ const Form = () => {
                         <div>
                             <label htmlFor="accountGroupId">Account Group</label>
                             <div className="relative text-white-dark">
-                                <select id="accountGroupId" {...register('accountGroupId')} className="form-select">
+                                <select id="accountGroupId" {...register('accountGroupId')} className="form-select" disabled={type == 'update'}>
                                     <option value="">Enter Account Type</option>
                                     {accountGroupList?.map((d: OptionType, i: number) => {
                                         return (
@@ -245,6 +245,8 @@ const Form = () => {
                                     onInputChange={(e) => setSearchParent(e)} 
                                     onChange={(e: any) => setParentId(`${e.label}/${e.value}`)}
                                     defaultValue={detailCOA?.data?.parentId != null ? detailCOA?.data?.parentId : ""}
+                                    isDisabled={type == 'update'}
+                                    
                                 />
                             </div>
                             <span className="text-danger text-xs">{(errors.parentId as FieldError)?.message}</span>
@@ -252,10 +254,10 @@ const Form = () => {
                         <div>
                             <label htmlFor="normalPosition">Normal Position</label>
                             <div className="relative text-white-dark">
-                                <select id="normalPosition" {...register('normalPosition')} className="form-select">
+                                <select id="normalPosition" {...register('normalPosition')} className="form-select" disabled={type == 'update'}>
                                     <option value="">Enter Normal Position</option>
-                                    <option value="Credit">Credit</option>
-                                    <option value="Debit">Debit</option>
+                                    <option value="C">Credit</option>
+                                    <option value="D">Debit</option>
                                 </select>
                             </div>
                             <span className="text-danger text-xs">{(errors.normalPosition as FieldError)?.message}</span>
@@ -263,7 +265,7 @@ const Form = () => {
                         <div>
                             <label htmlFor="balance">Balance</label>
                             <div className="relative text-white-dark">
-                                <input id="balance" type="text" placeholder="Enter balance" {...register('balance')} className="form-input placeholder:text-white-dark" />
+                                <input id="balance" type="text" placeholder="Enter balance" {...register('balance')} className="form-input placeholder:text-white-dark" disabled={type == 'update'} />
                                 {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                     <IconMail fill={true} />
                                 </span> */}
@@ -274,11 +276,11 @@ const Form = () => {
                             <label>Is Cash Flow</label>
                             <div className="flex space-x-4">
                                 <label className="flex items-center">
-                                    <input type="radio" onClick={(e)=>setIsCashFlow(true)} {...register('isCashFlow')} className="form-radio" />
+                                    <input type="radio" onClick={(e)=>setIsCashFlow(true)} {...register('isCashFlow')} className="form-radio" checked={detailCOA?.data?.isCashFlow == true} disabled={type == 'update'}/>
                                     <span className="ml-2 text-white-dark">True</span>
                                 </label>
                                 <label className="flex items-center">
-                                    <input type="radio" {...register('isCashFlow')} className="form-radio" />
+                                    <input type="radio" {...register('isCashFlow')} className="form-radio" checked={detailCOA?.data?.isCashFlow == false} disabled={type == 'update'}/>
                                     <span className="ml-2 text-white-dark">False</span>
                                 </label>
                             </div>
@@ -288,11 +290,11 @@ const Form = () => {
                             <label>Is Cash Bank</label>
                             <div className="flex space-x-4">
                                 <label className="flex items-center">
-                                    <input type="radio" onClick={(e)=>{setIsCashBank(true)}} {...register('isCashBank')} className="form-radio" />
+                                    <input type="radio" onClick={(e)=>{setIsCashBank(true)}} {...register('isCashBank')} className="form-radio" checked={detailCOA?.data?.isCashBank == true} disabled={type == 'update'}/>
                                     <span className="ml-2 text-white-dark">True</span>
                                 </label>
                                 <label className="flex items-center">
-                                    <input type="radio" {...register('isCashBank')} className="form-radio" />
+                                    <input type="radio" {...register('isCashBank')} className="form-radio" checked={detailCOA?.data?.isCashBank == false} disabled={type == 'update'}/>
                                     <span className="ml-2 text-white-dark">False</span>
                                 </label>
                             </div>
