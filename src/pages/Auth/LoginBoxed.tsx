@@ -10,6 +10,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { setUser } from "@/store/api/auth/authSlice";
 import { LoginRequest } from '@/types/apiType';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query/fetchBaseQuery';
+import { SerializedError } from '@reduxjs/toolkit';
 
 const LoginBoxed = () => {
     const [login, {error, isLoading}] = useLoginMutation();
@@ -25,18 +27,35 @@ const LoginBoxed = () => {
         dispatch(setPageTitle('Login Boxed'));
     });
 
-    const { register,  formState: { errors }, handleSubmit} = useForm({
+    const { register,  formState: { errors }, handleSubmit} = useForm<LoginRequest>({
          resolver: yupResolver(schema), mode: "all",
     });
 
     const navigate = useNavigate();
-    const submitForm = async (request : LoginRequest) => {
+    const submitForm : SubmitHandler<LoginRequest> = async (request : LoginRequest) => {
         const response  = await login(request);
-        if(!error){
+        if ('data' in response) {
+            // Handle success response
             dispatch(setUser(response.data.data));
-            navigate("/")
-        }
+            navigate("/");
+          } else {
+            // Handle error response
+            console.error(response.error);
+          }
     };
+
+    const getErrorMessage = (error: FetchBaseQueryError | SerializedError) => {
+        if ('status' in error) {
+          // Handle FetchBaseQueryError
+          const fetchError = error as FetchBaseQueryError;
+          if ('data' in fetchError) {
+            return (fetchError.data as any).message; // Adjust the type assertion as needed
+          }
+          return fetchError.status;
+        }
+        // Handle SerializedError
+        return error.message;
+      };
 
     return (
         <div>
@@ -72,7 +91,7 @@ const LoginBoxed = () => {
                                 <button disabled={isLoading} type="submit" className="btn btn-primary !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
                                     Sign in {isLoading ? <span className="animate-ping w-3 h-3 ltr:mr-4 rtl:ml-10 inline-block rounded-full bg-white ml8"></span> : ""}
                                 </button>
-                                <span className="text-danger text-xs">{error?.data?.message}</span>
+                                {error && <span className="text-danger text-xs">{getErrorMessage(error)}</span>}
                             </form>
                         </div>
                     </div>
