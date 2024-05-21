@@ -104,13 +104,13 @@ const routes = [
         layout: 'default',
     },
     {
-        path: 'accountType/update/:id',
-        element: <AccountTypeUpdate />,
+        path: 'accountType/create',
+        element: <AccountTypeCreate />,
         layout: 'default',
     },
     {
-        path: 'accountType/create',
-        element: <AccountTypeCreate />,
+        path: 'accountType/update/:id',
+        element: <AccountTypeUpdate />,
         layout: 'default',
     },
     {

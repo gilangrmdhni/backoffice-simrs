@@ -67,7 +67,7 @@ const Form = () => {
     }, [dispatch, id, refetchDetailAccountType]);
 
     useEffect(() => {
-        if ('data' in detailAccountType) {
+        if (detailAccountType && 'data' in detailAccountType) {
             if (detailAccountType?.data) {
                 Object.keys(detailAccountType.data).forEach((key) => {
                     setValue(key as keyof AccountType, detailAccountType.data[key]);

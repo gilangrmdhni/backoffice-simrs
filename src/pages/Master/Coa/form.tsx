@@ -139,6 +139,7 @@ const Form = () => {
             }
             data.isCashFlow = isCashFlow;
             data.isCashBank = isCashBank;
+            console.log(data)
             if (id) {
                 response = await update(data);
             } else {
@@ -272,34 +273,6 @@ const Form = () => {
                             <span className="text-danger text-xs">{(errors.balance as FieldError)?.message}</span>
                         </div>
                         <div>
-                            <label>Is Cash Flow</label>
-                            <div className="flex space-x-4">
-                                <label className="flex items-center">
-                                    <input type="radio" onClick={(e)=>setIsCashFlow(true)} {...register('isCashFlow')} className="form-radio" checked={detailCOA?.data?.isCashFlow == true} disabled={type == 'update'}/>
-                                    <span className="ml-2 text-white-dark">True</span>
-                                </label>
-                                <label className="flex items-center">
-                                    <input type="radio" {...register('isCashFlow')} className="form-radio" checked={detailCOA?.data?.isCashFlow == false} disabled={type == 'update'}/>
-                                    <span className="ml-2 text-white-dark">False</span>
-                                </label>
-                            </div>
-                            <span className="text-danger text-xs">{(errors.isCashFlow as FieldError)?.message}</span>
-                        </div>
-                        <div>
-                            <label>Is Cash Bank</label>
-                            <div className="flex space-x-4">
-                                <label className="flex items-center">
-                                    <input type="radio" onClick={(e)=>{setIsCashBank(true)}} {...register('isCashBank')} className="form-radio" checked={detailCOA?.data?.isCashBank == true} disabled={type == 'update'}/>
-                                    <span className="ml-2 text-white-dark">True</span>
-                                </label>
-                                <label className="flex items-center">
-                                    <input type="radio" {...register('isCashBank')} className="form-radio" checked={detailCOA?.data?.isCashBank == false} disabled={type == 'update'}/>
-                                    <span className="ml-2 text-white-dark">False</span>
-                                </label>
-                            </div>
-                            <span className="text-danger text-xs">{(errors.isCashBank as FieldError)?.message}</span>
-                        </div>
-                        <div>
                             <label>Status</label>
                             <div className="flex space-x-4">
                                 <label className="flex items-center">
@@ -313,6 +286,21 @@ const Form = () => {
                             </div>
                             <span className="text-danger text-xs">{(errors.status as FieldError)?.message}</span>
                         </div>
+                        <div>
+                            <div className="flex space-x-4">
+                                <label className="flex">
+                                    <input type="checkbox" onClick={(e)=>{setIsCashFlow(!isCashFlow)}} {...register('isCashBank')} className="form-checkbox" defaultChecked={detailCOA?.data?.isCashBank == true} disabled={type == 'update'}/>
+                                    <span>Is Cash Flow</span>
+                                </label>
+                            </div>
+                            <div className="flex space-x-4">
+                                <label className="flex">
+                                    <input type="checkbox" onClick={(e)=>{setIsCashBank(!isCashBank)}} {...register('isCashBank')} className="form-checkbox" defaultChecked={detailCOA?.data?.isCashBank == true} disabled={type == 'update'}/>
+                                    <span>Is Cash Bank</span>
+                                </label>
+                            </div>
+                            <span className="text-danger text-xs">{(errors.isCashBank as FieldError)?.message}</span>
+                        </div>            
                     </div>
                     <div className="flex w-full justify-end">
                         <button type="submit" className=" btn btn-primary  w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
