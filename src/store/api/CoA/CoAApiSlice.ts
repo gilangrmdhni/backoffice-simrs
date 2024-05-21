@@ -1,7 +1,7 @@
 import { COAType } from '@/types';
 import { apiSlice } from '../apiSlice';
 
-export const COAApi = apiSlice.injectEndpoints({
+export const CoAApi = apiSlice.injectEndpoints({
     endpoints: (builder :any) => ({
         getCOA: builder.query({
             query: (params : any) => `/COA?${new URLSearchParams(params).toString()}`,
@@ -65,4 +65,4 @@ export const COAApi = apiSlice.injectEndpoints({
     }),
 });
 
-export const { useGetCOAQuery, useDownloadCoaMutation,  useDeleteCOAMutation, usePostCOAMutation, useUpdateCOAMutation, useGetDetailCOAQuery,useGetOptionCOAQuery,useCOAUploadMutation } = COAApi;
+export const { useGetCOAQuery, useDownloadCoaMutation,  useDeleteCOAMutation, usePostCOAMutation, useUpdateCOAMutation, useGetDetailCOAQuery,useGetOptionCOAQuery,useCOAUploadMutation } = CoAApi;
