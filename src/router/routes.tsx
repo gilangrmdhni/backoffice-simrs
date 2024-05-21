@@ -22,9 +22,9 @@ const AccountTypeCreate = lazy(() => import('../pages/Master/AccountType/form'))
 const AccountTypeUpdate = lazy(() => import('../pages/Master/AccountType/form'));
 
 // Buku Besar
-const CoAIndex = lazy(() => import('../pages/Master/coa'));
-const CoACreate = lazy(() => import('../pages/Master/coa/form'));
-const CoAUpdate = lazy(() => import('../pages/Master/coa/form'));
+const CoAIndex = lazy(() => import('../pages/Master/CoA'));
+const CoACreate = lazy(() => import('../pages/Master/CoA/form'));
+const CoAUpdate = lazy(() => import('../pages/Master/CoA/form'));
 
 const CurrencyIndex = lazy(() => import('../pages/Master/Currency'));
 const CurrencyCreate = lazy(() => import('../pages/Master/Currency/form'));
