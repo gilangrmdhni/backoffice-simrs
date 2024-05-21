@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  rssm-backoffice-frontend-prod:
+    image: registry.gitlab.com/rs-setia-mitra/backoffice-frontend/rssm-backoffice-frontend-prod
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rssm-backoffice-frontend-prod-http.entrypoints=web"
+      - "traefik.http.routers.rssm-backoffice-frontend-prod-http.rule=Host(`ilumnix.my.id`)"
+      - "traefik.http.routers.rssm-backoffice-frontend-prod-http.middlewares=redirect-to-https"
+      - "traefik.http.routers.rssm-backoffice-frontend-prod.entrypoints=websecure"
+      - "traefik.http.routers.rssm-backoffice-frontend-prod.tls.certresolver=myresolver"
+      - "traefik.http.routers.rssm-backoffice-frontend-prod.rule=Host(`rssm.ilumnix.my.id`)"
+      - 'traefik.http.routers.rssm-backoffice-frontend-prod.tls=true'
+    restart: always
+    networks:
+      - traefik_default
+
+networks:
+  traefik_default:
+    external: true

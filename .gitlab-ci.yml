@@ -1,0 +1,44 @@
+stages:
+  - build-image-prod
+  - deploy-image-prod
+
+build-image-prod:
+  stage: build-image-prod
+  image: docker
+  services:
+    - docker:dind
+  script:
+    - docker login -u $GITLAB_USERNAME -p $GITLAB_ACCESS_TOKEN registry.gitlab.com
+    - docker build -t registry.gitlab.com/rs-setia-mitra/backoffice-frontend/rssm-backoffice-frontend-prod -f Dockerfile .
+    - docker push registry.gitlab.com/rs-setia-mitra/backoffice-frontend/rssm-backoffice-frontend-prod
+  only:
+    - main
+
+deploy-image-prod:
+  stage: deploy-image-prod
+  image: debian:latest
+  before_script:
+     - apt-get update -qq
+     - apt-get install -qq git
+      # Setup SSH deploy keys
+     - 'which ssh-agent || ( apt-get install -qq openssh-client )'
+     - eval $(ssh-agent -s)
+     - ssh-add <(echo "$SSH_KEY" | base64 -d)
+     - mkdir -p ~/.ssh
+     - echo -e "$SSH_KEY" > ~/.ssh/id_rsa
+     - chmod 600 ~/.ssh/id_rsa
+     - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  script:
+    - ssh -i ~/.ssh/id_rsa east@103.13.207.172
+      "
+      docker login -u $GITLAB_USERNAME -p $GITLAB_ACCESS_TOKEN registry.gitlab.com
+      && cd /home/east/workspace/rssm-backoffice-frontend
+      && git checkout main
+      && git pull https://$GITLAB_USERNAME:$GITLAB_ACCESS_TOKEN@gitlab.com/rs-setia-mitra/backoffice-frontend.git main
+      && docker-compose rm --stop --force rssm-backoffice-frontend-prod
+      && docker image prune --all --force
+      && docker pull registry.gitlab.com/rs-setia-mitra/backoffice-frontend/rssm-backoffice-frontend-prod
+      && docker-compose up -d --build rssm-backoffice-frontend-prod
+      " 
+  only:
+    - main
