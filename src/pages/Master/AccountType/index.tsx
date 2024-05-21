@@ -39,7 +39,7 @@ const Index = () => {
         refetch,
         error,
         isLoading,
-    } = useGetAccountTypesQuery({
+    } = useGetAccountTypesQuery<any>({
         keyword: search,
         page: page,
         pageSize: pageSize,

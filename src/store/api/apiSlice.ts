@@ -11,7 +11,7 @@ export const apiSlice = createApi({
       }
       return headers;
     },
-    fetchFn: async (input : RequestInfo, init : RequestInit) => {
+    fetchFn: async (input : RequestInfo, init? : RequestInit) => {
       try {
         const response = await fetch(input, init);
         if (!response.ok) {

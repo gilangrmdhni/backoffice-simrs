@@ -8,12 +8,11 @@ import * as yup from 'yup';
 import { useForm, FieldError } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { usersType,COAType,OptionType, AccountType, AccountGroupType } from '@/types';
-import { useGetDetailCOAQuery, usePostCOAMutation, useUpdateCOAMutation } from '@/store/api/coa/coaApiSlice';
+import { useGetDetailCOAQuery, usePostCOAMutation, useUpdateCOAMutation,useGetOptionCOAQuery } from '@/store/api/coa/CoAApiSlice';
 import { useGetAccountTypesQuery,useGetOptionAccountTypeOptionQuery } from '@/store/api/accountType/accountTypeApiSlice';
 import { useGetAccountGroupsQuery, useGetOptionAccountGroupDetailQuery } from '@/store/api/accountGroup/accountGroupApiSlice';
 import { useGetOptionBranchQuery } from '@/store/api/branch/branchApiSlice';
 import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
-import { useGetOptionCOAQuery } from '@/store/api/coa/coaApiSlice';
 import { rolesType } from '@/types/rolesType';
 import { ToastContainer, toast } from 'react-toastify';
 import { responseCallback } from '@/utils/responseCallback';
@@ -40,8 +39,8 @@ const Form = () => {
     const type = pathSegments[2];
 
     const { id } = useParams();
-    const { data: detailCOA, refetch: detailCOARefetch } = id ? useGetDetailCOAQuery(id) : { data: null, refetch: () => { } };
-    const { data: accountTypeList, refetch: accountTypeListRefetch } = useGetOptionAccountTypeOptionQuery({
+    const { data: detailCOA, refetch: detailCOARefetch } = id ? useGetDetailCOAQuery<any>(id) : { data: null, refetch: () => { } };
+    const { data: accountTypeList, refetch: accountTypeListRefetch } = useGetOptionAccountTypeOptionQuery<any>({
         orderBy: 'accountTypeId',
         orderType: 'asc',
         pageSize:20,
@@ -57,7 +56,7 @@ const Form = () => {
         orderType: 'asc',
         pageSize:20,
     });
-    const { data: ParentList, refetch: ParentListRefetch } = useGetOptionCOAQuery({
+    const { data: ParentList, refetch: ParentListRefetch } = useGetOptionCOAQuery<any>({
         orderBy: 'coaCode',
         orderType: 'asc',
         pageSize:20,

@@ -22,11 +22,12 @@ import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
 import { rolesType } from '@/types/rolesType';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
-import { useGetCOAQuery,useDeleteCOAMutation,useGetOptionCOAQuery, useDownloadCoaMutation,useCOAUploadMutation } from '@/store/api/coa/coaApiSlice';
+import { useGetCOAQuery,useDeleteCOAMutation,useGetOptionCOAQuery, useDownloadCoaMutation,useCOAUploadMutation } from '@/store/api/coa/CoAApiSlice';
 import '@/pages/Master/COA/index.css';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query/fetchBaseQuery';
+import { SerializedError } from '@reduxjs/toolkit';
 import SelectSearch from 'react-select';
 import moment from "moment";
-import { ToastContainer } from 'react-toastify';
 
 const Index = () => {
     // const user = useSelector((state: any) => state.auth.user);
@@ -53,7 +54,7 @@ const Index = () => {
         refetch,
         error,
         isLoading,
-    } = useGetCOAQuery({
+    } = useGetCOAQuery<any>({
         keyword: search,
         orderBy: sortStatus.columnAccessor === 'coaCode' ? 'coaCode' : sortStatus.columnAccessor,
         orderType: sortStatus.direction,
@@ -64,7 +65,7 @@ const Index = () => {
     const {
         data: CoAListOption,
         refetch: refetchCoaOption,
-    } = useGetOptionCOAQuery({
+    } = useGetOptionCOAQuery<any>({
         orderBy: sortStatus.columnAccessor === 'coaCode' ? 'coaCode' : sortStatus.columnAccessor,
         orderType: sortStatus.direction,
         pageSize:20,
@@ -164,30 +165,26 @@ const Index = () => {
         console.log("loading file")
         try {
             setIsLoadingUpload(true);
-            type ResponseType = {
-                data?: any;
-                errors?: any;
-                message?: string;
-            }
-            let file = e.target.files[0];
-            const response: ResponseType = await CoaUpload(file);
-            if (response.data) {
-                console.log("loading success")
+            const file = e.target.files[0];
+            const response = await CoaUpload(file);
+            if ('data' in response) {
+                console.log("loading success");
                 console.log("successUpload");
                 setIsLoadingUpload(false);
-                responseCallback(response,null,null)
-            } else if (response.errors) {
-                console.log("loading success")
+                responseCallback(response, null, null);
+            } else if ('error' in response) {
+                console.log("loading success");
                 console.log("errorUpload");
                 setIsLoadingUpload(false);
-                if (response.message) {
-                    responseCallback(response,(data: any) => {
-                        navigate('/coa')
-                    },null)                    
+                
+                if ('message' in response) {
+                    responseCallback(response, (data: any) => {
+                        navigate('/coa');
+                    }, null);                    
                 } else {
-                    responseCallback(response,(data: any) => {
-                        navigate('/coa')
-                    },null)
+                    responseCallback(response, (data: any) => {
+                        navigate('/coa');
+                    }, null);
                 }
             }
         } catch (error: any) {
@@ -203,22 +200,23 @@ const Index = () => {
 
 
     };
-    
+
 
     const handleDownload = async () => {
         try {
             const res = await downloadTemplateCOA({}).unwrap();
             const link = document.createElement('a');
-            link.href = res;
+            link.href = res as string;
             link.setAttribute('download', `COA_TEMPLATE_${moment().format("yyyyMMDD_Hms")}.xlsx`); // Adjust the file name as needed
             document.body.appendChild(link);
             link.click();
-            link.parentNode.removeChild(link);
-        } catch (error) {
+            link.parentNode?.removeChild(link);
+        } catch (error: any) {
             console.error('Failed to download template', error);
             toastMessage(error.message, 'error');
         }
     };
+
     return (
         <div>
             <div className="panel mt-6">

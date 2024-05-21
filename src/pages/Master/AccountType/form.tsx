@@ -18,10 +18,11 @@ const Form = () => {
     const pathSegments = location.pathname.split('/');
     const lastSegment = pathSegments[pathSegments.length - 1];
     const type = pathSegments[2];
-    const { data: detailAccountType, refetch: refetchDetailAccountType } = id ? useGetAccountTypeDetailQuery(id) : { data: null, refetch: () => {} };
+    const { data: detailAccountType, refetch: refetchDetailAccountType } = id ? useGetAccountTypeDetailQuery<any>(id) : { data: null, refetch: () => {} };
     const [createAccountType, { isLoading: isCreating, error: createError }] = useCreateAccountTypeMutation();
     const [updateAccountType, { isLoading: isUpdating, error: updateError }] = useUpdateAccountTypeMutation();
 
+    
     const schema = yup.object({
         accountTypeName: yup.string().required('Account Type Name is Required'),
     }).required();
@@ -66,10 +67,12 @@ const Form = () => {
     }, [dispatch, id, refetchDetailAccountType]);
 
     useEffect(() => {
-        if (detailAccountType?.data) {
-            Object.keys(detailAccountType.data).forEach((key) => {
-                setValue(key as keyof AccountType, detailAccountType.data[key]);
-            });
+        if ('data' in detailAccountType) {
+            if (detailAccountType?.data) {
+                Object.keys(detailAccountType.data).forEach((key) => {
+                    setValue(key as keyof AccountType, detailAccountType.data[key]);
+                });
+            }
         }
     }, [detailAccountType, setValue]);
 
