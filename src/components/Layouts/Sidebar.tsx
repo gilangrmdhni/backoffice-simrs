@@ -184,7 +184,7 @@ const Sidebar = () => {
                             </li>
 
                             <li className={`menu nav-item ${currentMenu === 'receivable' ? 'bg-[#9C6ACD]' : ''} hover:bg-purple-300`}>
-                            <button type="button" className={`nav-link group w-full`} onClick={() => toggleMenu('receivable')}>
+                                <button type="button" className={`nav-link group w-full`} onClick={() => toggleMenu('receivable')}>
                                     <div className="flex items-center">
                                         <svg className="group-hover:!text-primary shrink-0" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path
