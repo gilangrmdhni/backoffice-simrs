@@ -21,9 +21,9 @@ import { useDeleteAccountGroupMutation, useGetAccountGroupsQuery } from '@/store
 const Index = () => {
     const dispatch = useDispatch();
     useEffect(() => {
-        dispatch(setPageTitle('AccountGroup'));
-        dispatch(setTitle('AccountGroup'));
-        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "AccountGroup"]));
+        dispatch(setPageTitle('Account Group'));
+        dispatch(setTitle('Account Group'));
+        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "Account Group","List"]));
     }, [dispatch]);
 
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
@@ -146,7 +146,7 @@ const Index = () => {
                     <DataTable
                         highlightOnHover
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
-                        records={accountGroupList?.data}
+                        records={accountGroupList?.data?.data}
                         columns={[
                             { accessor: 'accountGroupId', title: 'ID', sortable: true, textAlignment: 'center' },
                             { accessor: 'accountGroupName', title: 'Account Type Name', sortable: true },

@@ -146,7 +146,7 @@ const Form = () => {
                             <div className="relative text-white-dark">
                                 <select id="roleID" {...register('roleID')} className="form-select">
                                     <option value="">Enter Role</option>
-                                    {rolesList?.data?.map((d: rolesType, i: number) => {
+                                    {rolesList?.data?.data?.map((d: rolesType, i: number) => {
                                         return (
                                             <option value={d.roleID} selected={detailUsers?.data?.roleID === d.roleID}>
                                                 {d.roleName}

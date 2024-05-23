@@ -88,7 +88,7 @@ const Index = () => {
             level: "",
         })
     {
-        CoAListOption?.map((option: any) =>{
+        CoAListOption?.data?.map((option: any) =>{
             TypeListOption.push({
                 value: option.value,
                 label: option.label,
@@ -125,7 +125,7 @@ const Index = () => {
                 level: "",
             })
             {
-                CoAListOption?.map((option: any) =>{
+                CoAListOption?.data?.map((option: any) =>{
                     TypeListOption.push({
                         value: option.value,
                         label: option.label,
@@ -297,7 +297,7 @@ const Index = () => {
                     <DataTable
                         highlightOnHover
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
-                        records={CoAList?.data}
+                        records={CoAList?.data?.data}
                         columns={[
                             { 
                                 accessor: 'coaCode', 

@@ -132,7 +132,7 @@ const Index = () => {
                     <DataTable
                         highlightOnHover
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
-                        records={currencyList?.data}
+                        records={currencyList?.data?.data}
                         columns={[
                             { accessor: 'currencyId', title: 'ID', sortable: true },
                             { accessor: 'currencyName', title: 'Currency Name', sortable: true },

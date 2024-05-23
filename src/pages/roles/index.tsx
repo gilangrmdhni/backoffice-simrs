@@ -106,7 +106,7 @@ const Index = () => {
                     <DataTable
                         highlightOnHover
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
-                        records={roleList?.data}
+                        records={roleList?.data?.data}
                         columns={[
                             { accessor: 'roleID', title: 'ID', sortable: true },
                             { accessor: 'roleName', title: 'Role Name', sortable: true },

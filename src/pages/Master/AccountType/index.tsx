@@ -21,9 +21,9 @@ import AnimateHeight from 'react-animate-height';
 const Index = () => {
     const dispatch = useDispatch();
     useEffect(() => {
-        dispatch(setPageTitle('AccountType'));
-        dispatch(setTitle('AccountType'));
-        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "AccountType","List"]));
+        dispatch(setPageTitle('Account Type'));
+        dispatch(setTitle('Account Type'));
+        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "Account Type","List"]));
     }, [dispatch]);
 
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
@@ -146,7 +146,7 @@ const Index = () => {
                     <DataTable
                         highlightOnHover
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
-                        records={accountTypeList?.data}
+                        records={accountTypeList?.data?.data}
                         columns={[
                             { accessor: 'accountTypeId', title: 'ID', sortable: true, textAlignment: 'center' },
                             { accessor: 'accountTypeName', title: 'Account Type Name', sortable: true },

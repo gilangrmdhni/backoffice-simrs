@@ -41,6 +41,9 @@ const BranchIndex = lazy(() => import('../pages/Master/Branch'));
 const BranchCreate= lazy(() => import('../pages/Master/Branch/form'));
 const BranchUpdate= lazy(() => import('../pages/Master/Branch/form'));
 
+// AgingSchedule
+const AgingScheduleIndex = lazy(() => import('../pages/Receivable/AgingSchedule'));
+
 const routes = [
     // dashboard
     {
@@ -179,18 +182,8 @@ const routes = [
         layout: 'default',
     },
     {
-        path: '/bukti-jurnal-umum',
-        element: <UserIndex />,
-        layout: 'default',
-    },
-    {
-        path: '/proses-akhir-bulan',
-        element: <UserIndex />,
-        layout: 'default',
-    },
-    {
-        path: '/info-perusahaan',
-        element: <UserIndex />,
+        path: '/agingSchedule',
+        element: <AgingScheduleIndex />,
         layout: 'default',
     },
 ];

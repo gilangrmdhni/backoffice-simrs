@@ -97,7 +97,7 @@ const Index = () => {
                             </select>
                             <select id="ctnSelect2" className="form-select text-white-dark" onChange={(e) => setRole(e.target.value)}>
                                 <option value={''}>All Role</option>
-                                {rolesList?.data?.map((d: rolesType) => (
+                                {rolesList?.data?.data?.map((d: rolesType) => (
                                     <option key={d.roleID} value={d.roleID}>{d.roleName}</option>
                                 ))}
                             </select>
@@ -161,7 +161,7 @@ const Index = () => {
                     <DataTable
                         highlightOnHover
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
-                        records={companyList?.data}
+                        records={companyList?.data?.data}
                         columns={[
                             { accessor: 'companyId', title: 'ID', sortable: true, textAlignment: 'center' },
                             { accessor: 'companyName', title: 'Company Name', sortable: true },

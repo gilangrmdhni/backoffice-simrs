@@ -154,7 +154,7 @@ const BranchForm = () => {
                             <div className="relative text-white-dark">
                                 <select id="currencyId" {...register('currencyId')} className="form-select placeholder:text-white-dark" ref={currencyRef}>
                                     <option value="">Select Currency</option>
-                                    {currencyList?.data?.map((currency: CurrencyType) => (
+                                    {currencyList?.data?.data?.map((currency: CurrencyType) => (
                                         <option key={currency.currencyId} value={currency.currencyId} selected={currency?.currencyId == detailBranch?.data?.currencyId}>
                                             {currency.currencyName}
                                         </option>
@@ -168,7 +168,7 @@ const BranchForm = () => {
                             <div className="relative text-white-dark">
                                 <select id="companyId" {...register('companyId')} className="form-select placeholder:text-white-dark" ref={companyRef}>
                                     <option value="">Select Company</option>
-                                    {companyList?.data?.map((company: companyType) => (
+                                    {companyList?.data?.data?.map((company: companyType) => (
                                         <option key={company.companyId} value={company.companyId} selected={company?.companyId == detailBranch?.data?.companyId}>
                                             {company.companyName}
                                         </option>

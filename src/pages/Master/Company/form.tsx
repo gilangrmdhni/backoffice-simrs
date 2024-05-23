@@ -140,7 +140,7 @@ const CompanyForm = () => {
                             <div className="relative text-white-dark">
                                 <select id="currencyId" {...register('currencyId')} className="form-select placeholder:text-white-dark">
                                     <option value="">Select Currency</option>
-                                    {currencyList?.data?.map((currency: CurrencyType) => (
+                                    {currencyList?.data?.data?.map((currency: CurrencyType) => (
                                         <option key={currency.currencyId} value={currency.currencyId} selected={ currency?.currencyId === detailCompany?.data?.currencyId &&  true}>
                                             {currency.currencyName}
                                         </option>

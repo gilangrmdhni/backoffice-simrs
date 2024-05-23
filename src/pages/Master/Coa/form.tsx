@@ -70,7 +70,7 @@ const Form = () => {
             level: "",
         })
         {
-            ParentList?.map((option: any) =>{
+            ParentList?.data?.map((option: any) =>{
                 ParentListOption.push({
                     value: option.value,
                     label: option.label,
@@ -88,7 +88,7 @@ const Form = () => {
             level: "",
         })
         {
-            ParentList?.map((option: any) =>{
+            ParentList?.data?.map((option: any) =>{
                 ParentListOption.push({
                     value: option.value,
                     label: option.label,
@@ -209,7 +209,7 @@ const Form = () => {
                             <div className="relative text-white-dark">
                                 <select id="accountTypeId" {...register('accountTypeId')} className="form-select" disabled={type == 'update'}>
                                     <option value="">Enter Account Type</option>
-                                    {accountTypeList?.map((d: OptionType, i: number) => {
+                                    {accountTypeList?.data?.map((d: OptionType, i: number) => {
                                         return (
                                             <option key={i} value={d?.value} selected={detailCOA?.data?.accountTypeId === d?.value }>
                                                 {d?.label}
@@ -225,7 +225,7 @@ const Form = () => {
                             <div className="relative text-white-dark">
                                 <select id="accountGroupId" {...register('accountGroupId')} className="form-select" disabled={type == 'update'}>
                                     <option value="">Enter Account Type</option>
-                                    {accountGroupList?.map((d: OptionType, i: number) => {
+                                    {accountGroupList?.data?.map((d: OptionType, i: number) => {
                                         return (
                                             <option value={d?.value} selected={detailCOA?.data?.accountGroupId === d.value }>
                                                 {d?.label}
