@@ -13,6 +13,9 @@ import SelectSearch from 'react-select'
 import { useGetAgingSchedulePatientQuery } from '@/store/api/agingSchedule/agingSchedulePatientApiSlice';
 import { useGetAgingScheduleInsuranceQuery } from '@/store/api/agingSchedule/agingScheduleInsuranceApiSlice';
 import '@/pages/Receivable/AgingSchedule/ReportPerPatient/index.css'
+import Flatpickr from 'react-flatpickr';
+import 'flatpickr/dist/flatpickr.css';
+
 const ReportPerPatient = ()=>{
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const [page, setPage] = useState<number>(1);
@@ -22,6 +25,8 @@ const ReportPerPatient = ()=>{
     const [searchOptionInsurance, setSearchOptionInsurance] = useState<string>('');
     const [status, setStatus] = useState<string>('');
     const [searchInsurance, setSearchInsurance] = useState<string>('');
+    const [startDate, setStartDate] = useState<any>('');
+    const [endDate, setEndDate] = useState<any>('');
     const [showFilter, setShowFilter] = useState<boolean>(false);
     const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'billingDate', direction: 'desc' });
     const [selectedRecords, setSelectedRecords] = useState<any>([]);
@@ -34,6 +39,8 @@ const ReportPerPatient = ()=>{
     } = useGetAgingSchedulePatientQuery({
         keyword: search,
         insurance:searchInsurance,
+        startDate:startDate,
+        endDate:endDate,
         page: page,
         pageSize: pageSize,
         orderBy: sortStatus.columnAccessor === 'patientName' ? 'patientName' : sortStatus.columnAccessor,
@@ -108,7 +115,7 @@ const ReportPerPatient = ()=>{
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
                     <div className="rtl:ml-auto rtl:mr-auto">
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-5 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
                             <SelectSearch 
                                  placeholder="All Type"
@@ -117,6 +124,12 @@ const ReportPerPatient = ()=>{
                                  onInputChange={(e)=> setSearchOptionInsurance(e)}
                                  onChange={(dt: any)=>{setSearchInsurance(dt.value)}}
                             />
+                            <Flatpickr placeholder="Start Date" value={startDate} options={{ dateFormat: 'Y-m-d', position: isRtl ? 'auto right' : 'auto left' }} className="form-input" onChange={(date:any) => setStartDate(date)} />
+                            <Flatpickr placeholder="End Date" value={endDate} options={{ dateFormat: 'Y-m-d', position: isRtl ? 'auto right' : 'auto left' }} className="form-input" onChange={(date:any) => setEndDate(date)} />
+                          
+                            <button className={`btn btn-primary w-20`}>
+                                Filter
+                            </button>
                           
                             <button
                                 type="button"
