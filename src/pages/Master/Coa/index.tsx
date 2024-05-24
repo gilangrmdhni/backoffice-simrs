@@ -218,7 +218,7 @@ const Index = () => {
     };
 
     return (
-        <div>
+        <div className='coa'>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5 max-w-64">
                     <div className="rtl:ml-auto rtl:mr-auto">
