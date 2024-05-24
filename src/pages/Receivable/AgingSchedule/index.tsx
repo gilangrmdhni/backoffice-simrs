@@ -12,7 +12,7 @@ const Index = ()=>{
     useEffect(() => {
         dispatch(setPageTitle('Aging Schedule'));
         dispatch(setTitle('Aging Schedule'));
-        dispatch(setBreadcrumbTitle(["Dashboard", "Receivable", "Aging Schedule","Data"]));
+        dispatch(setBreadcrumbTitle(["Dashboard", "Receivable", "Aging Schedule","Report Per Patient"]));
     }, [dispatch]);
     return (
         <>

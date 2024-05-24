@@ -218,24 +218,12 @@ const Index = () => {
     };
 
     return (
-        <div>
+        <div className='coa'>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5 max-w-64">
                     <div className="rtl:ml-auto rtl:mr-auto">
                         <div className="grid grid-cols-3 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                            <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
-                                <option value={''}>All Status</option>
-                                <option value={'active'}>Active</option>
-                                <option value={'inactive'}>In Active</option>
-                            </select>
-                            {/* <select id="ctnSelect2" className="form-select text-white-dark w-48" onChange={(e) => setCOALevel(e.target.value)}>
-                                <option value={""}>COA Level</option>
-                                {CoAListOption?.map((d: OptionType, i: number) => {
-                                    return <option value={d.value} className='truncate'>{d.label}</option>;
-                                })}
-                                
-                            </select> */}
                             <SelectSearch 
                                     placeholder="All Type"
                                     options={TypeListOption}

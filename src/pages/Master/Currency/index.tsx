@@ -82,10 +82,6 @@ const Index = () => {
         setPage(1);
     }, [sortStatus, search, pageSize, role]);
 
-    const colorStatus = (status: string) => {
-        return status === 'InActive' ? 'primary' : 'success';
-    };
-
     return (
         <div>
             <div className="panel mt-6">
@@ -93,24 +89,17 @@ const Index = () => {
                     <div className="rtl:ml-auto rtl:mr-auto">
                         <div className="grid grid-cols-3 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                            <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
-                                <option value={''}>All Status</option>
-                                <option value={'active'}>Active</option>
-                                <option value={'inactive'}>In Active</option>
-                            </select>
-                            <button
-                                type="button"
-                                className="hidden w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
-                                onClick={() => setShowFilter((prevValue) => !prevValue)}
-                            >
-                                <span className="flex items-center">
-                                    <img src="/assets/images/sorting-options.svg" />
-                                </span>
-                            </button>
                         </div>
                     </div>
                     <div className="ltr:ml-auto">
                         <div className="grid grid-cols-2 gap-2">
+                            
+                            {/* <Tippy content="Download">
+                                <Link to="" className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60">
+                                    <IconDownload />
+                                </Link>
+                            </Tippy> */}
+                            <span></span>
                             <Tippy content="Add Currency">
                                 <button
                                     onClick={() => navigate(`/currency/create`)}
@@ -119,11 +108,6 @@ const Index = () => {
                                 >
                                     <IconPlus />
                                 </button>
-                            </Tippy>
-                            <Tippy content="Download">
-                                <Link to="" className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60">
-                                    <IconDownload />
-                                </Link>
                             </Tippy>
                         </div>
                     </div>
@@ -134,7 +118,7 @@ const Index = () => {
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
                         records={currencyList?.data?.data}
                         columns={[
-                            { accessor: 'currencyId', title: 'ID', sortable: true },
+                            { accessor: 'currencyId', title: 'ID', width: 100,textAlignment:'center',sortable: true,render: (s:CurrencyType) => (<span className="flex justify-center">{s.currencyId}</span>) },
                             { accessor: 'currencyName', title: 'Currency Name', sortable: true },
                             { accessor: 'currencyCode', title: 'Currency Code', sortable: true },
                             { accessor: 'symbol', title: 'symbol', sortable: true },
@@ -165,7 +149,7 @@ const Index = () => {
                                 ),
                             },
                         ]}
-                        totalRecords={currencyList?.totalCount}
+                        totalRecords={currencyList?.data?.totalData}
                         recordsPerPage={pageSize}
                         page={page}
                         onPageChange={(p) => setPage(p)}
@@ -173,10 +157,8 @@ const Index = () => {
                         onRecordsPerPageChange={setPageSize}
                         sortStatus={sortStatus}
                         onSortStatusChange={setSortStatus}
-                        selectedRecords={selectedRecords}
-                        onSelectedRecordsChange={setSelectedRecords}
                         minHeight={200}
-                        paginationText={({ from, to, totalRecords }) => `Showing  ${from} to ${to} of ${totalRecords} entries`}
+                        paginationText={({ from, to, totalRecords }) => `Showing ${from} to ${to} of ${totalRecords} entries`}
                     />
                 </div>
             </div>
