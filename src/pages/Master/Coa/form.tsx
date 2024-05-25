@@ -187,7 +187,7 @@ const Form = () => {
                         <div>
                             <label htmlFor="coaCode">COA Code</label>
                             <div className="relative text-white-dark">
-                                <input id="coaCode" type="text" placeholder="Enter coaCode" {...register('coaCode')} className="form-input placeholder:text-white-dark" disabled={type == 'update'} />
+                                <input id="coaCode" type="text" placeholder="Enter coaCode" {...register('coaCode')} className="form-input placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update'} />
                                 {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                     <IconMail fill={true} />
                                 </span> */}
@@ -207,7 +207,7 @@ const Form = () => {
                         <div>
                             <label htmlFor="accountTypeId">Account Type</label>
                             <div className="relative text-white-dark">
-                                <select id="accountTypeId" {...register('accountTypeId')} className="form-select" disabled={type == 'update'}>
+                                <select id="accountTypeId" {...register('accountTypeId')} className="form-select disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update'}>
                                     <option value="">Enter Account Type</option>
                                     {accountTypeList?.data?.map((d: OptionType, i: number) => {
                                         return (
@@ -223,7 +223,7 @@ const Form = () => {
                         <div>
                             <label htmlFor="accountGroupId">Account Group</label>
                             <div className="relative text-white-dark">
-                                <select id="accountGroupId" {...register('accountGroupId')} className="form-select" disabled={type == 'update'}>
+                                <select id="accountGroupId" {...register('accountGroupId')} className="form-select disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update'}>
                                     <option value="">Enter Account Type</option>
                                     {accountGroupList?.data?.map((d: OptionType, i: number) => {
                                         return (
@@ -254,7 +254,7 @@ const Form = () => {
                         <div>
                             <label htmlFor="normalPosition">Normal Position</label>
                             <div className="relative text-white-dark">
-                                <select id="normalPosition" {...register('normalPosition')} className="form-select" disabled={type == 'update'}>
+                                <select id="normalPosition" {...register('normalPosition')} className="form-select disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update'}>
                                     <option value="">Enter Normal Position</option>
                                     <option value="C">Credit</option>
                                     <option value="D">Debit</option>
@@ -265,7 +265,7 @@ const Form = () => {
                         <div>
                             <label htmlFor="balance">Balance</label>
                             <div className="relative text-white-dark">
-                                <input id="balance" type="text" placeholder="Enter balance" {...register('balance')} className="form-input placeholder:text-white-dark" disabled={type == 'update'} />
+                                <input id="balance" type="text" placeholder="Enter balance" {...register('balance')} className="form-input placeholder:text-white-dark" />
                                 {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                     <IconMail fill={true} />
                                 </span> */}
@@ -276,12 +276,12 @@ const Form = () => {
                             <label>Status</label>
                             <div className="flex space-x-4">
                                 <label className="flex items-center">
-                                    <input type="radio" value="Active" {...register('status')} className="form-radio" />
+                                    <input type="radio" value="Active" {...register('status')} className="form-radio hover:bg-black checked:bg-black checked:hover:bg-black text-black" />
                                     <span className="ml-2 text-white-dark">Active</span>
                                 </label>
                                 <label className="flex items-center">
-                                    <input type="radio" value="InActive" {...register('status')} className="form-radio" />
-                                    <span className="ml-2 text-white-dark">Inactive</span>
+                                    <input type="radio" value="InActive" {...register('status')} className="form-radio hover:bg-black checked:bg-black checked:hover:bg-black text-black" />
+                                    <span className="ml-2 text-white-dark">In Active</span>
                                 </label>
                             </div>
                             <span className="text-danger text-xs">{(errors.status as FieldError)?.message}</span>
@@ -289,13 +289,13 @@ const Form = () => {
                         <div>
                             <div className="flex space-x-4">
                                 <label className="flex">
-                                    <input type="checkbox" onClick={(e)=>{setIsCashFlow(!isCashFlow)}} {...register('isCashBank')} className="form-checkbox" defaultChecked={detailCOA?.data?.isCashBank == true} disabled={type == 'update'}/>
+                                    <input type="checkbox" onClick={(e)=>{setIsCashFlow(!isCashFlow)}} {...register('isCashBank')} className="form-checkbox hover:bg-black checked:bg-black checked:hover:bg-black disabled:bg-[#1b2e4b]" checked={detailCOA?.data?.isCashBank == true} disabled={type == 'update'}/>
                                     <span>Is Cash Flow</span>
                                 </label>
                             </div>
                             <div className="flex space-x-4">
                                 <label className="flex">
-                                    <input type="checkbox" onClick={(e)=>{setIsCashBank(!isCashBank)}} {...register('isCashBank')} className="form-checkbox" defaultChecked={detailCOA?.data?.isCashBank == true} disabled={type == 'update'}/>
+                                    <input type="checkbox" onClick={(e)=>{setIsCashBank(!isCashBank)}} {...register('isCashBank')} className="form-checkbox hover:bg-black checked:bg-black checked:hover:bg-black disabled:bg-[#1b2e4b]" checked={detailCOA?.data?.isCashFlow == true} disabled={type == 'update'}/>
                                     <span>Is Cash Bank</span>
                                 </label>
                             </div>
