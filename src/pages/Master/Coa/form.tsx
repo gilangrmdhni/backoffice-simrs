@@ -289,13 +289,13 @@ const Form = () => {
                         <div>
                             <div className="flex space-x-4">
                                 <label className="flex">
-                                    <input type="checkbox" onClick={(e)=>{setIsCashFlow(!isCashFlow)}} {...register('isCashBank')} className="form-checkbox hover:bg-black checked:bg-black checked:hover:bg-black disabled:bg-[#1b2e4b]" checked={detailCOA?.data?.isCashBank == true} disabled={type == 'update'}/>
+                                    <input type="checkbox" onClick={(e)=>{setIsCashFlow(!isCashFlow)}} {...register('isCashBank')} className="form-checkbox checked:bg-black checked:hover:bg-black" checked={detailCOA?.data?.isCashBank == true} disabled={type == 'update'}/>
                                     <span>Is Cash Flow</span>
                                 </label>
                             </div>
                             <div className="flex space-x-4">
                                 <label className="flex">
-                                    <input type="checkbox" onClick={(e)=>{setIsCashBank(!isCashBank)}} {...register('isCashBank')} className="form-checkbox hover:bg-black checked:bg-black checked:hover:bg-black disabled:bg-[#1b2e4b]" checked={detailCOA?.data?.isCashFlow == true} disabled={type == 'update'}/>
+                                    <input type="checkbox" onClick={(e)=>{setIsCashBank(!isCashBank)}} {...register('isCashBank')} className="form-checkbox checked:bg-black checked:hover:bg-black disabled:bg-[#1b2e4b]" checked={detailCOA?.data?.isCashFlow == true} disabled={type == 'update'}/>
                                     <span>Is Cash Bank</span>
                                 </label>
                             </div>
