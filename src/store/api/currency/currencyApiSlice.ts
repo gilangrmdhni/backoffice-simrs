@@ -35,6 +35,9 @@ export const currencyApi = apiSlice.injectEndpoints({
         getDetailCurrency: builder.query({
             query: (id?: string) => `/Currency/${id}`,
         }),
+        getOptionCurrency: builder.query({
+            query: (params) => `/Currency/option?${new URLSearchParams(params).toString()}`,
+        }),
     }),
 });
 
@@ -43,5 +46,6 @@ export const {
     useDeleteCurrencyMutation,
     usePostCurrencyMutation,
     useUpdateCurrencyMutation,
-    useGetDetailCurrencyQuery
+    useGetDetailCurrencyQuery,
+    useGetOptionCurrencyQuery
 } = currencyApi;
