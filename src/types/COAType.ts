@@ -14,6 +14,8 @@ export interface COAType {
     isCashFlow?: boolean;
     isCashBank?: boolean;
     branchId: number;
+    currencyId: number;
+    currencyName: string;
     balance: number;
     status: string | 'Active';
     createdBy: number;

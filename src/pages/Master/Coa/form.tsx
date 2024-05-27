@@ -12,6 +12,7 @@ import { useGetDetailCOAQuery, usePostCOAMutation, useUpdateCOAMutation,useGetOp
 import { useGetAccountTypesQuery,useGetOptionAccountTypeOptionQuery } from '@/store/api/accountType/accountTypeApiSlice';
 import { useGetAccountGroupsQuery, useGetOptionAccountGroupDetailQuery } from '@/store/api/accountGroup/accountGroupApiSlice';
 import { useGetOptionBranchQuery } from '@/store/api/branch/branchApiSlice';
+import { useGetOptionCurrencyQuery } from '@/store/api/currency/currencyApiSlice';
 import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
 import { rolesType } from '@/types/rolesType';
 import { ToastContainer, toast } from 'react-toastify';
@@ -25,6 +26,7 @@ const Form = () => {
     const accountTypeRef = useRef<HTMLSelectElement>(null);
     const accountGroupRef = useRef<HTMLSelectElement>(null);
     const parentRef = useRef<HTMLSelectElement>(null);
+    const currencyRef = useRef<HTMLSelectElement>(null);
     const [parentId,setParentId] = useState<string>('');
     const [isCashFlow,setIsCashFlow] = useState<boolean>(false);
     const [isCashBank,setIsCashBank] = useState<boolean>(false);
@@ -51,8 +53,8 @@ const Form = () => {
         orderType: 'asc',
         pageSize:20,
     });
-    const { data: BranchList, refetch: BranchListRefetch } = useGetOptionBranchQuery({
-        orderBy: 'branchId',
+    const { data: CurrencyList, refetch: CurrencyListRefetch } = useGetOptionCurrencyQuery({
+        orderBy: 'currencyName',
         orderType: 'asc',
         pageSize:20,
     });
@@ -105,6 +107,7 @@ const Form = () => {
             coaName: yup.string().required('coaName is Required'),
             accountTypeId: yup.number().required('accountType is Required'),
             accountGroupId: yup.number().required('accountGroup is Required'),
+            currencyId: yup.number().required('currency is Required'),
             balance: yup.number().required('Balance is Required'),
             status: yup.string().required('Status is Required'),
         })
@@ -130,6 +133,9 @@ const Form = () => {
             }
             if (accountGroupRef.current) {
                 data.accountGroupName = accountGroupRef.current.options[data.accountGroupId].text;
+            }
+            if (accountGroupRef.current) {
+                data.currencyName = accountGroupRef.current.options[data.currencyId].text;
             }
             if(parentId != "" && parentId != "None/"){
                 console.log(parentId)
@@ -178,7 +184,7 @@ const Form = () => {
             });
         }
     }, [detailCOA, setValue]);
-
+    
     return (
         <div>
             <div className="panel mt-6">
@@ -263,6 +269,22 @@ const Form = () => {
                             <span className="text-danger text-xs">{(errors.normalPosition as FieldError)?.message}</span>
                         </div>
                         <div>
+                            <label htmlFor="currencyId">Currency</label>
+                            <div className="relative text-white-dark">
+                                <select id="accountGroupId" {...register('currencyId')} className="form-select disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update'}>
+                                    <option value="">Enter Currency</option>
+                                    {CurrencyList?.data?.map((d: OptionType, i: number) => {
+                                        return (
+                                            <option  key={i} value={d?.value} selected={detailCOA?.data?.currencyId === d.value }>
+                                                {d?.label}
+                                            </option>
+                                        )
+                                    })}
+                                </select>
+                                <span className="text-danger text-xs">{(errors.currencyId as FieldError)?.message}</span>
+                            </div>
+                        </div>
+                        <div>
                             <label htmlFor="balance">Balance</label>
                             <div className="relative text-white-dark">
                                 <input id="balance" type="text" placeholder="Enter balance" {...register('balance')} className="form-input placeholder:text-white-dark" />
@@ -289,13 +311,13 @@ const Form = () => {
                         <div>
                             <div className="flex space-x-4">
                                 <label className="flex">
-                                    <input type="checkbox" onClick={(e)=>{setIsCashFlow(!isCashFlow)}} {...register('isCashBank')} className="form-checkbox checked:bg-black checked:hover:bg-black" checked={detailCOA?.data?.isCashBank == true} disabled={type == 'update'}/>
+                                    <input type="checkbox" onClick={(e)=>{setIsCashFlow(!isCashFlow)}} {...register('isCashBank')} className="form-checkbox checked:bg-black checked:hover:bg-black disabled:bg-[#1b2e4b]"  disabled={type === 'update'}/>
                                     <span>Is Cash Flow</span>
                                 </label>
                             </div>
                             <div className="flex space-x-4">
                                 <label className="flex">
-                                    <input type="checkbox" onClick={(e)=>{setIsCashBank(!isCashBank)}} {...register('isCashBank')} className="form-checkbox checked:bg-black checked:hover:bg-black disabled:bg-[#1b2e4b]" checked={detailCOA?.data?.isCashFlow == true} disabled={type == 'update'}/>
+                                    <input type="checkbox" onClick={(e)=>{setIsCashBank(!isCashBank)}} {...register('isCashBank')} className="form-checkbox checked:bg-black checked:hover:bg-black disabled:bg-[#1b2e4b]"  disabled={type === 'update'}/>
                                     <span>Is Cash Bank</span>
                                 </label>
                             </div>
