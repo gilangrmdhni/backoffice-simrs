@@ -124,7 +124,7 @@ const CompanyForm = () => {
                         <div>
                             <label htmlFor="address">Address</label>
                             <div className="relative text-white-dark">
-                                <input id="address" type="text" placeholder="Enter Address" {...register('address')} className="form-input placeholder:text-white-dark" />
+                                <textarea id="address" placeholder="Enter Address" {...register('address')} className="form-input placeholder:text-white-dark" rows={4} />
                             </div>
                             <span className="text-danger text-xs">{(errors.address as FieldError)?.message}</span>
                         </div>
@@ -154,11 +154,11 @@ const CompanyForm = () => {
                             <div className="flex space-x-4">
                                 <label className="flex items-center">
                                     <input type="radio" value="Active" {...register('status')} className="form-radio" />
-                                    <span className="ml-2 text-white-dark">Active</span>
+                                    <span className="ml-2 text-black">Active</span>
                                 </label>
                                 <label className="flex items-center">
                                     <input type="radio" value="Inactive" {...register('status')} className="form-radio" />
-                                    <span className="ml-2 text-white-dark">Inactive</span>
+                                    <span className="ml-2 text-black">InActive</span>
                                 </label>
                             </div>
                             <span className="text-danger text-xs">{(errors.status as FieldError)?.message}</span>
