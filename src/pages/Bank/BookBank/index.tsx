@@ -1,9 +1,7 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment } from 'react';
 import { setBreadcrumbTitle, setPageTitle, setTitle } from '../../../store/themeConfigSlice';
-import { useDeleteBranchMutation, useGetBranchQuery } from '@/store/api/branch/branchApiSlice';
 import IconTrashLines from '@/components/Icon/IconTrashLines';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
@@ -11,16 +9,23 @@ import IconPencil from '@/components/Icon/IconPencil';
 import { Dialog, Transition } from '@headlessui/react';
 import IconX from '@/components/Icon/IconX';
 import IconPlus from '@/components/Icon/IconPlus';
-import { branchType } from '@/types'; // Pastikan tipe data branch disesuaikan dengan definisi Anda
-import { toastMessage } from '@/utils/toastUtils';
+import IconDownload from '@/components/Icon/IconDownload';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
 import { responseCallback } from '@/utils/responseCallback';
+import { toastMessage } from '@/utils/toastUtils';
+import AnimateHeight from 'react-animate-height';
+import { useGetBookBanksQuery, useDeleteBookBankMutation } from '@/store/api/bank/bookBank/bookBankApiSlice';
+import { BookBankType } from '@/types/bookBankType';
 
-const Index = () => {
+const BookBankIndex = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     useEffect(() => {
-        dispatch(setPageTitle('Branch'));
-        dispatch(setTitle('Branch'));
-        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "Branch", "List"]));
+        dispatch(setPageTitle('Book Bank'));
+        dispatch(setTitle('Book Bank'));
+        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "Book Bank"]));
     }, [dispatch]);
 
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
@@ -29,30 +34,30 @@ const Index = () => {
     const [pageSize, setPageSize] = useState<number>(PAGE_SIZES[0]);
     const [search, setSearch] = useState<string>('');
     const [status, setStatus] = useState<string>('');
-    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'branchId', direction: 'asc' });
+    const [showFilter, setShowFilter] = useState<boolean>(false);
+    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'createdDate', direction: 'desc' });
 
     const {
-        data: branchList,
+        data: bookBankList,
         refetch,
         error,
         isLoading,
-    } = useGetBranchQuery({
-        keyword: search,
+    } = useGetBookBanksQuery({
+        orderBy: sortStatus.columnAccessor,
+        orderType: sortStatus.direction,
         page: page,
         pageSize: pageSize,
-        orderBy: sortStatus.columnAccessor === 'branchName' ? 'branchName' : sortStatus.columnAccessor,
-        orderType: sortStatus.direction,
-        status,
+        keyword: search,
+        status: status,
     });
 
-    const [deleted, { isError }] = useDeleteBranchMutation();
+    const [deleteBookBank, { isError: isDeleteError }] = useDeleteBookBankMutation();
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<number>(0);
-    const navigate = useNavigate();
 
     const handleDelete = async () => {
         try {
-            const response: any = await deleted(deleteId);
+            const response: any = await deleteBookBank(deleteId).unwrap();
             setDeleteId(0);
             setShowDeleteModal(false);
             responseCallback(response, null, null);
@@ -68,73 +73,86 @@ const Index = () => {
 
     useEffect(() => {
         setPage(1);
-    }, [sortStatus, search, pageSize, status]);
-
-    const colorStatus = (status: string) => {
-        return status === 'Inactive' ? 'primary' : 'success';
-    };
+    }, [sortStatus, search, pageSize]);
 
     return (
         <div>
-            <ul className="flex space-x-2 rtl:space-x-reverse">
-                <li>
-                    <Link to="/branch" className="text-primary hover:underline">
-                        Branch
-                    </Link>
-                </li>
-                <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                    <span>List</span>
-                </li>
-            </ul>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
                     <div className="rtl:ml-auto rtl:mr-auto">
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-3 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
                             <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
                                 <option value={''}>All Status</option>
-                                <option value={'Active'}>Active</option>
-                                <option value={'Inactive'}>Inactive</option>
+                                <option value={'Pending'}>Pending</option>
+                                <option value={'Completed'}>Completed</option>
                             </select>
+                            <button
+                                type="button"
+                                className="hidden w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
+                                onClick={() => setShowFilter((prevValue) => !prevValue)}
+                            >
+                                <span className="flex items-center">
+                                    <img src="/assets/images/sorting-options.svg" />
+                                </span>
+                            </button>
                         </div>
                     </div>
                     <div className="ltr:ml-auto">
-                        <div className="grid grid-cols-1 gap-2">
-                            <Tippy content="Add Branch">
+                        <div className="grid grid-cols-2 gap-2">
+                            <Tippy content="Add Book Bank">
                                 <button
-                                    onClick={() => navigate(`/branch/create`)}
+                                    onClick={() => navigate(`/bookBank/create`)}
                                     type="button"
                                     className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
                                 >
                                     <IconPlus />
                                 </button>
                             </Tippy>
+                            <Tippy content="Download">
+                                <Link to="" className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60">
+                                    <IconDownload />
+                                </Link>
+                            </Tippy>
                         </div>
                     </div>
                 </div>
-                {/* Tambahkan kode untuk tabel */}
+                <div>
+                    <AnimateHeight duration={300} height={showFilter ? 'auto' : 0}>
+                        <div className="space-y-2 p-4 text-white-dark text-[13px] border-t border-[#d3d3d3] dark:border-[#1b2e4b]">
+                            <div className="grid grid-cols-8 gap-2">
+                                <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                                <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
+                                    <option value={''}>All Status</option>
+                                    <option value={'Pending'}>Pending</option>
+                                    <option value={'Completed'}>Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                    </AnimateHeight>
+                </div>
                 <div className="datatables">
                     <DataTable
                         highlightOnHover
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
-                        records={branchList?.data?.data}
+                        records={bookBankList?.data?.data}
                         columns={[
-                            { accessor: 'branchId', title: 'ID', sortable: true, textAlignment: 'center', width: 100 },
-                            { accessor: 'branchName', title: 'Branch Name', sortable: true },
-                            { accessor: 'phone', title: 'Phone', sortable: true },
-                            { accessor: 'email', title: 'Email', sortable: true },
-                            { accessor: 'address', title: 'Address', sortable: true },
-                            { accessor: 'financialClosingDate', title: 'Financial Closing Date', sortable: true, render: ({ financialClosingDate }) => new Date(financialClosingDate).toLocaleDateString() },
-                            { accessor: 'currencyName', title: 'Currency', sortable: true },
-                            { accessor: 'status', title: 'Status', sortable: true, render: ({ status }) => <span className={`badge bg-${colorStatus(status)}/10 text-${colorStatus(status)}`}>{status}</span> },
+                            { accessor: 'journalId', title: 'ID', sortable: true, textAlignment: 'center' },
+                            { accessor: 'journalDescDebit', title: 'Description', sortable: true },
+                            { accessor: 'coaDebit', title: 'CoA Debit', sortable: true },
+                            { accessor: 'coaCredit', title: 'CoA Credit', sortable: true },
+                            { accessor: 'coaDebitName', title: 'Account Name', sortable: true },
+                            { accessor: 'coaCreditName', title: 'Account Credit Name', sortable: true },
+                            { accessor: 'amount', title: 'Amount', sortable: true },
+                            { accessor: 'status', title: 'Status', sortable: true },
+                            { accessor: 'createdDate', title: 'Created Date', sortable: true, render: ({ createdDate }) => new Date(createdDate).toLocaleDateString() },
                             {
                                 accessor: '',
-                                title: 'Action',
-                                width: 100,
-                                render: (s: branchType) => (
+                                title: 'Actions',
+                                render: (s: BookBankType) => (
                                     <>
                                         <Tippy content="Edit">
-                                            <button type="button" onClick={() => navigate(`/branch/update/${s.branchId}`)}>
+                                            <button type="button" onClick={() => navigate(`/bookBank/update/${s.journalId}`)}>
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>
@@ -142,7 +160,7 @@ const Index = () => {
                                             <button
                                                 type="button"
                                                 onClick={async () => {
-                                                    setDeleteId(s.branchId as number);
+                                                    setDeleteId(s.journalId as number);
                                                     setShowDeleteModal(true);
                                                 }}
                                             >
@@ -153,7 +171,7 @@ const Index = () => {
                                 ),
                             },
                         ]}
-                        totalRecords={branchList?.totalCount}
+                        totalRecords={bookBankList?.data?.totalData}
                         recordsPerPage={pageSize}
                         page={page}
                         onPageChange={(p) => setPage(p)}
@@ -162,11 +180,10 @@ const Index = () => {
                         sortStatus={sortStatus}
                         onSortStatusChange={setSortStatus}
                         minHeight={200}
-                        paginationText={({ from, to, totalRecords }) => `Showing ${from} to ${to} of ${totalRecords} entries`}
+                        paginationText={({ from, to, totalRecords }) => totalRecords > pageSize ? `Showing ${from} to ${to} of ${totalRecords} entries` : ''}
                     />
                 </div>
             </div>
-
             <div className="mb-5">
                 <Transition appear show={showDeleteModal} as={Fragment}>
                     <Dialog as="div" open={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
@@ -213,4 +230,4 @@ const Index = () => {
     );
 };
 
-export default Index;
+export default BookBankIndex;
