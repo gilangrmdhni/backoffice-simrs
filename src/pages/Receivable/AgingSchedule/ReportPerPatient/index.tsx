@@ -94,7 +94,7 @@ const ReportPerPatient = ()=>{
 
     const formatNumber = (number: any) => {
         // Mengubah angka menjadi string dengan dua digit desimal
-        let formattedNumber = number.toFixed(2);
+        let formattedNumber = number.toFixed(0);
         // Mengganti titik desimal dengan koma
         formattedNumber = formattedNumber.replace('.', ',');
         // Menambahkan titik sebagai pemisah ribuan
@@ -153,34 +153,6 @@ const ReportPerPatient = ()=>{
                         </div>
                     </div>
                 </div>
-                <div>
-                    {/* filter */}
-                    {/* <AnimateHeight duration={300} height={showFilter ? 'auto' : 0}> */}
-                    <AnimateHeight duration={300} height={0}>
-                        {/* <div className="space-y-2 p-4 text-white-dark text-[13px] border-t border-[#d3d3d3] dark:border-[#1b2e4b]">
-                            <div className="grid grid-cols-8 gap-2">
-                                <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                                <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
-                                    <option value={''}>All Status</option>
-                                    <option value={'started'}>Started</option>
-                                    <option value={'completed'}>Completed</option>
-                                </select>
-                                <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                                <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
-                                    <option value={''}>All Status</option>
-                                    <option value={'started'}>Started</option>
-                                    <option value={'completed'}>Completed</option>
-                                </select>
-                                <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                                <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
-                                    <option value={''}>All Status</option>
-                                    <option value={'started'}>Started</option>
-                                    <option value={'completed'}>Completed</option>
-                                </select>
-                            </div>
-                        </div> */}
-                    </AnimateHeight>
-                </div>
                 <div className="datatables">
                 <table>
                         <thead>
@@ -211,7 +183,7 @@ const ReportPerPatient = ()=>{
                                     greaterThanOneTwentyTotal += data.greaterThanOneTwenty
                                     return(
                                         <>
-                                            <tr key={index}>
+                                            <tr key={index} className='hover:bg-'>
                                                 <td>{data.patientName}</td>
                                                 <td>{data.insuranceName}</td>
                                                 <td>{new Date(data.billingDate).toLocaleDateString()}</td>

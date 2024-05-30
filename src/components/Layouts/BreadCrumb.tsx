@@ -4,6 +4,16 @@ import { NavLink } from "react-router-dom";
 
 const BreadCrumb = () => {
     const {breadcrumbTitle,Title} = useSelector((state: any) => state.themeConfig);
+    const NotLink = [
+        "Master",
+        "Receivable",
+        "create",
+        "update"
+    ];
+    const SkyText = [
+        "Master",
+        "Receivable",
+    ]
     return (
         <div className='w-full h-[100px] bg-[#9C6ACD] flex px-6 items-center justify-between'>
             <div>
@@ -13,9 +23,8 @@ const BreadCrumb = () => {
             </div>
             <div className={`${Title !== "Dashboard" ? "panel p-3" : ''}`}>
                 {breadcrumbTitle.map((dt : string, index : number) => (
-                    index !== breadcrumbTitle.length - 1 && dt !== "Master"  && dt !== "update" && dt !== "create"   ? (
-                        <span key={index} className="">
-                            
+                    index !== breadcrumbTitle.length - 1 && !NotLink.includes(dt) ? (
+                        <span key={index} className="">                   
                             <NavLink to={`/${dt == 'Dashboard' ? '' : dt.replace(/\s+/g, '')}`}>
                                 <span className="text-sky-400 dark:text-white-light hover:underline">
                                     {dt}
@@ -25,9 +34,9 @@ const BreadCrumb = () => {
                         </span>
                     ) : (
                         <span className="">
-                            <span className={`${dt == "Master" ? 'text-sky-400'  : 'text-gray-500'}`}>{dt}</span>
+                            <span className={`${ SkyText.includes(dt) ? 'text-sky-400'  : 'text-gray-500'}`}>{dt}</span>
                             {
-                               dt == "create"  || dt === "update" ||  dt == "Master" ? <span className="text-gray-500">{index !== breadcrumbTitle.length - 1 && " / "}</span> 
+                               NotLink.includes(dt) ? <span className="text-gray-500">{index !== breadcrumbTitle.length - 1 && " / "}</span> 
                                : <span></span>  
                             }
                             

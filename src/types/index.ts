@@ -6,3 +6,4 @@ export * from './accountType';
 export * from './accountGroupType';
 export * from './COAType';
 export * from './OptionType';
+export * from './journalType';
