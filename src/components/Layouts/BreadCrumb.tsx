@@ -7,12 +7,14 @@ const BreadCrumb = () => {
     const NotLink = [
         "Master",
         "Receivable",
+        "General Ledger",
         "create",
         "update"
     ];
     const SkyText = [
         "Master",
         "Receivable",
+        "General Ledger"
     ]
     return (
         <div className='w-full h-[100px] bg-[#9C6ACD] flex px-6 items-center justify-between'>
