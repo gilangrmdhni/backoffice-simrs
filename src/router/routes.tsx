@@ -44,6 +44,9 @@ const BranchUpdate= lazy(() => import('../pages/Master/Branch/form'));
 // AgingSchedule
 const AgingScheduleIndex = lazy(() => import('../pages/Receivable/AgingSchedule'));
 
+// payment Period
+const PaymentPeriodIndex = lazy(() => import('../pages/Receivable/PaymentPeriod'));
+
 // Bank
 const BookBankIndex = lazy(() => import('../pages/Bank/BookBank'));
 const DepositCreate = lazy(() => import('../pages/Bank/Deposit/form'));
@@ -198,6 +201,11 @@ const routes = [
     {
         path: '/agingSchedule',
         element: <AgingScheduleIndex />,
+        layout: 'default',
+    },
+    {
+        path: '/paymentPeriod',
+        element: <PaymentPeriodIndex />,
         layout: 'default',
     },
     {
