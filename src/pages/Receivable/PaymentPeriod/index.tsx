@@ -23,7 +23,7 @@ const Index = ()=>{
                             <button
                                 className={`${selected ? '!border-white-light !border-b-white  text-primary !outline-none dark:!border-[#191e3a] dark:!border-b-black' : ''}
                                 dark:hover:border-b-black -mb-[1px] block border border-transparent p-3.5 py-2 hover:text-primary`}>
-                                Report Per Patient
+                                Patient
                             </button>
                         )}
                     </Tab>
@@ -32,7 +32,7 @@ const Index = ()=>{
                             <button
                                 className={`${selected ? '!border-white-light !border-b-white  text-primary !outline-none dark:!border-[#191e3a] dark:!border-b-black' : ''}
                                 dark:hover:border-b-black -mb-[1px] block border border-transparent p-3.5 py-2 hover:text-primary`}>
-                                Report Per Insurance
+                                Insurance
                             </button>
                         )}
                     </Tab>
