@@ -221,6 +221,11 @@ const Sidebar = () => {
                                                 Aging Schedule
                                             </NavLink>
                                         </li>
+                                        <li>
+                                            <NavLink to="/paymentPeriod">
+                                                Payment Period
+                                            </NavLink>
+                                        </li>
                                     </ul>
                                 </AnimateHeight>
                             </li>
