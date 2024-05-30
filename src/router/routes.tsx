@@ -51,6 +51,12 @@ const PaymentCreate = lazy(() => import('../pages/Bank/Payment/form'));
 const DepositUpdate = lazy(() => import('../pages/Bank/Deposit/form'));
 const PaymentUpdate = lazy(() => import('../pages/Bank/Payment/form'));
 
+// General Ledger History
+const GeneralLedgerHistoryIndex = lazy(() => import('../pages/GeneralLedger/History'));
+
+// General Ledger Summary
+const GeneralLedgerSummaryIndex = lazy(() => import('../pages/GeneralLedger/Summary'));
+
 
 const routes = [
     // dashboard
@@ -212,6 +218,16 @@ const routes = [
     {
         path: 'bookBank/update/:id',
         element: <PaymentUpdate />,
+        layout: 'default',
+    },
+    {
+        path: '/generalLedger/History',
+        element: <GeneralLedgerHistoryIndex />,
+        layout: 'default',
+    },
+    {
+        path: '/generalLedger/Summary',
+        element: <GeneralLedgerSummaryIndex />,
         layout: 'default',
     },
 ];

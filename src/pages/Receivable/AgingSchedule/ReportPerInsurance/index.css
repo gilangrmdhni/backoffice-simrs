@@ -3,19 +3,19 @@
 }
 
 .report-insurance .datatables table thead tr th, .datatables table tfoot tr th{
-    border: 1px solid black !important;
+    /* border: 1px solid black !important; */
     background-color: rgb(224 230 237 / 0.3) !important;
     --tw-text-opacity: 1;
     color: rgb(24 24 24 / var(--tw-text-opacity));
 }
 
-.report-insurance .datatables table tbody tr td{
+/* .report-insurance .datatables table tbody tr td{
     border: 1px solid black !important;
-}
+} */
 
-.report-insurance tfoot {
+/* .report-insurance tfoot {
     display: table-header-group;
     vertical-align: middle;
     unicode-bidi: isolate;
     border-color: inherit;
-}
+} */
