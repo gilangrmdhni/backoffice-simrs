@@ -53,6 +53,8 @@ const DepositCreate = lazy(() => import('../pages/Bank/Deposit/form'));
 const PaymentCreate = lazy(() => import('../pages/Bank/Payment/form'));
 const DepositUpdate = lazy(() => import('../pages/Bank/Deposit/form'));
 const PaymentUpdate = lazy(() => import('../pages/Bank/Payment/form'));
+const ReconcileCreate = lazy(() => import('../pages/Bank/Reconcile/form'));
+
 
 // General Ledger History
 const GeneralLedgerHistoryIndex = lazy(() => import('../pages/GeneralLedger/History'));
@@ -229,6 +231,8 @@ const routes = [
         layout: 'default',
     },
     {
+        path: 'reconcile',
+        element: <ReconcileCreate />,
         path: '/generalLedger/History',
         element: <GeneralLedgerHistoryIndex />,
         layout: 'default',

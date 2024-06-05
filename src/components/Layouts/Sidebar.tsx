@@ -277,6 +277,11 @@ const Sidebar = () => {
                                                 Payment
                                             </NavLink>
                                         </li>
+                                        <li>
+                                            <NavLink to="/reconcile">
+                                                Reconcile
+                                            </NavLink>
+                                        </li>
                                     </ul>
                                 </AnimateHeight>
                             </li>

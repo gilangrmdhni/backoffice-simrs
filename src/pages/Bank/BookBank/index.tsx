@@ -138,19 +138,25 @@ const BookBankIndex = () => {
                         records={bookBankList?.data?.data}
                         columns={[
                             { accessor: 'journalId', title: 'ID', sortable: true, textAlignment: 'center' },
-                            { accessor: 'journalDescDebit', title: 'Description', sortable: true },
-                            { accessor: 'coaDebit', title: 'CoA Debit', sortable: true },
-                            { accessor: 'coaCredit', title: 'CoA Credit', sortable: true },
-                            { accessor: 'coaDebitName', title: 'Account Name', sortable: true },
-                            { accessor: 'coaCreditName', title: 'Account Credit Name', sortable: true },
+                            { accessor: 'journalDescDebit', title: 'Debit Description', sortable: true },
+                            { accessor: 'journalDescCredit', title: 'Credit Description', sortable: true },
+                            { accessor: 'coaDebit', title: 'Debit', sortable: true },
+                            { accessor: 'coaCredit', title: 'Credit', sortable: true },
+                            { accessor: 'coaDebitName', title: 'Debit Account Name', sortable: true },
+                            { accessor: 'coaDebitParent', title: 'Debit Account Parent', sortable: true },
+                            { accessor: 'coaCreditName', title: 'Credit Account Name', sortable: true },
+                            { accessor: 'coaCreditParent', title: 'Credit Account Parent', sortable: true },
                             { accessor: 'amount', title: 'Amount', sortable: true },
-                            { accessor: 'status', title: 'Status', sortable: true },
+                            { accessor: 'source', title: 'Source', sortable: true },
                             { accessor: 'createdDate', title: 'Created Date', sortable: true, render: ({ createdDate }) => new Date(createdDate).toLocaleDateString() },
+                            { accessor: 'vourcherId', title: 'Voucher ID', sortable: true },
+                            { accessor: 'status', title: 'Status', sortable: true },                  
                             {
                                 accessor: '',
                                 title: 'Actions',
                                 render: (s: BookBankType) => (
                                     <>
+                                    
                                         <Tippy content="Edit">
                                             <button type="button" onClick={() => navigate(`/bookBank/update/${s.journalId}`)}>
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
