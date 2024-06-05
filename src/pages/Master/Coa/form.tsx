@@ -298,12 +298,12 @@ const Form = () => {
                             <label>Status</label>
                             <div className="flex space-x-4">
                                 <label className="flex items-center">
-                                    <input type="radio" value="Active" {...register('status')} className="form-radio hover:bg-black checked:bg-black checked:hover:bg-black text-black" />
-                                    <span className="ml-2 text-white-dark">Active</span>
+                                    <input type="radio" value="Active" {...register('status')} className="form-radio" />
+                                    <span className="ml-2 text-black">Active</span>
                                 </label>
                                 <label className="flex items-center">
-                                    <input type="radio" value="InActive" {...register('status')} className="form-radio hover:bg-black checked:bg-black checked:hover:bg-black text-black" />
-                                    <span className="ml-2 text-white-dark">In Active</span>
+                                    <input type="radio" value="InActive" {...register('status')} className="form-radio" />
+                                    <span className="ml-2 text-black">In Active</span>
                                 </label>
                             </div>
                             <span className="text-danger text-xs">{(errors.status as FieldError)?.message}</span>
@@ -311,13 +311,13 @@ const Form = () => {
                         <div>
                             <div className="flex space-x-4">
                                 <label className="flex">
-                                    <input type="checkbox" onClick={(e)=>{setIsCashFlow(!isCashFlow)}} {...register('isCashBank')} className="form-checkbox checked:bg-black checked:hover:bg-black disabled:bg-[#1b2e4b]"  disabled={type === 'update'}/>
+                                    <input type="checkbox" onClick={(e)=>{setIsCashFlow(!isCashFlow)}} {...register('isCashBank')} className="form-checkbox"  disabled={type === 'update'}/>
                                     <span>Is Cash Flow</span>
                                 </label>
                             </div>
                             <div className="flex space-x-4">
                                 <label className="flex">
-                                    <input type="checkbox" onClick={(e)=>{setIsCashBank(!isCashBank)}} {...register('isCashBank')} className="form-checkbox checked:bg-black checked:hover:bg-black disabled:bg-[#1b2e4b]"  disabled={type === 'update'}/>
+                                    <input type="checkbox" onClick={(e)=>{setIsCashBank(!isCashBank)}} {...register('isCashBank')} className="form-checkbox"  disabled={type === 'update'}/>
                                     <span>Is Cash Bank</span>
                                 </label>
                             </div>
