@@ -18,7 +18,7 @@ import AnimateHeight from 'react-animate-height';
 import { useGetBookBanksQuery, useDeleteBookBankMutation } from '@/store/api/bank/bookBank/bookBankApiSlice';
 import { BookBankType } from '@/types/bookBankType';
 
-const BookBankIndex = () => {
+const DaftarPenerimaanIndex = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -230,4 +230,4 @@ const BookBankIndex = () => {
     );
 };
 
-export default BookBankIndex;
+export default DaftarPenerimaanIndex;

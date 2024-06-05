@@ -67,6 +67,11 @@ const DaftarBukuKasIndex = lazy(() => import('../pages/BukuKas/DaftarBukuKas'));
 
 // Penerimaan
 const DaftarPenerimaanIndex = lazy(() => import('../pages/Penerimaan/DaftarPenerimaan'));
+const DaftarPenerimaanCreate = lazy(() => import('../pages/Penerimaan/DaftarPenerimaan/form'));
+
+// Pengeluaran
+const DaftarPengeluaranIndex = lazy(() => import('../pages/Pengeluaran/DaftarPengeluaran'));
+const DaftarPengeluaranCreate = lazy(() => import('../pages/Pengeluaran/DaftarPengeluaran/form'));
 
 const routes = [
     // dashboard
@@ -264,6 +269,21 @@ const routes = [
     {
         path: '/daftarpenerimaan',
         element: <DaftarPenerimaanIndex />,
+        layout: 'default',
+    },
+    {
+        path: '/daftarpenerimaan/create',
+        element: <DaftarPenerimaanCreate />,
+        layout: 'default',
+    },
+    {
+        path: '/daftarpengeluaran',
+        element: <DaftarPengeluaranIndex />,
+        layout: 'default',
+    },
+    {
+        path: '/daftarpengeluaran/create',
+        element: <DaftarPengeluaranCreate />,
         layout: 'default',
     },
 ];
