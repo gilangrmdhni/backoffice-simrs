@@ -32,14 +32,14 @@ const CurrencyUpdate = lazy(() => import('../pages/Master/Currency/form'));
 
 // Company
 const CompanyIndex = lazy(() => import('../pages/Master/Company'));
-const CompanyCreate= lazy(() => import('../pages/Master/Company/form'));
+const CompanyCreate = lazy(() => import('../pages/Master/Company/form'));
 const CompanyUpdate = lazy(() => import('../pages/Master/Company/form'));
 
 
 // Company
 const BranchIndex = lazy(() => import('../pages/Master/Branch'));
-const BranchCreate= lazy(() => import('../pages/Master/Branch/form'));
-const BranchUpdate= lazy(() => import('../pages/Master/Branch/form'));
+const BranchCreate = lazy(() => import('../pages/Master/Branch/form'));
+const BranchUpdate = lazy(() => import('../pages/Master/Branch/form'));
 
 // AgingSchedule
 const AgingScheduleIndex = lazy(() => import('../pages/Receivable/AgingSchedule'));
@@ -157,12 +157,12 @@ const routes = [
     },
     {
         path: 'company/create',
-        element: <CompanyCreate/>,
+        element: <CompanyCreate />,
         layout: 'default',
     },
     {
         path: 'company/update/:id',
-        element: <CompanyUpdate/>,
+        element: <CompanyUpdate />,
         layout: 'default',
     },
     {
@@ -177,7 +177,7 @@ const routes = [
     },
     {
         path: 'branch/create',
-        element: <BranchCreate/>,
+        element: <BranchCreate />,
         layout: 'default',
     },
     {
@@ -233,6 +233,10 @@ const routes = [
     {
         path: 'reconcile',
         element: <ReconcileCreate />,
+        layout: 'default',
+    },
+
+    {
         path: '/generalLedger/History',
         element: <GeneralLedgerHistoryIndex />,
         layout: 'default',
