@@ -10,7 +10,7 @@ import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
 import { useGetDepositDetailQuery, useCreateDepositMutation, useUpdateDepositMutation } from '@/store/api/bank/deposit/depositApiSlice';
 import { useGetBanksQuery } from '@/store/api/bank/bankApiSlice';
-import { DepositType, DebitEntry } from '@/types/depositType';
+import { DepositType, DebitEntry, DepositUpdateType } from '@/types/depositType';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -110,25 +110,36 @@ const DepositForm = () => {
 
     const onSubmit = async (data: DepositType) => {
         console.log('Data yang dikirim:', data);
-
-        if (data.debits && data.debits.some(debit => !debit.coaDebit || !debit.journalDescDebit || !debit.amount)) {
-            toastMessage('Please fill all required fields in the debit entries.', 'error');
+    
+        const totalDebits = data.debits.reduce((sum, debit) => sum + (Number(debit.amount) || 0), 0);
+        const formAmount = Number(data.amount);
+        console.log('Total Debits:', totalDebits);
+        console.log('Form Amount:', formAmount);
+    
+        // Validasi tambahan sebelum pengiriman
+        if (totalDebits !== formAmount) {
+            toastMessage('Total amount of debit entries must match the amount in the form.', 'error');
             return;
         }
-
-        const postData = data.debits.map(debit => ({
-            ...data,
-            coaDebit: debit.coaDebit,
-            journalDescDebit: debit.journalDescDebit,
-            amount: debit.amount,
-        }));
-
+    
         try {
             let response;
             if (id) {
-                const updateData = postData.map(entry => ({ ...entry, journalId: parseInt(id) }));
+                const updateData = {
+                    ...data,
+                    journalId: parseInt(id),
+                };
                 response = await updateDeposit(updateData).unwrap();
             } else {
+                const postData = data.debits.map(debit => ({
+                    ...data,
+                    coaDebit: debit.coaDebit,
+                    journalDescDebit: debit.journalDescDebit,
+                    amount: debit.amount,
+                }));
+                // Log payload untuk debugging
+                console.log('Payload yang dikirim:', JSON.stringify(postData, null, 2));
+    
                 response = await createDeposit(postData).unwrap();
             }
             responseCallback(response, () => {
@@ -138,6 +149,7 @@ const DepositForm = () => {
             toastMessage(err.message, 'error');
         }
     };
+    
 
     useEffect(() => {
         dispatch(setPageTitle('Deposit'));
@@ -169,7 +181,10 @@ const DepositForm = () => {
                 const amount = parseFloat(value.amount?.toString() || '0') || 0;
                 setAmountText(convertNumberToText(amount));
                 setTotal(amount);
-                const totalDebits = value.debits?.reduce((sum, debit) => sum + (parseFloat(debit.amount?.toString() || '0') || 0), 0) || 0;
+                const totalDebits = value.debits?.reduce((sum, debit) => {
+                    const debitAmount = parseFloat(debit?.amount?.toString() || '0') || 0;
+                    return sum + debitAmount;
+                }, 0) || 0;
                 setDifference(amount - totalDebits);
             }
         });
@@ -310,7 +325,6 @@ const DepositForm = () => {
                                     </div>
                                 </div>
                             ))}
-
                         </div>
                     </div>
 
