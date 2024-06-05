@@ -119,24 +119,35 @@ const PaymentForm = () => {
     const onSubmit = async (data: PaymentType) => {
         console.log('Data yang dikirim:', data);
 
-        if (data.credits && data.credits.some(credit => !credit.coaCredit || !credit.journalDescCredit || !credit.amount)) {
-            toastMessage('Please fill all required fields in the credit entries.', 'error');
+        const totalDebits = data.credits.reduce((sum, credit) => sum + (Number(credit.amount) || 0), 0);
+        const formAmount = Number(data.amount);
+        console.log('Total Debits:', totalDebits);
+        console.log('Form Amount:', formAmount);
+
+        // Validasi tambahan sebelum pengiriman
+        if (totalDebits !== formAmount) {
+            toastMessage('Total amount of credit entries must match the amount in the form.', 'error');
             return;
         }
-
-        const postData = data.credits.map(credit => ({
-            ...data,
-            coaCredit: credit.coaCredit,
-            journalDescCredit: credit.journalDescCredit,
-            amount: credit.amount,
-        }));
 
         try {
             let response;
             if (id) {
-                const updateData = postData.map(entry => ({ ...entry, journalId: parseInt(id) }));
+                const updateData = {
+                    ...data,
+                    journalId: parseInt(id),
+                };
                 response = await updatePayment(updateData).unwrap();
             } else {
+                const postData = data.credits.map(credit => ({
+                    ...data,
+                    coaCredit: credit.coaCredit,
+                    journalDescCredit: credit.journalDescCredit,
+                    amount: credit.amount,
+                }));
+                // Log payload untuk debugging
+                console.log('Payload yang dikirim:', JSON.stringify(postData, null, 2));
+
                 response = await createPayment(postData).unwrap();
             }
             responseCallback(response, () => {
@@ -177,7 +188,10 @@ const PaymentForm = () => {
                 const amount = parseFloat(value.amount?.toString() || '0') || 0;
                 setAmountText(convertNumberToText(amount));
                 setTotal(amount);
-                const totalCredits = value.credits?.reduce((sum, credit) => sum + (parseFloat(credit.amount?.toString() || '0') || 0), 0) || 0;
+                const totalCredits = value.credits?.reduce((sum, credit) => {
+                    const creditAmount = parseFloat(credit?.amount?.toString() || '0') || 0;
+                    return sum + creditAmount;
+                }, 0) || 0;
                 setDifference(amount - totalCredits);
             }
         });
