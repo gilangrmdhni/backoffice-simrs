@@ -156,6 +156,7 @@ const BookBankIndex = () => {
                                 title: 'Actions',
                                 render: (s: BookBankType) => (
                                     <>
+                                    
                                         <Tippy content="Edit">
                                             <button type="button" onClick={() => navigate(`/bookBank/update/${s.journalId}`)}>
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
