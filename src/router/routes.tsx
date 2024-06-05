@@ -50,6 +50,8 @@ const DepositCreate = lazy(() => import('../pages/Bank/Deposit/form'));
 const PaymentCreate = lazy(() => import('../pages/Bank/Payment/form'));
 const DepositUpdate = lazy(() => import('../pages/Bank/Deposit/form'));
 const PaymentUpdate = lazy(() => import('../pages/Bank/Payment/form'));
+const ReconcileCreate = lazy(() => import('../pages/Bank/Reconcile/form'));
+
 
 
 const routes = [
@@ -212,6 +214,11 @@ const routes = [
     {
         path: 'bookBank/update/:id',
         element: <PaymentUpdate />,
+        layout: 'default',
+    },
+    {
+        path: 'reconcile',
+        element: <ReconcileCreate />,
         layout: 'default',
     },
 ];
