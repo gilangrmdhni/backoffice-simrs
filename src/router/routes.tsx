@@ -62,7 +62,6 @@ const GeneralLedgerSummaryIndex = lazy(() => import('../pages/GeneralLedger/Summ
 
 // Kas Bank
 const DaftarBukuKasIndex = lazy(() => import('../pages/BukuKas/DaftarBukuKas'));
-const DaftarBukuKasCreate = lazy(() => import('../pages/BukuKas/DaftarBukuKas'));
 
 // Penerimaan
 const DaftarPenerimaanIndex = lazy(() => import('../pages/Penerimaan/DaftarPenerimaan'));
