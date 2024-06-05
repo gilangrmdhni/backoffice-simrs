@@ -7,4 +7,6 @@ export interface agingScheduleInsuranceType {
     sixtyToNinety: number;
     ninetyToOneTwenty: number;
     greaterThanOneTwenty : number;
+    dueDate: Date;
+    status?: string;
 }

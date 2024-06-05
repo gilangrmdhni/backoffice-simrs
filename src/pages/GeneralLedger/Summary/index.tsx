@@ -23,19 +23,21 @@ import { rolesType } from '@/types/rolesType';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
 import { useGetCOAQuery,useDeleteCOAMutation,useGetOptionCOAQuery, useDownloadCoaMutation,useCOAUploadMutation } from '@/store/api/coa/coaApiSlice';
-import '@/pages/Master/Coa/index.css';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query/fetchBaseQuery';
 import { SerializedError } from '@reduxjs/toolkit';
 import SelectSearch from 'react-select';
 import moment from "moment";
+import Flatpickr from 'react-flatpickr';
+import 'flatpickr/dist/flatpickr.css';
+import '@/pages/Master/Coa/index.css';
 
 const Index = () => {
     // const user = useSelector((state: any) => state.auth.user);
     const dispatch = useDispatch();
     useEffect(() => {
-        dispatch(setPageTitle('Chart Of Account'));
-        dispatch(setTitle('Chart Of Account'));
-        dispatch(setBreadcrumbTitle(['Dashboard','Master','COA','List']));
+        dispatch(setPageTitle('General Ledger Summary'));
+        dispatch(setTitle('General Ledger Summary'));
+        dispatch(setBreadcrumbTitle(['Dashboard','General Ledger','Summary']));
     });
     const [isLoadingUpload, setIsLoadingUpload] = useState<boolean>(false);
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
@@ -46,6 +48,8 @@ const Index = () => {
     const [searchType, setSearchType] = useState<string>('');
     const [status, setStatus] = useState<string>('');
     const [COALevel, setCOALevel] = useState<string>('');
+    const [startDate, setStartDate] = useState<string>('');
+    const [endDate, setEndDate] = useState<string>('');
     const [role, setRole] = useState<string>('');
     const [showFilter, setShowFilter] = useState<boolean>(false);
     const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'coaCode', direction: 'asc' });
@@ -58,9 +62,10 @@ const Index = () => {
         keyword: search,
         orderBy: sortStatus.columnAccessor === 'coaCode' ? 'coaCode' : sortStatus.columnAccessor,
         orderType: sortStatus.direction,
-        page: -1,
+        pageSize:pageSize,
+        page:-1, 
         status,
-        parent : COALevel,
+        parent:COALevel
     });
     const {
         data: CoAListOption,
@@ -70,8 +75,7 @@ const Index = () => {
         orderType: sortStatus.direction,
         pageSize:20,
         status,
-        level : 4,
-        accounttype : 1,
+        accountType:1,
         keyword:searchType
     });
 
@@ -154,67 +158,15 @@ const Index = () => {
         return status === 'InActive' ? 'primary' : 'success';
     };
 
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const handleUploadClick =  () => {
-        if (fileInputRef.current) {
-            fileInputRef.current.click();
-        }
-    };
 
-    const handleFileChange =  async (e: any) => {
-        console.log("loading file")
-        try {
-            setIsLoadingUpload(true);
-            const file = e.target.files[0];
-            const response = await CoaUpload(file);
-            if ('data' in response) {
-                console.log("loading success");
-                console.log("successUpload");
-                setIsLoadingUpload(false);
-                responseCallback(response, null, null);
-            } else if ('error' in response) {
-                console.log("loading success");
-                console.log("errorUpload");
-                setIsLoadingUpload(false);
-                
-                if ('message' in response) {
-                    responseCallback(response, (data: any) => {
-                        navigate('/coa');
-                    }, null);                    
-                } else {
-                    responseCallback(response, (data: any) => {
-                        navigate('/coa');
-                    }, null);
-                }
-            }
-        } catch (error: any) {
-            console.log(error);
-            setIsLoadingUpload(false);
-            toastMessage(error.message, 'error');
-        } finally {
-            setIsLoadingUpload(false);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = ''; // Reset input file
-            }
-        }
-
-
-    };
-
-
-    const handleDownload = async () => {
-        try {
-            const res = await downloadTemplateCOA({}).unwrap();
-            const link = document.createElement('a');
-            link.href = res as string;
-            link.setAttribute('download', `COA_TEMPLATE_${moment().format("yyyyMMDD_Hms")}.xlsx`); // Adjust the file name as needed
-            document.body.appendChild(link);
-            link.click();
-            link.parentNode?.removeChild(link);
-        } catch (error: any) {
-            console.error('Failed to download template', error);
-            toastMessage(error.message, 'error');
-        }
+    const formatNumber = (number: any) => {
+        // Mengubah angka menjadi string dengan dua digit desimal
+        let formattedNumber = number.toFixed(0);
+        // Mengganti titik desimal dengan koma
+        formattedNumber = formattedNumber.replace('.', ',');
+        // Menambahkan titik sebagai pemisah ribuan
+        formattedNumber = formattedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        return formattedNumber;
     };
 
     return (
@@ -222,7 +174,7 @@ const Index = () => {
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5 max-w-64">
                     <div className="rtl:ml-auto rtl:mr-auto">
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-4 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
                             <SelectSearch 
                                     placeholder="All Type"
@@ -231,15 +183,10 @@ const Index = () => {
                                     onInputChange={(e)=> setSearchType(e)}
                                     onChange={(dt: any)=>{setCOALevel(dt.value)}}
                                 />
-                            <button
-                                type="button"
-                                className="hidden w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
-                                onClick={() => setShowFilter((prevValue) => !prevValue)}
-                            >
-                                <span className="flex items-center">
-                                    <img src="/assets/images/sorting-options.svg" />
-                                </span>
-                            </button>
+                            
+                            <Flatpickr placeholder="Start Date" value={startDate} options={{ dateFormat: 'Y-m-d', position: isRtl ? 'auto right' : 'auto left' }} className="form-input" onChange={(date:any) => setStartDate(date)} />
+                            <Flatpickr placeholder="End Date" value={endDate} options={{ dateFormat: 'Y-m-d', position: isRtl ? 'auto right' : 'auto left' }} className="form-input" onChange={(date:any) => setEndDate(date)} />
+
                         </div>
                     </div>
                     <div className="ltr:ml-auto">
@@ -253,31 +200,6 @@ const Index = () => {
                                     <IconPlus />
                                 </button>
                             </Tippy>
-                            <Tippy content="import File">
-                                    <button
-                                        type="button"
-                                        onClick={handleUploadClick}
-                                        className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
-                                    >
-                                        {isLoadingUpload && <span className="animate-spin border-2 border-black border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle"></span>}
-                                        {!isLoadingUpload &&  <IconFile />}
-                                        <input 
-                                            type="file" 
-                                            className={`hidden`}
-                                            onChange={handleFileChange}
-                                            ref={fileInputRef}
-                                        />
-                                    </button>
-                            </Tippy>
-                            <Tippy content="Download Template">
-                                <button
-                                        type="button"
-                                        onClick={handleDownload}
-                                        className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
-                                    >
-                                        <IconDownload />
-                                </button>
-                            </Tippy>
                         </div>
                     </div>
                 </div>
@@ -289,7 +211,7 @@ const Index = () => {
                         columns={[
                             { 
                                 accessor: 'coaCode', 
-                                title: 'Account No', 
+                                title: 'Acccount No', 
                                 sortable: true, 
                                 render: (row: COAType,index: number) => (
                                     <>
@@ -314,32 +236,62 @@ const Index = () => {
                             },
                             {
                                 accessor: '',
-                                title: 'action',
-                                render: (s: COAType) => (
+                                title: 'Begening Balance', 
+                                sortable: true,
+                                render: (row: COAType,index: number) => (
                                     <>
-                                        <Tippy content="Edit">
-                                            <button type="button" onClick={() => navigate(`/CoA/update/${s.coaId}`)} className="">
-                                                <IconPencil className="ltr:mr-2 rtl:ml-2" />
-                                            </button>
-                                        </Tippy>
-                                        <Tippy content="Delete">
-                                            <button
-                                                type="button"
-                                                onClick={async () => {
-                                                    setDeleteId(s.coaId as number);
-                                                    setShowDeleteModal(true);
-                                                }}
-                                            >
-                                                <IconTrashLines className="m-auto" />
-                                            </button>
-                                        </Tippy>
+                                        <span>0</span>
                                     </>
-                                ),
+                                )
+                            },
+                            {
+                                accessor: '',
+                                title: 'Change Debit', 
+                                sortable: true,
+                                render: (row: COAType,index: number) => (
+                                    <>
+                                        <span>0</span>
+                                    </>
+                                )
+                            },
+                            {
+                                accessor: '',
+                                title: 'Change Credit', 
+                                sortable: true,
+                                render: (row: COAType,index: number) => (
+                                    <>
+                                        <span>0</span>
+                                    </>
+                                )
+                            },
+                            {
+                                accessor: '',
+                                title: 'Net Change', 
+                                sortable: true,
+                                render: (row: COAType,index: number) => (
+                                    <>
+                                        <span>0</span>
+                                    </>
+                                )
+                            },
+                            { 
+                                accessor: 'balance', 
+                                title: 'Ending Balance', 
+                                sortable: true,
+                                render: (row: COAType,index: number) => (
+                                    <>
+                                        <span style={{ fontWeight: row.accountTypeName == "Header" ? 'bold' : 'normal'}}>
+                                            { formatNumber(row.balance) }
+                                        </span>
+                                    </>
+                                )
                             },
                         ]}
                         horizontalSpacing={`xs`}
                         verticalSpacing={`xs`}
                         totalRecords={CoAList?.totalData}
+                        sortStatus={sortStatus}
+                        onSortStatusChange={setSortStatus}
                         rowStyle={(state: COAType) => (state ? { padding: 0 } : { padding: 0 })}
                         fetching={isLoading}
                         minHeight={200}

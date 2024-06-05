@@ -14,7 +14,10 @@ export const bankApi = apiSlice.injectEndpoints({
             query: ({ orderBy = 'coacode', orderType = 'asc', page = 1, pageSize = 10 } = {}) =>
                 `/Bank?orderBy=${orderBy}&orderType=${orderType}&page=${page}&pageSize=${pageSize}`,
         }),
+        getOptionBank: builder.query({
+            query: (params) => `/Bank?${new URLSearchParams(params).toString()}`,
+        }),
     }),
 });
 
-export const { useGetBanksQuery } = bankApi;
+export const { useGetBanksQuery,useGetOptionBankQuery } = bankApi;

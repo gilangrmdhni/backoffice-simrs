@@ -44,6 +44,9 @@ const BranchUpdate= lazy(() => import('../pages/Master/Branch/form'));
 // AgingSchedule
 const AgingScheduleIndex = lazy(() => import('../pages/Receivable/AgingSchedule'));
 
+// payment Period
+const PaymentPeriodIndex = lazy(() => import('../pages/Receivable/PaymentPeriod'));
+
 // Bank
 const BookBankIndex = lazy(() => import('../pages/Bank/BookBank'));
 const DepositCreate = lazy(() => import('../pages/Bank/Deposit/form'));
@@ -52,6 +55,12 @@ const DepositUpdate = lazy(() => import('../pages/Bank/Deposit/form'));
 const PaymentUpdate = lazy(() => import('../pages/Bank/Payment/form'));
 const ReconcileCreate = lazy(() => import('../pages/Bank/Reconcile/form'));
 
+
+// General Ledger History
+const GeneralLedgerHistoryIndex = lazy(() => import('../pages/GeneralLedger/History'));
+
+// General Ledger Summary
+const GeneralLedgerSummaryIndex = lazy(() => import('../pages/GeneralLedger/Summary'));
 
 
 const routes = [
@@ -197,6 +206,11 @@ const routes = [
         layout: 'default',
     },
     {
+        path: '/paymentPeriod',
+        element: <PaymentPeriodIndex />,
+        layout: 'default',
+    },
+    {
         path: '/bookBank',
         element: <BookBankIndex />,
         layout: 'default',
@@ -219,6 +233,13 @@ const routes = [
     {
         path: 'reconcile',
         element: <ReconcileCreate />,
+        path: '/generalLedger/History',
+        element: <GeneralLedgerHistoryIndex />,
+        layout: 'default',
+    },
+    {
+        path: '/generalLedger/Summary',
+        element: <GeneralLedgerSummaryIndex />,
         layout: 'default',
     },
 ];
