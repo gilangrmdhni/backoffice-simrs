@@ -161,7 +161,7 @@ const Sidebar = () => {
                                         </li>
                                         <li>
                                             <NavLink to="/coa">
-                                                COA
+                                                Chart Of Acount
                                             </NavLink>
                                         </li>
                                         <li>
