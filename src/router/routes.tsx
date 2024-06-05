@@ -60,6 +60,12 @@ const GeneralLedgerHistoryIndex = lazy(() => import('../pages/GeneralLedger/Hist
 // General Ledger Summary
 const GeneralLedgerSummaryIndex = lazy(() => import('../pages/GeneralLedger/Summary'));
 
+// Kas Bank
+const DaftarBukuKasIndex = lazy(() => import('../pages/BukuKas/DaftarBukuKas'));
+const DaftarBukuKasCreate = lazy(() => import('../pages/BukuKas/DaftarBukuKas'));
+
+// Penerimaan
+const DaftarPenerimaanIndex = lazy(() => import('../pages/Penerimaan/DaftarPenerimaan'));
 
 const routes = [
     // dashboard
@@ -236,6 +242,21 @@ const routes = [
     {
         path: '/generalLedger/Summary',
         element: <GeneralLedgerSummaryIndex />,
+        layout: 'default',
+    },
+    {
+        path: '/bukukas',
+        element: <DaftarBukuKasIndex />,
+        layout: 'default',
+    },
+    {
+        path: '/bukukas/create',
+        element: <DaftarBukuKasIndex />,
+        layout: 'default',
+    },
+    {
+        path: '/daftarpenerimaan',
+        element: <DaftarPenerimaanIndex />,
         layout: 'default',
     },
 ];
