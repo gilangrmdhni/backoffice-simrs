@@ -55,17 +55,23 @@ const BookBankIndex = () => {
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<number>(0);
 
-    const handleDelete = async () => {
+
+    const handleDelete = async (id: number) => {
         try {
-            const response: any = await deleteBookBank(deleteId).unwrap();
-            setDeleteId(0);
-            setShowDeleteModal(false);
-            responseCallback(response, null, null);
-            refetch();
-        } catch (err: any) {
-            toastMessage(err.message, 'error');
+            const response = await deleteBookBank(id).unwrap();
+            // Handle success response
+        } catch (err) {
+            // Handle error
+            console.error("Error deleting book bank:", err);
+            toastMessage("Failed to delete book bank.", 'error');
         }
     };
+    
+
+    const handleEdit = (id: number) => {
+        navigate(`/bookBank/update/${id}`);
+    };
+
 
     useEffect(() => {
         refetch();
@@ -138,29 +144,34 @@ const BookBankIndex = () => {
                         records={bookBankList?.data?.data}
                         columns={[
                             { accessor: 'journalId', title: 'ID', sortable: true, textAlignment: 'center' },
-                            { accessor: 'journalDescDebit', title: 'Description', sortable: true },
-                            { accessor: 'coaDebit', title: 'CoA Debit', sortable: true },
-                            { accessor: 'coaCredit', title: 'CoA Credit', sortable: true },
-                            { accessor: 'coaDebitName', title: 'Account Name', sortable: true },
-                            { accessor: 'coaCreditName', title: 'Account Credit Name', sortable: true },
+                            { accessor: 'journalDescDebit', title: 'Debit Description', sortable: true },
+                            { accessor: 'journalDescCredit', title: 'Credit Description', sortable: true },
+                            { accessor: 'coaDebit', title: 'Debit', sortable: true },
+                            { accessor: 'coaCredit', title: 'Credit', sortable: true },
+                            { accessor: 'coaDebitName', title: 'Debit Account Name', sortable: true },
+                            { accessor: 'coaDebitParent', title: 'Debit Account Parent', sortable: true },
+                            { accessor: 'coaCreditName', title: 'Credit Account Name', sortable: true },
+                            { accessor: 'coaCreditParent', title: 'Credit Account Parent', sortable: true },
                             { accessor: 'amount', title: 'Amount', sortable: true },
-                            { accessor: 'status', title: 'Status', sortable: true },
+                            { accessor: 'source', title: 'Source', sortable: true },
                             { accessor: 'createdDate', title: 'Created Date', sortable: true, render: ({ createdDate }) => new Date(createdDate).toLocaleDateString() },
+                            { accessor: 'vourcherId', title: 'Voucher ID', sortable: true },
+                            { accessor: 'status', title: 'Status', sortable: true },
                             {
                                 accessor: '',
                                 title: 'Actions',
                                 render: (s: BookBankType) => (
                                     <>
                                         <Tippy content="Edit">
-                                            <button type="button" onClick={() => navigate(`/bookBank/update/${s.journalId}`)}>
+                                            <button type="button" onClick={() => handleEdit(s.journalId)}>
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>
                                         <Tippy content="Delete">
                                             <button
                                                 type="button"
-                                                onClick={async () => {
-                                                    setDeleteId(s.journalId as number);
+                                                onClick={() => {
+                                                    setDeleteId(s.journalId);
                                                     setShowDeleteModal(true);
                                                 }}
                                             >
@@ -170,6 +181,7 @@ const BookBankIndex = () => {
                                     </>
                                 ),
                             },
+
                         ]}
                         totalRecords={bookBankList?.data?.totalData}
                         recordsPerPage={pageSize}
@@ -215,9 +227,14 @@ const BookBankIndex = () => {
                                             <button onClick={() => setShowDeleteModal(false)} type="button" className="btn btn-outline-dark">
                                                 Cancel
                                             </button>
-                                            <button onClick={handleDelete} type="button" className="btn btn-outline-danger ltr:ml-4 rtl:mr-4">
+                                            <button
+                                                onClick={() => handleDelete(deleteId)}
+                                                type="button"
+                                                className="btn btn-outline-danger ltr:ml-4 rtl:mr-4"
+                                            >
                                                 Delete
                                             </button>
+
                                         </div>
                                     </div>
                                 </Dialog.Panel>
