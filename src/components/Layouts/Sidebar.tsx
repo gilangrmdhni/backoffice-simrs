@@ -221,6 +221,11 @@ const Sidebar = () => {
                                                 Daftar Buku Kas dan Bank
                                             </NavLink>
                                         </li>
+                                        <li>
+                                            <NavLink to="/daftartransfer">
+                                                Daftar Transfer
+                                            </NavLink>
+                                        </li>
                                     </ul>
                                 </AnimateHeight>
                             </li>
