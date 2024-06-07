@@ -1,7 +1,8 @@
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
-import { Fragment, useEffect, useState,useRef } from 'react';
+import { Fragment, useEffect, useState, useRef } from 'react';
 import { setBreadcrumbTitle, setPageTitle, setTitle } from '../../../store/themeConfigSlice';
 import { useDeleteUsersMutation, useGetUsersQuery } from '@/store/api/users/usersApiSlice';
 import IconServer from '@/components/Icon/IconServer';
@@ -15,27 +16,23 @@ import IconX from '@/components/Icon/IconX';
 import IconPlus from '@/components/Icon/IconPlus';
 import IconFile from '@/components/Icon/IconTxtFile';
 import IconDownload from '@/components/Icon/IconDownload';
-import { useNavigate } from 'react-router-dom';
-import { COAType, usersType,OptionType } from '@/types';
-import { number } from 'yup';
+import { COAType, usersType, OptionType } from '@/types';
 import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
-import { rolesType } from '@/types/rolesType';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
-import { useGetCOAQuery,useDeleteCOAMutation,useGetOptionCOAQuery, useDownloadCoaMutation,useCOAUploadMutation } from '@/store/api/coa/coaApiSlice';
-// import '@/pages/Master/Coa/index.css';
+import { useGetCOAQuery, useDeleteCOAMutation, useGetOptionCOAQuery, useDownloadCoaMutation, useCOAUploadMutation } from '@/store/api/coa/coaApiSlice';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query/fetchBaseQuery';
 import { SerializedError } from '@reduxjs/toolkit';
 import SelectSearch from 'react-select';
 import moment from "moment";
+import './index.css'; 
 
 const Index = () => {
-    // const user = useSelector((state: any) => state.auth.user);
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(setPageTitle('Daftar Buku Kas'));
         dispatch(setTitle('Daftar Buku Kas'));
-        dispatch(setBreadcrumbTitle(['Dashboard','Master','Buku Kas','List']));
+        dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'Buku Kas', 'List']));
     });
     const [isLoadingUpload, setIsLoadingUpload] = useState<boolean>(false);
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
@@ -60,7 +57,7 @@ const Index = () => {
         orderType: sortStatus.direction,
         page: -1,
         status,
-        parent : COALevel,
+        parent: COALevel,
     });
     const {
         data: CoAListOption,
@@ -68,27 +65,23 @@ const Index = () => {
     } = useGetOptionCOAQuery<any>({
         orderBy: sortStatus.columnAccessor === 'coaCode' ? 'coaCode' : sortStatus.columnAccessor,
         orderType: sortStatus.direction,
-        pageSize:20,
+        pageSize: 20,
         status,
-        level : 4,
-        accounttype : 1,
-        keyword:searchType
+        level: 4,
+        accounttype: 1,
+        keyword: searchType
     });
 
-    const [CoaUpload, {isLoading:isLoadingError,isError: isErrorUpload}] = useCOAUploadMutation();
-
-
+    const [CoaUpload, { isLoading: isLoadingError, isError: isErrorUpload }] = useCOAUploadMutation();
     const [downloadTemplateCOA] = useDownloadCoaMutation();
-
-
     let TypeListOption = [];
-        TypeListOption.push({
-            value: "",
-            label: "All Type",
-            level: "",
-        })
+    TypeListOption.push({
+        value: "",
+        label: "All Type",
+        level: "",
+    })
     {
-        CoAListOption?.data?.map((option: any) =>{
+        CoAListOption?.data?.map((option: any) => {
             TypeListOption.push({
                 value: option.value,
                 label: option.label,
@@ -125,7 +118,7 @@ const Index = () => {
                 level: "",
             })
             {
-                CoAListOption?.data?.map((option: any) =>{
+                CoAListOption?.data?.map((option: any) => {
                     TypeListOption.push({
                         value: option.value,
                         label: option.label,
@@ -139,7 +132,6 @@ const Index = () => {
     useEffect(() => {
         refetch();
     }, [COALevel]);
-    
 
     useEffect(() => {
         refetch();
@@ -155,32 +147,26 @@ const Index = () => {
     };
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const handleUploadClick =  () => {
+    const handleUploadClick = () => {
         if (fileInputRef.current) {
             fileInputRef.current.click();
         }
     };
 
-    const handleFileChange =  async (e: any) => {
-        console.log("loading file")
+    const handleFileChange = async (e: any) => {
         try {
             setIsLoadingUpload(true);
             const file = e.target.files[0];
             const response = await CoaUpload(file);
             if ('data' in response) {
-                console.log("loading success");
-                console.log("successUpload");
                 setIsLoadingUpload(false);
                 responseCallback(response, null, null);
             } else if ('error' in response) {
-                console.log("loading success");
-                console.log("errorUpload");
                 setIsLoadingUpload(false);
-                
                 if ('message' in response) {
                     responseCallback(response, (data: any) => {
                         navigate('/coa');
-                    }, null);                    
+                    }, null);
                 } else {
                     responseCallback(response, (data: any) => {
                         navigate('/coa');
@@ -188,7 +174,6 @@ const Index = () => {
                 }
             }
         } catch (error: any) {
-            console.log(error);
             setIsLoadingUpload(false);
             toastMessage(error.message, 'error');
         } finally {
@@ -197,10 +182,7 @@ const Index = () => {
                 fileInputRef.current.value = ''; // Reset input file
             }
         }
-
-
     };
-
 
     const handleDownload = async () => {
         try {
@@ -224,13 +206,13 @@ const Index = () => {
                     <div className="rtl:ml-auto rtl:mr-auto">
                         <div className="grid grid-cols-3 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                            <SelectSearch 
-                                    placeholder="All Type"
-                                    options={TypeListOption}
-                                    className="z-10"
-                                    onInputChange={(e)=> setSearchType(e)}
-                                    onChange={(dt: any)=>{setCOALevel(dt.value)}}
-                                />
+                            <SelectSearch
+                                placeholder="All Type"
+                                options={TypeListOption}
+                                className="z-10"
+                                onInputChange={(e) => setSearchType(e)}
+                                onChange={(dt: any) => { setCOALevel(dt.value) }}
+                            />
                             <button
                                 type="button"
                                 className="hidden w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
@@ -254,28 +236,28 @@ const Index = () => {
                                 </button>
                             </Tippy>
                             <Tippy content="import File">
-                                    <button
-                                        type="button"
-                                        onClick={handleUploadClick}
-                                        className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
-                                    >
-                                        {isLoadingUpload && <span className="animate-spin border-2 border-black border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle"></span>}
-                                        {!isLoadingUpload &&  <IconFile />}
-                                        <input 
-                                            type="file" 
-                                            className={`hidden`}
-                                            onChange={handleFileChange}
-                                            ref={fileInputRef}
-                                        />
-                                    </button>
+                                <button
+                                    type="button"
+                                    onClick={handleUploadClick}
+                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
+                                >
+                                    {isLoadingUpload && <span className="animate-spin border-2 border-black border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle"></span>}
+                                    {!isLoadingUpload && <IconFile />}
+                                    <input
+                                        type="file"
+                                        className={`hidden`}
+                                        onChange={handleFileChange}
+                                        ref={fileInputRef}
+                                    />
+                                </button>
                             </Tippy>
                             <Tippy content="Download Template">
                                 <button
-                                        type="button"
-                                        onClick={handleDownload}
-                                        className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
-                                    >
-                                        <IconDownload />
+                                    type="button"
+                                    onClick={handleDownload}
+                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
+                                >
+                                    <IconDownload />
                                 </button>
                             </Tippy>
                         </div>
@@ -287,34 +269,54 @@ const Index = () => {
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
                         records={CoAList?.data?.data}
                         columns={[
-                            { 
-                                accessor: 'coaCode', 
-                                title: 'Account No', 
-                                sortable: true, 
-                                render: (row: COAType,index: number) => (
+                            {
+                                accessor: 'coaCode',
+                                title: 'KODE AKUN',
+                                sortable: true,
+                                render: (row: COAType, index: number) => (
                                     <>
-                                        <span style={{ fontWeight: row.accountTypeName == "Header" ? 'bold' : 'normal', paddingLeft: (row.coaLevel > 4) ?`${(row.coaLevel-3) * 0.5}rem` : '0rem' }}>
-                                            {row.coaCode}
-                                        </span>
+                                        <span>{row.coaCode}</span>
                                     </>
                                 )
                             },
-                            
                             {
-                                accessor: 'coaName', 
-                                title: 'Account Name', 
+                                accessor: 'accountTypeName',
+                                title: 'TIPE',
                                 sortable: true,
-                                render: (row: COAType,index: number) => (
+                                render: (row: COAType, index: number) => (
                                     <>
-                                        <span style={{ fontWeight: row.accountTypeName == "Header" ? 'bold' : 'normal', paddingLeft: (row.coaLevel > 4) ?`${(row.coaLevel-3) * 0.5}rem` : '0rem' }}>
+                                        <span>{row.accountTypeName}</span>
+                                    </>
+                                )
+                            },
+                            {
+                                accessor: 'coaName',
+                                title: 'NAMA AKUN',
+                                sortable: true,
+                                render: (row: COAType, index: number) => (
+                                    <>
+                                        {row.accountTypeName !== "Header" && (
+                                            <span className="yellow-bullet"></span>
+                                        )}
+                                        <span style={{ fontWeight: row.accountTypeName === "Header" ? 'bold' : 'normal', paddingLeft: (row.coaLevel > 4) ? `${(row.coaLevel - 3) * 0.5}rem` : '0rem' }}>
                                             {row.coaName}
                                         </span>
                                     </>
                                 )
                             },
                             {
+                                accessor: 'balance',
+                                title: 'SALDO',
+                                sortable: true,
+                                render: (row: COAType, index: number) => (
+                                    <>
+                                        <span>{row.balance}</span>
+                                    </>
+                                )
+                            },
+                            {
                                 accessor: '',
-                                title: 'action',
+                                title: 'ACTION',
                                 render: (s: COAType) => (
                                     <>
                                         <Tippy content="Edit">
