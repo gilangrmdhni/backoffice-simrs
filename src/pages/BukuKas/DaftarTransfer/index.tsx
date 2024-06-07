@@ -118,7 +118,6 @@ const DaftarTransferIndex = () => {
                             </Tippy> */}
                             <Tippy content="Tambah Daftar Transfer">
                                 <button 
-                                    onClick={() => navigate(`/daftartransfer/create`)}
                                     type="button" 
                                     className="flex justify-left w-auto h-10 p-2.5 bg-primary rounded-md ">
                                         <IconPlus className='text-white font-bold' />

@@ -130,7 +130,8 @@ const Header = () => {
                 <div className="relative shadow-lg bg-[#9C6ACD] flex w-full items-center px-5 py-2.5 dark:bg-black">
                     <div className="horizontal-logo flex lg:hidden justify-between items-center ltr:mr-2 rtl:ml-2">
                         <Link to="/" className="main-logo flex items-center shrink-0">
-                            <img className="w-8 ltr:-ml-1 rtl:-mr-1 inline h-[45px] w-auto" src="https://placehold.co/150x45" alt="logo" />
+                            {/* <img className="w-8 ltr:-ml-1 rtl:-mr-1 inline h-[45px] w-auto" src="https://placehold.co/150x45" alt="logo" /> */}
+                            <h3 className='font-semibold text-white text-2xl'>RS Setia Mitra</h3>
                         </Link>
                         <button
                             type="button"
