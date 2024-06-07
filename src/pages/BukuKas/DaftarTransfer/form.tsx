@@ -20,6 +20,7 @@ import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
 import SelectSearch from 'react-select';
 import Flatpickr from 'react-flatpickr';
+import 'flatpickr/dist/flatpickr.css';
 
 
 const Form = () => {
@@ -193,6 +194,9 @@ const Form = () => {
     return (
         <div>
             <div className="panel mt-6">
+                <h1 className="font-semibold text-2xl text-black mb-10">
+                    Transfer Uang
+                </h1>
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(submitForm)}>
                     <div className="grid md:grid-cols-1 w-full ">
                         <div className='flex justify-start w-full mb-10'>
@@ -267,13 +271,18 @@ const Form = () => {
                                 <label htmlFor="Akun">Transaksi</label>
                             </div>
                             <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
-                                <div className='w-full'>
+                                <div className=''>
                                     <label htmlFor="Akun">Tanggal</label>
-                                    <Flatpickr value={isTanggal} options={{ dateFormat: 'Y-m-d', position: isRtl ? 'auto right' : 'auto left' }} className="form-input font-normal" onChange={(date:any) => setIsTanggal(date)} />
+                                    <Flatpickr 
+                                        value={isTanggal} 
+                                        options={{ dateFormat: 'Y-m-d', position: isRtl ? 'auto right' : 'auto left' }} 
+                                        className="form-input font-normal" 
+                                        onChange={(date:any) => setIsTanggal(date)}
+                                        />
 
                                     <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
                                 </div>
-                                <div className='w-full'>
+                                <div className=''>
                                     <label htmlFor="Akun">Waktu</label>
                                     <Flatpickr
                                         options={{
