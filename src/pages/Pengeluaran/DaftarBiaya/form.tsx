@@ -159,9 +159,9 @@ const DaftarBiayaForm = () => {
     };
 
     useEffect(() => {
-        dispatch(setPageTitle('Payment'));
-        dispatch(setTitle('Payment'));
-        dispatch(setBreadcrumbTitle(['Dashboard', 'Bank', 'Payment', id ? 'Update' : 'Create']));
+        dispatch(setPageTitle('Daftar Biaya'));
+        dispatch(setTitle('Daftar Biaya'));
+        dispatch(setBreadcrumbTitle(['Dashboard', 'Bank', 'Daftar Biaya', id ? 'Update' : 'Create']));
         if (id) {
             refetchDetailPayment();
         }
