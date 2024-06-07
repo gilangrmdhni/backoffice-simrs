@@ -23,9 +23,9 @@ const DaftarBiayaIndex = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        dispatch(setPageTitle('Book Bank'));
-        dispatch(setTitle('Book Bank'));
-        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "Book Bank"]));
+        dispatch(setPageTitle('Daftar Biaya'));
+        dispatch(setTitle('Daftar Biaya'));
+        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "Daftar Biaya","List"]));
     }, [dispatch]);
 
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
