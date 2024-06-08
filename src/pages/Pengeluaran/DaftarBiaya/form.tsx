@@ -1,4 +1,4 @@
-import { useDispatch } from 'react-redux';
+import { useDispatch,useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { setPageTitle, setTitle, setBreadcrumbTitle } from '../../../store/themeConfigSlice';
@@ -13,14 +13,21 @@ import { useGetBanksQuery } from '@/store/api/bank/bankApiSlice';
 import { PaymentType, PaymentUpdateType } from '@/types/paymentType';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
+import Flatpickr from 'react-flatpickr';
+import 'flatpickr/dist/flatpickr.css';
 
 const DaftarBiayaForm = () => {
+    const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { id } = useParams();
     const { data: detailPayment, refetch: refetchDetailPayment } = id ? useGetPaymentDetailQuery(Number(id)) : { data: null, refetch: () => { } };
     const [createPayment, { isLoading: isCreating }] = useCreatePaymentMutation();
     const [updatePayment, { isLoading: isUpdating }] = useUpdatePaymentMutation();
+    const [paymentNow,setPaymentNow] = useState<boolean>(false)
+    const dateNow = new Date
+    const [isTanggal, setIsTanggal] = useState<any>(dateNow)
+    const [isTime, setIsTime] = useState<any>(dateNow)
 
     const schema = yup.object({
         journalDescDebit: yup.string().required('Debit Description is Required'),
@@ -151,7 +158,7 @@ const DaftarBiayaForm = () => {
                 response = await createPayment(postData).unwrap();
             }
             responseCallback(response, () => {
-                navigate('/payment');
+                navigate('/daftarbiaya');
             }, null);
         } catch (err: any) {
             toastMessage(err.message, 'error');
@@ -159,8 +166,8 @@ const DaftarBiayaForm = () => {
     };
 
     useEffect(() => {
-        dispatch(setPageTitle('Daftar Biaya'));
-        dispatch(setTitle('Daftar Biaya'));
+        dispatch(setPageTitle('Buat Biaya'));
+        dispatch(setTitle('Buat Biaya'));
         dispatch(setBreadcrumbTitle(['Dashboard', 'Bank', 'Daftar Biaya', id ? 'Update' : 'Create']));
         if (id) {
             refetchDetailPayment();
@@ -198,24 +205,132 @@ const DaftarBiayaForm = () => {
         return () => subscription.unsubscribe();
     }, [watch]);
 
+    console.log(paymentNow)
     return (
         <div>
-            <ToastContainer />
-            <div className='panel flex'>
-                <ol className="flex space-x-2 rtl:space-x-reverse">
-                    <li>
-                        <Link to="/payment" className="text-primary hover:underline">
-                            Payment
-                        </Link>
-                    </li>
-                    <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                        <span>{id ? 'Update' : 'Create'}</span>
-                    </li>
-                </ol>
-            </div>
             <div className="panel mt-6">
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(onSubmit)}>
                     <div className="grid md:grid-cols-1 gap-4 w-full">
+                        <div className='flex justify-start w-full mb-5'>
+                            <div className='label mr-10 w-64'>
+                                <label htmlFor="">Bayar Sekarang?</label>
+                            </div>
+                            <div className="relative text-white-dark w-full">
+                            <label className="w-12 h-6 relative">
+                                <input type="checkbox" checked={paymentNow} onClick={()=> setPaymentNow(!paymentNow) } className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer" id="custom_switch_checkbox1" />
+                                    <span className="bg-[#ebedf2] dark:bg-dark block h-full rounded-full before:absolute before:left-1 before:bg-white dark:before:bg-white-dark dark:peer-checked:before:bg-white before:bottom-1 before:w-4 before:h-4 before:rounded-full peer-checked:before:left-7 peer-checked:bg-primary before:transition-all before:duration-300"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div className='flex justify-start w-full mb-5'>
+                            <div className='label mr-10 w-64'>
+                                <label htmlFor="Akun">Transaksi</label>
+                            </div>
+                            {paymentNow ? (
+                                <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
+                                    <div className=''>
+                                        <label htmlFor="Akun">Bayar Dari</label>
+                                        <select id="coaCredit" {...register('coaCredit')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                            <option value="">Pilih</option>
+                                            {bankList.map((bank) => (
+                                                <option key={bank.desc} value={bank.desc}>{bank.label}</option>
+                                            ))}
+                                        </select>
+
+                                        <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
+                                    </div>
+                                    <div className=''>
+                                        <label htmlFor="Akun">No Transaksi</label>
+                                        <input type="text" id="coaCredit"  className="form-input font-normal" placeholder='CONTOH : BTB-10001' 
+                                        />
+                                        <span className="text-danger text-xs">{(errors.createdDate as FieldError)?.message}</span>
+                                    </div>
+                                </div>
+                                ) : (
+                                    <div className="text-white-dark w-full grid md:grid-cols-1 gap-4">
+                                        <div className=''>
+                                            <label htmlFor="Akun">Bayar Dari</label>
+                                            <select disabled id="coaCredit" {...register('coaCredit')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                                <option value="" disabled>Pilih</option>  
+                                            </select>
+        
+                                            {/* <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span> */}
+                                        </div>
+                                    </div>
+                                ) 
+                            }
+                        </div>
+
+                        <div className='flex justify-start w-full mb-5'>
+                            <div className='label mr-10 w-64'>
+                                {/* <label htmlFor="Akun">Transaksi</label> */}
+                            </div>
+                            <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
+                                <div className=''>
+                                    <label htmlFor="Akun">No Refrensi</label>
+                                    <input type="text" id="coaCredit"  className="form-input font-normal" placeholder='CONTOH : BTB-10001' 
+                                    />
+
+                                    <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
+                                </div>
+                                <div className=''>
+                                    <label htmlFor="Akun">No Biaya</label>
+                                    <input type="text" id="coaCredit"  className="form-input font-normal" placeholder='CONTOH : BTB-10001' 
+                                    />
+                                    <span className="text-danger text-xs">{(errors.createdDate as FieldError)?.message}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <div className='flex justify-start w-full mb-5'>
+                            <div className='label mr-10 w-64'>
+                                <label htmlFor="Akun">Mitra</label>
+                            </div>
+                            <div className="text-white-dark w-full grid md:grid-cols-1 gap-4">
+                                <div className=''>
+                                    <label htmlFor="Akun">No Refrensi</label>
+                                    <select id="coaCredit" {...register('coaCredit')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                        <option value="">Pilih</option>
+                                        {bankList.map((bank) => (
+                                            <option key={bank.desc} value={bank.desc}>{bank.label}</option>
+                                        ))}
+                                    </select>
+
+                                    <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className='flex justify-start w-full mb-5'>
+                            <div className='label mr-10 w-64'>
+                                {/* <label htmlFor="Akun">Transaksi</label> */}
+                            </div>
+                            <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
+                                <div className=''>
+                                    <label htmlFor="Akun">Tanggal Refrensi</label>
+                                    <Flatpickr
+                                        value={isTanggal}
+                                        options={{ dateFormat: 'Y-m-d', position: isRtl ? 'auto right' : 'auto left' }}
+                                        className="form-input font-normal"
+                                        onChange={(date: any) => setIsTanggal(date)}
+                                    />
+
+                                    <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
+                                </div>
+                                <div className=''>
+                                    <label htmlFor="Akun">Tanggal Jatuh Tempo</label>
+                                    <Flatpickr
+                                        value={isTanggal}
+                                        options={{ dateFormat: 'Y-m-d', position: isRtl ? 'auto right' : 'auto left' }}
+                                        className="form-input font-normal"
+                                        onChange={(date: any) => setIsTanggal(date)}
+                                    />
+                                    <span className="text-danger text-xs">{(errors.createdDate as FieldError)?.message}</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div>
                             <label htmlFor="coaDebit" className="block text-sm font-medium text-gray-700">Pay To</label>
                             <div className="relative text-white-dark">
