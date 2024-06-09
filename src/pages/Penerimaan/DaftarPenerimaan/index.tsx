@@ -17,15 +17,18 @@ import { toastMessage } from '@/utils/toastUtils';
 import AnimateHeight from 'react-animate-height';
 import { useGetBookBanksQuery, useDeleteBookBankMutation } from '@/store/api/bank/bookBank/bookBankApiSlice';
 import { BookBankType } from '@/types/bookBankType';
+import DateRangePicker from '@/components/DateRangePicker';
+import { addDays } from 'date-fns';
+
 
 const DaftarPenerimaanIndex = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     useEffect(() => {
-        dispatch(setPageTitle('Book Bank'));
-        dispatch(setTitle('Book Bank'));
-        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "Book Bank"]));
+        dispatch(setPageTitle('Daftar Penerimaan'));
+        dispatch(setTitle('Daftar Penerimaan'));
+        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "Daftar Penerimaan", "List"]));
     }, [dispatch]);
 
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
@@ -75,77 +78,82 @@ const DaftarPenerimaanIndex = () => {
         setPage(1);
     }, [sortStatus, search, pageSize]);
 
+    const [dates, setDates] = useState<{ startDate: Date | null, endDate: Date | null }>({ startDate: new Date(), endDate: addDays(new Date(), 30) });
+
+    const handleFilter = (startDate: Date | null, endDate: Date | null) => {
+        setDates({ startDate, endDate });
+        console.log('Filtering data from', startDate, 'to', endDate);
+    };
+
+    const handleClick = (newStatus: React.SetStateAction<string>) => {
+        setStatus(newStatus);
+    };
     return (
         <div>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
                     <div className="rtl:ml-auto rtl:mr-auto">
                         <div className="grid grid-cols-3 gap-2">
-                            <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                            <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
-                                <option value={''}>All Status</option>
-                                <option value={'Pending'}>Pending</option>
-                                <option value={'Completed'}>Completed</option>
-                            </select>
-                            <button
-                                type="button"
-                                className="hidden w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
-                                onClick={() => setShowFilter((prevValue) => !prevValue)}
-                            >
-                                <span className="flex items-center">
-                                    <img src="/assets/images/sorting-options.svg" />
-                                </span>
-                            </button>
+                            <span className=' text-3xl '>Daftar Penerimaan</span>
                         </div>
                     </div>
                     <div className="ltr:ml-auto">
-                        <div className="grid grid-cols-2 gap-2">
-                            <Tippy content="Add Book Bank">
-                                <button
-                                    onClick={() => navigate(`/bookBank/create`)}
-                                    type="button"
-                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
-                                >
-                                    <IconPlus />
-                                </button>
-                            </Tippy>
-                            <Tippy content="Download">
-                                <Link to="" className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60">
-                                    <IconDownload />
-                                </Link>
-                            </Tippy>
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => navigate(`/daftarpenerimaan/create`)}
+                                type="button"
+                                className="btn btn-primary"
+                            >
+                                + Tambah Daftar Penerimaan
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div>
-                    <AnimateHeight duration={300} height={showFilter ? 'auto' : 0}>
-                        <div className="space-y-2 p-4 text-white-dark text-[13px] border-t border-[#d3d3d3] dark:border-[#1b2e4b]">
-                            <div className="grid grid-cols-8 gap-2">
-                                <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                                <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
-                                    <option value={''}>All Status</option>
-                                    <option value={'Pending'}>Pending</option>
-                                    <option value={'Completed'}>Completed</option>
-                                </select>
+                <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
+                    <div className="rtl:ml-auto rtl:mr-auto">
+                        <div className="grid grid-cols-4 gap-2">
+                            <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                            <DateRangePicker onFilter={handleFilter} />
+                        </div>
+                    </div>
+                    <div className="ltr:ml-auto">
+                        <div className="flex items-center gap-1">
+                            <div className="flex border-2 rounded-lg overflow-hidden">
+                                <button
+                                    onClick={() => handleClick('Selesai')}
+                                    className={`flex-1 px-4 py-2 ${status === 'Selesai' ? 'bg-purple-500 text-white' : 'bg-white text-black'}`}
+                                >
+                                    Selesai
+                                </button>
+                                <button
+                                    onClick={() => handleClick('Draf')}
+                                    className={`flex-1 px-4 py-2 ${status === 'Draf' ? 'bg-purple-500 text-white border-l ' : 'bg-white text-black'}`}
+                                >
+                                    Draf
+                                </button>
+                                <button
+                                    onClick={() => handleClick('Void')}
+                                    className={`flex-1 px-4 py-2 ${status === 'Void' ? 'bg-purple-500 text-white border-l ' : 'bg-white text-black'}`}
+                                >
+                                    Void
+                                </button>
                             </div>
                         </div>
-                    </AnimateHeight>
+                    </div>
                 </div>
+
                 <div className="datatables">
                     <DataTable
                         highlightOnHover
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
                         records={bookBankList?.data?.data}
                         columns={[
-                            { accessor: 'journalId', title: 'ID', sortable: true, textAlignment: 'center' },
-                            { accessor: 'journalDescDebit', title: 'Description', sortable: true },
-                            { accessor: 'coaDebit', title: 'CoA Debit', sortable: true },
-                            { accessor: 'coaCredit', title: 'CoA Credit', sortable: true },
-                            { accessor: 'coaDebitName', title: 'Account Name', sortable: true },
-                            { accessor: 'coaCreditName', title: 'Account Credit Name', sortable: true },
+                            // { accessor: 'journalId', title: 'ID', sortable: true, textAlignment: 'center' },
+                            { accessor: 'coaDebit', title: 'No Transaksi', sortable: true },
+                            { accessor: 'createdDate', title: 'Tanggal Transaksi', sortable: true, render: ({ createdDate }) => new Date(createdDate).toLocaleDateString() },
+                            { accessor: 'coaDebitName', title: 'Nama Akun', sortable: true },
                             { accessor: 'amount', title: 'Amount', sortable: true },
-                            { accessor: 'status', title: 'Status', sortable: true },
-                            { accessor: 'createdDate', title: 'Created Date', sortable: true, render: ({ createdDate }) => new Date(createdDate).toLocaleDateString() },
+                            { accessor: 'journalDescDebit', title: 'Keterangan', sortable: true },
                             {
                                 accessor: '',
                                 title: 'Actions',

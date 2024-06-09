@@ -64,6 +64,7 @@ const GeneralLedgerSummaryIndex = lazy(() => import('../pages/GeneralLedger/Summ
 
 // Kas Bank
 const DaftarBukuKasIndex = lazy(() => import('../pages/BukuKas/DaftarBukuKas'));
+const DaftarBukuKasCreate = lazy(() => import('../pages/BukuKas/DaftarBukuKas/form'));
 const DaftarTransferIndex = lazy(() => import('../pages/BukuKas/DaftarTransfer'));
 const DaftarTransferCreate = lazy(() => import('../pages/BukuKas/DaftarTransfer/form'));
 
@@ -78,6 +79,10 @@ const DaftarPengeluaranCreate = lazy(() => import('../pages/Pengeluaran/DaftarPe
 // daftar biaya
 const DaftarBiayaIndex = lazy(() => import('../pages/Pengeluaran/DaftarBiaya'));
 const DaftarBiayaCreate = lazy(() => import('../pages/Pengeluaran/DaftarBiaya/form'));
+
+// daftar biaya
+const DaftarBiayaRutinIndex = lazy(() => import('../pages/Pengeluaran/DaftarBiayaRutin'));
+const DaftarBiayaRutinCreate = lazy(() => import('../pages/Pengeluaran/DaftarBiayaRutin/form'));
 
 
 const routes = [
@@ -270,7 +275,7 @@ const routes = [
     },
     {
         path: '/bukukas/create',
-        element: <DaftarBukuKasIndex />,
+        element: <DaftarBukuKasCreate />,
         layout: 'default',
     },
     {
@@ -305,12 +310,22 @@ const routes = [
     },
     {
         path: '/daftarbiaya',
-        element: <DaftarPengeluaranIndex />,
+        element: <DaftarBiayaIndex />,
         layout: 'default',
     },
     {
         path: '/daftarbiaya/create',
         element: <DaftarBiayaCreate />,
+        layout: 'default',
+    },
+    {
+        path: '/daftarbiayarutin',
+        element: <DaftarBiayaRutinIndex />,
+        layout: 'default',
+    },
+    {
+        path: '/daftarbiayarutin/create',
+        element: <DaftarBiayaRutinCreate />,
         layout: 'default',
     },
 ];

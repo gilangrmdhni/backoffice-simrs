@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { Fragment, useEffect, useState, useRef } from 'react';
 import { setBreadcrumbTitle, setPageTitle, setTitle } from '../../../store/themeConfigSlice';
@@ -25,7 +25,7 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query/fetchBaseQuery'
 import { SerializedError } from '@reduxjs/toolkit';
 import SelectSearch from 'react-select';
 import moment from "moment";
-import './index.css'; 
+import './index.css';
 
 const Index = () => {
     const dispatch = useDispatch();
@@ -199,76 +199,87 @@ const Index = () => {
         }
     };
 
+    // Handler for checkbox select
+    const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.checked) {
+            setSelectedRecords(CoAList?.data?.data.map((item: any) => item.coaId));
+        } else {
+            setSelectedRecords([]);
+        }
+    };
+
+    const handleSelectRow = (id: number) => {
+        setSelectedRecords((prevSelected: any) =>
+            prevSelected.includes(id)
+                ? prevSelected.filter((selectedId: number) => selectedId !== id)
+                : [...prevSelected, id]
+        );
+    };
+
     return (
         <div>
             <div className="panel mt-6">
-                <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5 max-w-64">
-                    <div className="rtl:ml-auto rtl:mr-auto">
-                        <div className="grid grid-cols-3 gap-2">
-                            <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                            <SelectSearch
-                                placeholder="All Type"
-                                options={TypeListOption}
-                                className="z-10"
-                                onInputChange={(e) => setSearchType(e)}
-                                onChange={(dt: any) => { setCOALevel(dt.value) }}
-                            />
-                            <button
-                                type="button"
-                                className="hidden w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
-                                onClick={() => setShowFilter((prevValue) => !prevValue)}
-                            >
-                                <span className="flex items-center">
-                                    <img src="/assets/images/sorting-options.svg" />
-                                </span>
-                            </button>
-                        </div>
+                <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5 max-w-64 justify-between">
+                    <div className="flex items-center gap-2 text-3xl">
+                        Daftar Buku Bank & Kas
                     </div>
-                    <div className="ltr:ml-auto">
-                        <div className="grid grid-cols-3 gap-2">
-                            <Tippy content="Add CoA">
-                                <button
-                                    onClick={() => navigate(`/coa/create`)}
-                                    type="button"
-                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
-                                >
-                                    <IconPlus />
-                                </button>
-                            </Tippy>
-                            <Tippy content="import File">
-                                <button
-                                    type="button"
-                                    onClick={handleUploadClick}
-                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
-                                >
-                                    {isLoadingUpload && <span className="animate-spin border-2 border-black border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle"></span>}
-                                    {!isLoadingUpload && <IconFile />}
-                                    <input
-                                        type="file"
-                                        className={`hidden`}
-                                        onChange={handleFileChange}
-                                        ref={fileInputRef}
-                                    />
-                                </button>
-                            </Tippy>
-                            <Tippy content="Download Template">
-                                <button
-                                    type="button"
-                                    onClick={handleDownload}
-                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
-                                >
-                                    <IconDownload />
-                                </button>
-                            </Tippy>
-                        </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            className="btn btn-secondary"
+                        >
+                            Tambah Transaksi
+                        </button>
+                        <button
+                            onClick={() => navigate(`/bukukas/create`)}
+                            type="button"
+                            className="btn btn-primary"
+                        >
+                            + Tambah Buku Kas & Banks
+                        </button>
                     </div>
                 </div>
+                <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5 max-w-64 justify-between">
+                    <div className="flex items-center gap-2">
+                        <input type="text" className="form-input" placeholder="Cari..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <SelectSearch
+                            placeholder="Aktif"
+                            options={[
+                                { value: 'Aktif', label: 'Aktif' },
+                                { value: 'Tidak Aktif', label: 'Tidak Aktif' },
+                            ]}
+                            value={status}
+                            onChange={(selectedOption: any) => setStatus(selectedOption.value)}
+                        />
+                    </div>
+                </div>
+
                 <div className="datatables z-0">
                     <DataTable
                         highlightOnHover
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
                         records={CoAList?.data?.data}
                         columns={[
+                            {
+                                accessor: 'select',
+                                title: (
+                                    <input
+                                        type="checkbox"
+                                        onChange={handleSelectAll}
+                                        checked={selectedRecords.length === CoAList?.data?.data.length}
+                                    />
+                                ),
+                                render: (row: COAType) => (
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedRecords.includes(row.coaId ?? 0)} // Menggunakan 0 sebagai default jika undefined
+                                        onChange={() => handleSelectRow(row.coaId ?? 0)} // Menggunakan 0 sebagai default jika undefined
+                                    />
+                                ),
+                                width: '50px', // Optional: Adjust the width of the checkbox column
+                            },
                             {
                                 accessor: 'coaCode',
                                 title: 'KODE AKUN',

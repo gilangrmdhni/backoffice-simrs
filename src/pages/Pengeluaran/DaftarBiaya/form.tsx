@@ -1,4 +1,4 @@
-import { useDispatch,useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { setPageTitle, setTitle, setBreadcrumbTitle } from '../../../store/themeConfigSlice';
@@ -24,7 +24,7 @@ const DaftarBiayaForm = () => {
     const { data: detailPayment, refetch: refetchDetailPayment } = id ? useGetPaymentDetailQuery(Number(id)) : { data: null, refetch: () => { } };
     const [createPayment, { isLoading: isCreating }] = useCreatePaymentMutation();
     const [updatePayment, { isLoading: isUpdating }] = useUpdatePaymentMutation();
-    const [paymentNow,setPaymentNow] = useState<boolean>(false)
+    const [paymentNow, setPaymentNow] = useState<boolean>(false)
     const dateNow = new Date
     const [isTanggal, setIsTanggal] = useState<any>(dateNow)
     const [isTime, setIsTime] = useState<any>(dateNow)
@@ -216,8 +216,8 @@ const DaftarBiayaForm = () => {
                                 <label htmlFor="">Bayar Sekarang?</label>
                             </div>
                             <div className="relative text-white-dark w-full">
-                            <label className="w-12 h-6 relative">
-                                <input type="checkbox" checked={paymentNow} onClick={()=> setPaymentNow(!paymentNow) } className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer" id="custom_switch_checkbox1" />
+                                <label className="w-12 h-6 relative">
+                                    <input type="checkbox" checked={paymentNow} onClick={() => setPaymentNow(!paymentNow)} className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer" id="custom_switch_checkbox1" />
                                     <span className="bg-[#ebedf2] dark:bg-dark block h-full rounded-full before:absolute before:left-1 before:bg-white dark:before:bg-white-dark dark:peer-checked:before:bg-white before:bottom-1 before:w-4 before:h-4 before:rounded-full peer-checked:before:left-7 peer-checked:bg-primary before:transition-all before:duration-300"></span>
                                 </label>
                             </div>
@@ -241,23 +241,23 @@ const DaftarBiayaForm = () => {
                                     </div>
                                     <div className=''>
                                         <label htmlFor="Akun">No Transaksi</label>
-                                        <input type="text" id="coaCredit"  className="form-input font-normal" placeholder='CONTOH : BTB-10001' 
+                                        <input type="text" id="coaCredit" className="form-input font-normal" placeholder='CONTOH : BTB-10001'
                                         />
                                         <span className="text-danger text-xs">{(errors.createdDate as FieldError)?.message}</span>
                                     </div>
                                 </div>
-                                ) : (
-                                    <div className="text-white-dark w-full grid md:grid-cols-1 gap-4">
-                                        <div className=''>
-                                            <label htmlFor="Akun">Bayar Dari</label>
-                                            <select disabled id="coaCredit" {...register('coaCredit')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                                <option value="" disabled>Pilih</option>  
-                                            </select>
-        
-                                            {/* <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span> */}
-                                        </div>
+                            ) : (
+                                <div className="text-white-dark w-full grid md:grid-cols-1 gap-4">
+                                    <div className=''>
+                                        <label htmlFor="Akun">Bayar Dari</label>
+                                        <select disabled id="coaCredit" {...register('coaCredit')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                            <option value="" disabled>Pilih</option>
+                                        </select>
+
+                                        {/* <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span> */}
                                     </div>
-                                ) 
+                                </div>
+                            )
                             }
                         </div>
 
@@ -268,14 +268,14 @@ const DaftarBiayaForm = () => {
                             <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
                                 <div className=''>
                                     <label htmlFor="Akun">No Refrensi</label>
-                                    <input type="text" id="coaCredit"  className="form-input font-normal" placeholder='CONTOH : BTB-10001' 
+                                    <input type="text" id="coaCredit" className="form-input font-normal" placeholder='CONTOH : BTB-10001'
                                     />
 
                                     <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
                                 </div>
                                 <div className=''>
                                     <label htmlFor="Akun">No Biaya</label>
-                                    <input type="text" id="coaCredit"  className="form-input font-normal" placeholder='CONTOH : BTB-10001' 
+                                    <input type="text" id="coaCredit" className="form-input font-normal" placeholder='CONTOH : BTB-10001'
                                     />
                                     <span className="text-danger text-xs">{(errors.createdDate as FieldError)?.message}</span>
                                 </div>
@@ -330,124 +330,79 @@ const DaftarBiayaForm = () => {
                                 </div>
                             </div>
                         </div>
-
-                        <div>
-                            <label htmlFor="coaDebit" className="block text-sm font-medium text-gray-700">Pay To</label>
-                            <div className="relative text-white-dark">
-                                <select id="coaDebit" {...register('coaDebit')} className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                    <option value="">Select Account</option>
-                                    {bankList.map((bank) => (
-                                        <option key={bank.desc} value={bank.desc}>{bank.label}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <span className="text-danger text-xs">{(errors.coaDebit as FieldError)?.message}</span>
-                        </div>
-                        <div>
-                            <label htmlFor="journalDescDebit" className="block text-sm font-medium text-gray-700">Memo</label>
-                            <div className="relative text-white-dark">
-                                <textarea id="journalDescDebit" placeholder="Enter Debit Description" {...register('journalDescDebit')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <span className="text-danger text-xs">{(errors.journalDescDebit as FieldError)?.message}</span>
-                        </div>
-
-                        <div>
-                            <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount</label>
-                            <div className="relative text-white-dark">
-                                <input id="amount" type="number" placeholder="Enter Amount" {...register('amount')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <span className="text-danger text-xs">{(errors.amount as FieldError)?.message}</span>
-                        </div>
-                        <div>
-                            <label htmlFor="createdDate" className="block text-sm font-medium text-gray-700">Pay Date</label>
-                            <div className="relative text-white-dark">
-                                <input id="createdDate" type="date" {...register('createdDate')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <span className="text-danger text-xs">{(errors.createdDate as FieldError)?.message}</span>
-                        </div>
-                    </div>
-
-                    <div className="mt-6">
-                        <label className="block text-sm font-medium text-gray-700">Say</label>
-                        <p className="mt-1 text-gray-500">{amountText}</p>
                     </div>
                     <div className="mt-6">
                         <div className="mt-2 space-y-4">
-                            {fields.map((field, index) => (
-                                <div key={field.id} className="grid grid-cols-5 gap-4 items-center">
-                                    <div>
-                                        <label htmlFor={`credits.${index}.coaCredit`} className="block text-sm font-medium text-gray-700">Account</label>
-                                        <div className="relative text-white-dark">
-                                            <select
-                                                id={`credits.${index}.coaCredit`}
-                                                className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                {...register(`credits.${index}.coaCredit` as const)}
-                                            >
-                                                <option value="">Select Account</option>
-                                                {bankList.map((bank) => (
-                                                    <option key={bank.desc} value={bank.desc}>{bank.label}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <span className="text-danger text-xs">{(errors.credits?.[index]?.coaCredit as FieldError)?.message}</span>
-                                    </div>
-                                    <div>
-                                        <label htmlFor={`credits.${index}.amount`} className="block text-sm font-medium text-gray-700">Amount</label>
-                                        <div className="relative text-white-dark">
-                                            <input
-                                                id={`credits.${index}.amount`}
-                                                type="number"
-                                                className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                {...register(`credits.${index}.amount` as const)}
-                                                placeholder="Enter Amount"
-                                            />
-                                        </div>
-                                        <span className="text-danger text-xs">{(errors.credits?.[index]?.amount as FieldError)?.message}</span>
-                                    </div>
-                                    <div>
-                                        <label htmlFor={`credits.${index}.journalDescCredit`} className="block text-sm font-medium text-gray-700">Memo</label>
-                                        <div className="relative text-white-dark">
-                                            <input
-                                                id={`credits.${index}.journalDescCredit`}
-                                                type="text"
-                                                className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                {...register(`credits.${index}.journalDescCredit` as const)}
-                                                placeholder="Enter Credit Description"
-                                            />
-                                        </div>
-                                        <span className="text-danger text-xs">{(errors.credits?.[index]?.journalDescCredit as FieldError)?.message}</span>
-                                    </div>
+                            <label htmlFor="Akun">Nama Akun</label>
 
-                                    <div className='grid-cols-2 flex justify-center gap-2'>
-                                        <button
-                                            type="button"
-                                            className="text-green-600 flex items-center"
-                                            onClick={() => append({ coaCredit: '', journalDescCredit: '', amount: 0 })}
-                                        >
-                                            <FontAwesomeIcon icon={faPlus} className="mr-2" />
-                                        </button>
+                            {fields.map((field, index) => (
+                                <>
+                                    <div className='flex justify-start w-full mb-5'>
+                                        <div className='label mr-10 w-64'>
+                                        </div>
+                                        <div className="text-white-dark w-full grid md:grid-cols-1 gap-4">
+                                            <div className=''>
+                                                <select id="coaCredit" {...register('coaCredit')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                                    <option value="">Pilih</option>
+                                                    {bankList.map((bank) => (
+                                                        <option key={bank.desc} value={bank.desc}>{bank.label}</option>
+                                                    ))}
+                                                </select>
+
+                                                <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className='flex justify-start w-full mb-5'>
+                                        <div className='label mr-10 w-64'>
+                                            {/* <label htmlFor="Akun">Transaksi</label> */}
+                                        </div>
+                                        <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
+                                            <div className=''>
+                                                <label htmlFor="journalDescDebit">Deskripsi</label>
+                                                <input type="text" id="journalDescDebit" className="form-input font-normal" placeholder='Deskripsi'
+                                                />
+
+                                                <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
+                                            </div>
+                                            <div className=''>
+                                                <label htmlFor="amount">Jumlah</label>
+                                                <input type="number" id="amount" className="form-input font-normal" placeholder='Masukan Jumlah'
+                                                />
+
+                                                <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className='flex justify-end'>
                                         <button
                                             type="button"
                                             className="text-red-600"
                                             onClick={() => remove(index)}
                                         >
-                                            <FontAwesomeIcon icon={faTimes} />
+                                            Hapus
                                         </button>
                                     </div>
-                                </div>
+                                </>
                             ))}
                         </div>
-                    </div>
+                        <div className='flex justify-center '>
+                            <button
+                                type="button"
+                                className="  text-green-600 border border-green-600 rounded-lg px-4 py-2 hover:bg-green-600 hover:text-white transition-colors duration-300 ease-in-out"
+                                onClick={() => append({ coaCredit: '', journalDescCredit: '', amount: 0 })}
+                            >
+                                Tambah
+                            </button>
+                        </div>
 
-                    <div className="mt-6 grid grid-cols-2 gap-4">
-                        <div className="flex justify-end">
-                            <p>Total :</p>
-                            <p>{total.toLocaleString()}</p>
-                        </div>
-                        <div className="flex justify-end">
-                            <p>Difference :</p>
-                            <p>{difference.toLocaleString()}</p>
-                        </div>
+
+                    </div>
+                    <div className="flex1 justify-start space-x-6">
+
+                        <span className='text-md'>Total :</span>
+                        <span className='text-md'> {total.toLocaleString()}</span>
+
                     </div>
 
                     <div className="mt-6 flex justify-end space-x-4">

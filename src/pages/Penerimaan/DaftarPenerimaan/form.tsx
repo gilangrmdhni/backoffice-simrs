@@ -12,7 +12,7 @@ import { useGetDepositDetailQuery, useCreateDepositMutation, useUpdateDepositMut
 import { useGetBanksQuery } from '@/store/api/bank/bankApiSlice';
 import { DepositType, DebitEntry, DepositUpdateType } from '@/types/depositType';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTimes, faPlaceOfWorship,faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTimes, faPlaceOfWorship, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import Tippy from '@tippyjs/react';
@@ -63,7 +63,7 @@ const DaftarPenerimaanForm = () => {
         name: 'debits',
     });
 
-    const handleDeleteDetail = (key:any)=>{
+    const handleDeleteDetail = (key: any) => {
         const index = selectedRecords.indexOf(key);
         if (index > -1) {
             selectedRecords.splice(key, 1);
@@ -73,11 +73,11 @@ const DaftarPenerimaanForm = () => {
         console.log(key)
     }
 
-    const deleteItem = (indexToDelete : any) => {
-        const newItems = showSelected.filter((value : any, index : number) => index !== indexToDelete);
+    const deleteItem = (indexToDelete: any) => {
+        const newItems = showSelected.filter((value: any, index: number) => index !== indexToDelete);
         setShowSelected(newItems);
         setSelectedRecords(newItems);
-      };
+    };
 
     const { data: bankResponse } = useGetBanksQuery({});
     const bankList = bankResponse?.data ?? [];
@@ -180,7 +180,7 @@ const DaftarPenerimaanForm = () => {
             toastMessage(err.message, 'error');
         }
     };
-    
+
     useEffect(() => {
         dispatch(setPageTitle('Daftar Penerimaan'));
         dispatch(setTitle('Daftar Penerimaan'));
@@ -229,6 +229,14 @@ const DaftarPenerimaanForm = () => {
                         <h1 className="font-semibold text-2xl text-black mb-5">
                             Informasi Penerimaan Kas & Bank
                         </h1>
+                        <div className='flex justify-start w-full mb-10'>
+                            <div className='label mr-10 w-64'>
+                                <label htmlFor="coaCode">NO TRANSAKSI</label>
+                            </div>
+                            <div className="text-white-dark w-full">
+                                <input id="coaCode" type="text" placeholder="Enter Contoh : 0001" className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" />
+                            </div>
+                        </div>
                         <div className='flex justify-start w-full mb-5'>
                             <div className='label mr-10 w-64'>
                                 <label htmlFor="coaCredit">AKUN TUJUAN</label>
@@ -243,9 +251,10 @@ const DaftarPenerimaanForm = () => {
                                 <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
                             </div>
                         </div>
+
                         <div className='flex justify-start w-full mb-5'>
                             <div className='label mr-10 w-64'>
-                                <label htmlFor="Akun">Transaksi</label>
+                                <label htmlFor="Akun">TANGGAL TRANSAKSI</label>
                             </div>
                             <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
                                 <div className=''>
@@ -375,11 +384,11 @@ const DaftarPenerimaanForm = () => {
                                             </tr>
                                         ))} */}
                                         {isSave ? (
-                                            showSelected.map((record : COAType, index:number) =>(
+                                            showSelected.map((record: COAType, index: number) => (
                                                 <tr key={index}>
                                                     <td>
                                                         {record.coaName}
-                                                        <input type="hidden" id={`debits.${index}.coaDebit`} 
+                                                        <input type="hidden" id={`debits.${index}.coaDebit`}
                                                             {...register(`debits.${index}.coaDebit` as const)}
                                                         />
                                                     </td>
@@ -396,7 +405,7 @@ const DaftarPenerimaanForm = () => {
                                                         <span className="text-danger text-xs">{(errors.debits?.[index]?.journalDescDebit as FieldError)?.message}</span>
                                                     </td>
                                                     <td>
-                                                        
+
                                                         <div className="relative text-white-dark">
                                                             <input
                                                                 id={`debits.${index}.amount`}
@@ -414,7 +423,7 @@ const DaftarPenerimaanForm = () => {
                                                             className="border-none h-10 w-10"
                                                             onClick={() => deleteItem(index)}
                                                         >
-                                                           <FontAwesomeIcon icon={faTrash}  />
+                                                            <FontAwesomeIcon icon={faTrash} />
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -459,7 +468,7 @@ const DaftarPenerimaanForm = () => {
                         >
                             {isCreating || isUpdating ? 'Loading' : id ? 'Update' : 'Create'}
                         </button>
-                        
+
                     </div>
                     <ModalCoaCustom setIsSave={setIsSave} selectedRecords={selectedRecords} setShowSelected={setShowSelected} setSelectedRecords={setSelectedRecords} showModal={isShowModalCoa} setIsShowModal={setIsShowModalCoa} />
                 </form>

@@ -315,6 +315,11 @@ const Sidebar = () => {
                                                 Daftar Biaya
                                             </NavLink>
                                         </li>
+                                        <li>
+                                            <NavLink to="/daftarbiayarutin">
+                                                Daftar Biaya Rutin
+                                            </NavLink>
+                                        </li>
                                     </ul>
                                 </AnimateHeight>
                             </li>
