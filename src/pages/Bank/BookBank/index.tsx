@@ -106,7 +106,7 @@ const BookBankIndex = () => {
                     </div>
                     <div className="ltr:ml-auto">
                         <div className="grid grid-cols-2 gap-2">
-                            <Tippy content="Add Book Bank">
+                            {/* <Tippy content="Add Book Bank">
                                 <button
                                     onClick={() => navigate(`/bookBank/create`)}
                                     type="button"
@@ -114,12 +114,12 @@ const BookBankIndex = () => {
                                 >
                                     <IconPlus />
                                 </button>
-                            </Tippy>
-                            <Tippy content="Download">
+                            </Tippy> */}
+                            {/* <Tippy content="Download">
                                 <Link to="" className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60">
                                     <IconDownload />
                                 </Link>
-                            </Tippy>
+                            </Tippy> */}
                         </div>
                     </div>
                 </div>

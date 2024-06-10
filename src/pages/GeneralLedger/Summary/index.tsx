@@ -191,7 +191,7 @@ const Index = () => {
                     </div>
                     <div className="ltr:ml-auto">
                         <div className="grid grid-cols-3 gap-2">
-                            <Tippy content="Add CoA">
+                            {/* <Tippy content="Add CoA">
                                 <button
                                     onClick={() => navigate(`/coa/create`)}
                                     type="button"
@@ -199,7 +199,7 @@ const Index = () => {
                                 >
                                     <IconPlus />
                                 </button>
-                            </Tippy>
+                            </Tippy> */}
                         </div>
                     </div>
                 </div>
