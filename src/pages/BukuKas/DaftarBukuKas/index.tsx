@@ -215,6 +215,10 @@ const Index = () => {
                 : [...prevSelected, id]
         );
     };
+    const handleClick = (newStatus: React.SetStateAction<string>) => {
+        setStatus(newStatus);
+    };
+
 
     return (
         <div>
@@ -243,16 +247,29 @@ const Index = () => {
                     <div className="flex items-center gap-2">
                         <input type="text" className="form-input" placeholder="Cari..." value={search} onChange={(e) => setSearch(e.target.value)} />
                     </div>
-                    <div className="flex items-center gap-2">
-                        <SelectSearch
-                            placeholder="Aktif"
-                            options={[
-                                { value: 'Aktif', label: 'Aktif' },
-                                { value: 'Tidak Aktif', label: 'Tidak Aktif' },
-                            ]}
-                            value={status}
-                            onChange={(selectedOption: any) => setStatus(selectedOption.value)}
-                        />
+                    <div className="ltr:ml-auto">
+                        <div className="flex items-center gap-1">
+                            <div className="flex border-2 rounded-lg overflow-hidden">
+                                <button
+                                    onClick={() => handleClick('Selesai')}
+                                    className={`flex-1 px-4 py-2 ${status === 'Selesai' ? 'bg-purple-500 text-white' : 'bg-white text-black'}`}
+                                >
+                                    Semua
+                                </button>
+                                <button
+                                    onClick={() => handleClick('Draf')}
+                                    className={`flex-1 px-4 py-2 ${status === 'Draf' ? 'bg-purple-500 text-white border-l ' : 'bg-white text-black'}`}
+                                >
+                                    Active
+                                </button>
+                                <button
+                                    onClick={() => handleClick('Void')}
+                                    className={`flex-1 px-4 py-2 ${status === 'Void' ? 'bg-purple-500 text-white border-l ' : 'bg-white text-black'}`}
+                                >
+                                    Inaktive
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

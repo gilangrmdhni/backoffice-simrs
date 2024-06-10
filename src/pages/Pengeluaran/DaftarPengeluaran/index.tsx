@@ -20,6 +20,7 @@ import { BookBankType } from '@/types/bookBankType';
 import DateRangePicker from '@/components/DateRangePicker';
 import { addDays } from 'date-fns';
 
+
 const DaftarPengeluaranIndex = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -204,6 +205,7 @@ const DaftarPengeluaranIndex = () => {
                     />
                 </div>
             </div>
+
             <div className="mb-5">
                 <Transition appear show={showDeleteModal} as={Fragment}>
                     <Dialog as="div" open={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
