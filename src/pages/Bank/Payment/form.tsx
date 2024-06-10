@@ -199,6 +199,7 @@ const PaymentForm = () => {
     }, [watch]);
 
     return (
+        <div>
             <div className="panel mt-6">
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(onSubmit)}>
                     <div className="grid md:grid-cols-1 gap-4 w-full">
