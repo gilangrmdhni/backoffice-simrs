@@ -8,4 +8,13 @@ export default defineConfig({
     resolve: {
         alias: [{ find: "@", replacement: resolve(__dirname, "./src") }],
     },
+    build: {
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              'fontawesome': ['@fortawesome/fontawesome-svg-core'],
+            },
+          },
+        },
+      },
 });
