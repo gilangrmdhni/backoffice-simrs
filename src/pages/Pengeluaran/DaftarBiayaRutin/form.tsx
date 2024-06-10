@@ -159,7 +159,7 @@ const Form = () => {
                 response = await post(data);
             }
             responseCallback(response, (data: any) => {
-                navigate('/daftartransfer')
+                navigate('/daftarbiayarutin')
             }, null);
         } catch (err: any) {
             toastMessage(err.message, 'error');
