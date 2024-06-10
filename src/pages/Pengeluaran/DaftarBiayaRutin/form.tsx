@@ -1,157 +1,164 @@
-import { useDispatch } from 'react-redux';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { setPageTitle, setTitle, setBreadcrumbTitle } from '../../../store/themeConfigSlice';
-import { useForm, FieldError, useFieldArray } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { setPageTitle, setBreadcrumbTitle, setTitle } from '../../../store/themeConfigSlice';
+import { useGetEmployeeQuery } from '@/store/api/employee/employeeApiSlice';
+import IconMail from '@/components/Icon/IconMail';
 import * as yup from 'yup';
+import { useForm, FieldError } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { ToastContainer } from 'react-toastify';
+import { usersType,COAType,OptionType, AccountType, AccountGroupType } from '@/types';
+import { useGetDetailCOAQuery, usePostCOAMutation, useUpdateCOAMutation,useGetOptionCOAQuery } from '@/store/api/coa/coaApiSlice';
+import { useGetAccountTypesQuery,useGetOptionAccountTypeOptionQuery } from '@/store/api/accountType/accountTypeApiSlice';
+import { useGetAccountGroupsQuery, useGetOptionAccountGroupDetailQuery } from '@/store/api/accountGroup/accountGroupApiSlice';
+import { useGetOptionBranchQuery } from '@/store/api/branch/branchApiSlice';
+import { useGetOptionCurrencyQuery } from '@/store/api/currency/currencyApiSlice';
+import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
+import { rolesType } from '@/types/rolesType';
+import { ToastContainer, toast } from 'react-toastify';
 import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
-import { useGetPaymentDetailQuery, useCreatePaymentMutation, useUpdatePaymentMutation } from '@/store/api/bank/payment/paymentApiSlice';
-import { useGetBanksQuery } from '@/store/api/bank/bankApiSlice';
-import { PaymentType, PaymentUpdateType } from '@/types/paymentType';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
+import SelectSearch from 'react-select';
+import Flatpickr from 'react-flatpickr';
+import 'flatpickr/dist/flatpickr.css';
 
-const DaftarBiayaRutinForm = () => {
+
+const Form = () => {
+    // const user = useSelector((state: any) => state.auth.user);
+    const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
+    const accountTypeRef = useRef<HTMLSelectElement>(null);
+    const accountGroupRef = useRef<HTMLSelectElement>(null);
+    const parentRef = useRef<HTMLSelectElement>(null);
+    const currencyRef = useRef<HTMLSelectElement>(null);
+    const [parentId,setParentId] = useState<string>('');
+    const [isCashFlow,setIsCashFlow] = useState<boolean>(false);
+    const [isCashBank,setIsCashBank] = useState<boolean>(false);
+    const dateNow = new Date
+    const [isTanggal,setIsTanggal] = useState<any>(dateNow)
+    const [isTime,setIsTime] = useState<any>(dateNow)
+    const [searchParent,setSearchParent] = useState<string>('');
+    const [post, { isLoading: isLoadingPost, error: isErrorPost }] = usePostCOAMutation();
+    const [update, { isLoading: isLoadingUpdate, error: isErrorUpdate }] = useUpdateCOAMutation();
     const dispatch = useDispatch();
+    const location = useLocation();
     const navigate = useNavigate();
+    const pathSegments = location.pathname.split('/');
+    const lastSegment = pathSegments[pathSegments.length - 1];
+    const type = pathSegments[2];
+
     const { id } = useParams();
-    const { data: detailPayment, refetch: refetchDetailPayment } = id ? useGetPaymentDetailQuery(Number(id)) : { data: null, refetch: () => { } };
-    const [createPayment, { isLoading: isCreating }] = useCreatePaymentMutation();
-    const [updatePayment, { isLoading: isUpdating }] = useUpdatePaymentMutation();
-
-    const schema = yup.object({
-        journalDescDebit: yup.string().required('Debit Description is Required'),
-        coaDebit: yup.string().required('Account is Required'),
-        amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
-        createdDate: yup.date().required('Pay Date is Required'),
-        credits: yup.array().of(
-            yup.object().shape({
-                coaCredit: yup.string().required('Account is Required'),
-                journalDescCredit: yup.string().required('Memo is Required'),
-                amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
+    const { data: detailCOA, refetch: detailCOARefetch } = id ? useGetDetailCOAQuery<any>(id) : { data: null, refetch: () => { } };
+    const { data: accountTypeList, refetch: accountTypeListRefetch } = useGetOptionAccountTypeOptionQuery<any>({
+        orderBy: 'accountTypeId',
+        orderType: 'asc',
+        pageSize:20,
+        status,
+    });
+    const { data: accountGroupList, refetch: accountGroupListRefetch } = useGetOptionAccountGroupDetailQuery({
+        orderBy: 'accountGroupId',
+        orderType: 'asc',
+        pageSize:20,
+    });
+    const { data: CurrencyList, refetch: CurrencyListRefetch } = useGetOptionCurrencyQuery({
+        orderBy: 'currencyName',
+        orderType: 'asc',
+        pageSize:20,
+    });
+    const { data: ParentList, refetch: ParentListRefetch } = useGetOptionCOAQuery<any>({
+        orderBy: 'coaCode',
+        orderType: 'asc',
+        pageSize:20,
+        status : 'Active',
+        keyword: searchParent,
+    });
+    let ParentListOption = []
+        ParentListOption.push({
+            value: "",
+            label: "None",
+            level: "",
+        })
+        {
+            ParentList?.data?.map((option: any) =>{
+                ParentListOption.push({
+                    value: option.value,
+                    label: option.label,
+                    level: option.level ? option.level : '',
+                })
             })
-        ).required().min(1, 'At least one credit entry is required'),
-    }).required();
+        }
 
-    const { register, control, formState: { errors }, handleSubmit, setValue, watch } = useForm<PaymentType>({
+    useEffect(() => {
+        ParentListRefetch();
+        ParentListOption = []
+        ParentListOption.push({
+            value: "",
+            label: "None",
+            level: "",
+        })
+        {
+            ParentList?.data?.map((option: any) =>{
+                ParentListOption.push({
+                    value: option.value,
+                    label: option.label,
+                    level: option.level ? option.level : '',
+                })
+            })
+        }
+    },[searchParent]);
+
+
+    const schema = yup
+        .object({
+            coaCode: yup.string().required('coaCode is Required'),
+            coaName: yup.string().required('coaName is Required'),
+            accountTypeId: yup.number().required('accountType is Required'),
+            accountGroupId: yup.number().required('accountGroup is Required'),
+            currencyId: yup.number().required('currency is Required'),
+            balance: yup.number().required('Balance is Required'),
+            status: yup.string().required('Status is Required'),
+        })
+        .required();
+
+    const {
+        register,
+        formState: { errors },
+        handleSubmit,
+        setValue,
+    } = useForm<COAType>({
         resolver: yupResolver(schema),
+        mode: 'all',
         defaultValues: {
-            journalDescCredit: null,
-            journalDescDebit: null,
-            journalRef: '',
-            coaDebit: '',
-            coaCredit: '',
-            amount: 0,
-            createdDate: '',
-            status: '',
-            credits: [{ coaCredit: '', journalDescCredit: '', amount: 0 }]
-        }
+            status: 'Active',
+        },
     });
-
-    const { fields, append, remove } = useFieldArray({
-        control,
-        name: 'credits',
-    });
-
-    const { data: bankResponse } = useGetBanksQuery({});
-    const bankList = bankResponse?.data ?? [];
-
-    const [total, setTotal] = useState(0);
-    const [difference, setDifference] = useState(0);
-    const [amountText, setAmountText] = useState('');
-
-    const convertNumberToText = (num: number) => {
-        const units = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan'];
-        const teens = ['Sepuluh', 'Sebelas', 'Dua Belas', 'Tiga Belas', 'Empat Belas', 'Lima Belas', 'Enam Belas', 'Tujuh Belas', 'Delapan Belas', 'Sembilan Belas'];
-        const tens = ['', '', 'Dua Puluh', 'Tiga Puluh', 'Empat Puluh', 'Lima Puluh', 'Enam Puluh', 'Tujuh Puluh', 'Delapan Puluh', 'Sembilan Puluh'];
-        const thousands = ['', 'Ribu', 'Juta', 'Miliar', 'Triliun'];
-
-        if (num === 0) return 'Nol';
-
-        let numStr = num.toString();
-        let word = '';
-        let scale = 0;
-
-        while (numStr.length > 0) {
-            let chunk;
-            if (numStr.length > 3) {
-                chunk = parseInt(numStr.slice(-3), 10);
-                numStr = numStr.slice(0, -3);
-            } else {
-                chunk = parseInt(numStr, 10);
-                numStr = '';
-            }
-
-            if (chunk) {
-                let chunkStr = '';
-                if (chunk > 99) {
-                    if (Math.floor(chunk / 100) === 1) {
-                        chunkStr += 'Seratus ';
-                    } else {
-                        chunkStr += units[Math.floor(chunk / 100)] + ' Ratus ';
-                    }
-                    chunk %= 100;
-                }
-                if (chunk > 19) {
-                    chunkStr += tens[Math.floor(chunk / 10)] + ' ';
-                    chunk %= 10;
-                }
-                if (chunk > 9) {
-                    chunkStr += teens[chunk - 10] + ' ';
-                } else {
-                    if (chunk === 1 && scale === 1) {
-                        chunkStr += 'Se';
-                    } else {
-                        chunkStr += units[chunk] + ' ';
-                    }
-                }
-                word = chunkStr + thousands[scale] + ' ' + word;
-            }
-            scale++;
-        }
-
-        return word.trim() + ' Rupiah';
-    };
-
-    const onSubmit = async (data: PaymentType) => {
-        console.log('Data yang dikirim:', data);
-
-        const totalDebits = data.credits.reduce((sum, credit) => sum + (Number(credit.amount) || 0), 0);
-        const formAmount = Number(data.amount);
-        console.log('Total Debits:', totalDebits);
-        console.log('Form Amount:', formAmount);
-
-        // Validasi tambahan sebelum pengiriman
-        if (totalDebits !== formAmount) {
-            toastMessage('Total amount of credit entries must match the amount in the form.', 'error');
-            return;
-        }
-
+    const submitForm = async (data: COAType) => {
         try {
-            let response;
-            if (id) {
-                const updateData = {
-                    ...data,
-                    journalId: parseInt(id),
-                };
-                response = await updatePayment(updateData).unwrap();
-            } else {
-                const postData = data.credits.map(credit => ({
-                    ...data,
-                    coaCredit: credit.coaCredit,
-                    journalDescCredit: credit.journalDescCredit,
-                    amount: credit.amount,
-                }));
-                // Log payload untuk debugging
-                console.log('Payload yang dikirim:', JSON.stringify(postData, null, 2));
-
-                response = await createPayment(postData).unwrap();
+            let response: any;
+            if (accountTypeRef.current) {
+                data.accountTypeName = accountTypeRef.current.options[data.accountTypeId].text;
             }
-            responseCallback(response, () => {
-                navigate('/payment');
+            if (accountGroupRef.current) {
+                data.accountGroupName = accountGroupRef.current.options[data.accountGroupId].text;
+            }
+            if (accountGroupRef.current) {
+                data.currencyName = accountGroupRef.current.options[data.currencyId].text;
+            }
+            if(parentId != "" && parentId != "None/"){
+                console.log(parentId)
+                let parent = parentId.split('/')
+                data.parentId = Number(parent[1]);
+                data.parentName = parent[0];
+            }
+            data.isCashFlow = isCashFlow;
+            data.isCashBank = isCashBank;
+            console.log(data)
+            if (id) {
+                response = await update(data);
+            } else {
+                response = await post(data);
+            }
+            responseCallback(response, (data: any) => {
+                navigate('/daftartransfer')
             }, null);
         } catch (err: any) {
             toastMessage(err.message, 'error');
@@ -159,183 +166,172 @@ const DaftarBiayaRutinForm = () => {
     };
 
     useEffect(() => {
-        dispatch(setPageTitle('Payment'));
-        dispatch(setTitle('Payment'));
-        dispatch(setBreadcrumbTitle(['Dashboard', 'Bank', 'Payment', id ? 'Update' : 'Create']));
-        if (id) {
-            refetchDetailPayment();
+        dispatch(setPageTitle('Biaya Rution'));
+        dispatch(setTitle('Biaya Rution'));
+        if(type == 'create'){
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Buku Kas', 'Biaya Rutin',type]));
+
+        }else{
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Buku Kas', 'Biaya Rutin',type,lastSegment]));
         }
-    }, [dispatch, id, refetchDetailPayment]);
+        ParentListRefetch();
+    }, [dispatch]);
 
     useEffect(() => {
-        if (detailPayment && detailPayment.data) {
-            Object.keys(detailPayment.data).forEach((key) => {
-                if (key === 'createdDate') {
-                    const isoString = detailPayment.data[key as keyof PaymentType] as string;
-                    const date = new Date(isoString);
-                    const formattedDate = date.toISOString().split('T')[0];
-                    setValue(key as keyof PaymentType, formattedDate);
-                } else {
-                    setValue(key as keyof PaymentType, detailPayment.data[key as keyof PaymentType]);
-                }
+        if (id) {
+            detailCOARefetch();
+        }
+    }, [id]);
+
+    useEffect(() => {
+        if (detailCOA?.data) {
+            Object.keys(detailCOA.data).forEach((key) => {
+                setValue(key as keyof COAType, detailCOA.data[key]);
             });
         }
-    }, [detailPayment, setValue]);
-
-    useEffect(() => {
-        const subscription = watch((value, { name, type }) => {
-            if (name === 'amount') {
-                const amount = parseFloat(value.amount?.toString() || '0') || 0;
-                setAmountText(convertNumberToText(amount));
-                setTotal(amount);
-                const totalCredits = value.credits?.reduce((sum, credit) => {
-                    const creditAmount = parseFloat(credit?.amount?.toString() || '0') || 0;
-                    return sum + creditAmount;
-                }, 0) || 0;
-                setDifference(amount - totalCredits);
-            }
-        });
-        return () => subscription.unsubscribe();
-    }, [watch]);
-
+    }, [detailCOA, setValue]);
+    
     return (
         <div>
             <div className="panel mt-6">
-                <form className="flex gap-6 flex-col" onSubmit={handleSubmit(onSubmit)}>
-                    <div className="grid md:grid-cols-1 gap-4 w-full">
-                        <div>
-                            <label htmlFor="coaDebit" className="block text-sm font-medium text-gray-700">Pay To</label>
-                            <div className="relative text-white-dark">
-                                <select id="coaDebit" {...register('coaDebit')} className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                    <option value="">Select Account</option>
-                                    {bankList.map((bank) => (
-                                        <option key={bank.desc} value={bank.desc}>{bank.label}</option>
-                                    ))}
+                <h1 className="font-semibold text-2xl text-black mb-10">
+                    Transfer Uang
+                </h1>
+                <form className="flex gap-6 flex-col" onSubmit={handleSubmit(submitForm)}>
+                    <div className="grid md:grid-cols-1 w-full ">
+                        <div className='flex justify-start w-full mb-10'>
+                            <div className='label mr-10 w-64'>
+                                <label htmlFor="accountTypeId">OUTLET</label>
+                            </div>
+                            <div className="relative text-white-dark w-full">
+                                <select id="accountTypeId" {...register('accountTypeId')} className="form-select font-normal w-full disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update'}>
+                                    <option value="">Enter Account Type</option>
+                                    {accountTypeList?.data?.map((d: OptionType, i: number) => {
+                                        return (
+                                            <option key={i} value={d?.value} selected={detailCOA?.data?.accountTypeId === d?.value }>
+                                                {d?.label}
+                                            </option>
+                                        );
+                                    })}
                                 </select>
+                                <span className="text-danger text-xs">{(errors.accountTypeId as FieldError)?.message}</span>
                             </div>
-                            <span className="text-danger text-xs">{(errors.coaDebit as FieldError)?.message}</span>
-                        </div>
-                        <div>
-                            <label htmlFor="journalDescDebit" className="block text-sm font-medium text-gray-700">Memo</label>
-                            <div className="relative text-white-dark">
-                                <textarea id="journalDescDebit" placeholder="Enter Debit Description" {...register('journalDescDebit')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
-                            </div>
-                            <span className="text-danger text-xs">{(errors.journalDescDebit as FieldError)?.message}</span>
                         </div>
 
-                        <div>
-                            <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount</label>
-                            <div className="relative text-white-dark">
-                                <input id="amount" type="number" placeholder="Enter Amount" {...register('amount')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                        <div className='flex justify-start w-full mb-10'>
+                            <div className='label mr-10 w-64'>
+                                <label htmlFor="coaCode">NO TRANSAKSI</label>
                             </div>
-                            <span className="text-danger text-xs">{(errors.amount as FieldError)?.message}</span>
-                        </div>
-                        <div>
-                            <label htmlFor="createdDate" className="block text-sm font-medium text-gray-700">Pay Date</label>
-                            <div className="relative text-white-dark">
-                                <input id="createdDate" type="date" {...register('createdDate')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                            <div className="text-white-dark w-full">
+                                <input id="coaCode" type="text" placeholder="Enter Contoh : BTU-0001" {...register('coaCode')} className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update'} />
+                                {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
+                                    <IconMail fill={true} />
+                                </span> */}
+                                <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
                             </div>
-                            <span className="text-danger text-xs">{(errors.createdDate as FieldError)?.message}</span>
                         </div>
-                    </div>
-
-                    <div className="mt-6">
-                        <label className="block text-sm font-medium text-gray-700">Say</label>
-                        <p className="mt-1 text-gray-500">{amountText}</p>
-                    </div>
-                    <div className="mt-6">
-                        <div className="mt-2 space-y-4">
-                            {fields.map((field, index) => (
-                                <div key={field.id} className="grid grid-cols-5 gap-4 items-center">
-                                    <div>
-                                        <label htmlFor={`credits.${index}.coaCredit`} className="block text-sm font-medium text-gray-700">Account</label>
-                                        <div className="relative text-white-dark">
-                                            <select
-                                                id={`credits.${index}.coaCredit`}
-                                                className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                {...register(`credits.${index}.coaCredit` as const)}
-                                            >
-                                                <option value="">Select Account</option>
-                                                {bankList.map((bank) => (
-                                                    <option key={bank.desc} value={bank.desc}>{bank.label}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <span className="text-danger text-xs">{(errors.credits?.[index]?.coaCredit as FieldError)?.message}</span>
-                                    </div>
-                                    <div>
-                                        <label htmlFor={`credits.${index}.amount`} className="block text-sm font-medium text-gray-700">Amount</label>
-                                        <div className="relative text-white-dark">
-                                            <input
-                                                id={`credits.${index}.amount`}
-                                                type="number"
-                                                className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                {...register(`credits.${index}.amount` as const)}
-                                                placeholder="Enter Amount"
-                                            />
-                                        </div>
-                                        <span className="text-danger text-xs">{(errors.credits?.[index]?.amount as FieldError)?.message}</span>
-                                    </div>
-                                    <div>
-                                        <label htmlFor={`credits.${index}.journalDescCredit`} className="block text-sm font-medium text-gray-700">Memo</label>
-                                        <div className="relative text-white-dark">
-                                            <input
-                                                id={`credits.${index}.journalDescCredit`}
-                                                type="text"
-                                                className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                {...register(`credits.${index}.journalDescCredit` as const)}
-                                                placeholder="Enter Credit Description"
-                                            />
-                                        </div>
-                                        <span className="text-danger text-xs">{(errors.credits?.[index]?.journalDescCredit as FieldError)?.message}</span>
-                                    </div>
-
-                                    <div className='grid-cols-2 flex justify-center gap-2'>
-                                        <button
-                                            type="button"
-                                            className="text-green-600 flex items-center"
-                                            onClick={() => append({ coaCredit: '', journalDescCredit: '', amount: 0 })}
-                                        >
-                                            <FontAwesomeIcon icon={faPlus} className="mr-2" />
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="text-red-600"
-                                            onClick={() => remove(index)}
-                                        >
-                                            <FontAwesomeIcon icon={faTimes} />
-                                        </button>
-                                    </div>
+                        
+                       <div className='flex justify-start w-full mb-10'>
+                            <div className='label mr-10 w-64'>
+                                <label htmlFor="Akun">AKUN</label>
+                            </div>
+                            <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
+                                <div className='w-full'>
+                                    <label htmlFor="Akun">Akun Asal</label>
+                                    <SelectSearch 
+                                        placeholder="Pilih"
+                                        options={ParentListOption} 
+                                        onInputChange={(e) => setSearchParent(e)} 
+                                        onChange={(e: any) => setParentId(`${e.label}/${e.value}`)}
+                                        defaultValue={detailCOA?.data?.parentId != null ? detailCOA?.data?.parentId : ""}
+                                        isDisabled={type == 'update'}
+                                        className='w-full font-normal'
+                                        
+                                    />
+                                    <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+                                <div className='w-full'>
+                                    <label htmlFor="Akun">Akun Tujuan</label>
+                                    <SelectSearch 
+                                        placeholder="Pilih"
+                                        options={ParentListOption} 
+                                        onInputChange={(e) => setSearchParent(e)} 
+                                        onChange={(e: any) => setParentId(`${e.label}/${e.value}`)}
+                                        defaultValue={detailCOA?.data?.parentId != null ? detailCOA?.data?.parentId : ""}
+                                        isDisabled={type == 'update'}
+                                        className='w-full font-normal'
 
-                    <div className="mt-6 grid grid-cols-2 gap-4">
-                        <div className="flex justify-end">
-                            <p>Total :</p>
-                            <p>{total.toLocaleString()}</p>
+                                    />
+                                    <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex justify-end">
-                            <p>Difference :</p>
-                            <p>{difference.toLocaleString()}</p>
-                        </div>
-                    </div>
+                        <div className='flex justify-start w-full mb-10'>
+                            <div className='label mr-10 w-64'>
+                                <label htmlFor="Akun">Transaksi</label>
+                            </div>
+                            <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
+                                <div className=''>
+                                    <label htmlFor="Akun">Tanggal</label>
+                                    <Flatpickr 
+                                        value={isTanggal} 
+                                        options={{ dateFormat: 'Y-m-d', position: isRtl ? 'auto right' : 'auto left' }} 
+                                        className="form-input font-normal" 
+                                        onChange={(date:any) => setIsTanggal(date)}
+                                        />
 
-                    <div className="mt-6 flex justify-end space-x-4">
-                        <button
-                            type="submit"
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm"
-                        >
-                            {isCreating || isUpdating ? 'Loading' : id ? 'Update' : 'Create'}
-                        </button>
-                        <button
-                            type="button"
-                            className="px-4 py-2 bg-gray-600 text-white rounded-md shadow-sm"
-                            onClick={() => navigate('/payment')}
-                        >
-                            Cancel
-                        </button>
+                                    <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
+                                </div>
+                                <div className=''>
+                                    <label htmlFor="Akun">Waktu</label>
+                                    <Flatpickr
+                                        options={{
+                                            noCalendar: true,
+                                            enableTime: true,
+                                            dateFormat: 'H:i',
+                                            position: isRtl ? 'auto right' : 'auto left',
+                                        }}
+                                        value={isTime}
+                                        className="form-input font-normal"
+                                        onChange={(date) => setIsTime(date)}
+                                    />
+                                    <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
+                                </div>
+                            </div>
+                        </div>        
+                        <div className='flex justify-start w-full mb-10'>
+                                <div className='label mr-10 w-64'>
+                                    <label htmlFor="balance">Jumlah (RP)</label>
+                                </div>
+                                <div className="text-white-dark w-full">
+                                    <input id="balance" type="text" placeholder="Enter Contoh : 20000" {...register('balance')} className="form-input w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark font-normal" disabled={type == 'update'} />
+                                    {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
+                                        <IconMail fill={true} />
+                                    </span> */}
+                                    <span className="text-danger text-xs">{(errors.balance as FieldError)?.message}</span>
+                                </div>
+                        </div>
+                        <div className='flex justify-start w-full mb-10'>
+                                <div className='label mr-10 w-64'>
+                                    <label htmlFor="coaDesc">Keterangan</label>
+                                </div>
+                                <div className="text-white-dark w-full">
+                                    {/* <input id="coaName" type="text" placeholder="Enter Contoh : 20000" {...register('coaName')} className="form-input w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update'} /> */}
+                                    <textarea id="ctnTextarea" rows={3} className="form-textarea font-normal" placeholder="Keterangan..." disabled={type == 'update'}></textarea>
+                                    {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
+                                        <IconMail fill={true} />
+                                    </span> */}
+                                    <span className="text-danger text-xs">{(errors.coaName as FieldError)?.message}</span>
+                                </div>
+                        </div>
+                        <div className="flex w-full justify-end">
+                            <button type="button" className=" btn bg-white  w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)] mr-5 hover:bg-purple-300" onClick={()=>navigate('/daftartransfer')}>
+                                batal
+                            </button>
+                            <button type="submit" className=" btn btn-primary  w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
+                                {isLoadingPost || isLoadingUpdate ? 'Loading' : id ? 'Update' : 'Save'}
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -343,4 +339,4 @@ const DaftarBiayaRutinForm = () => {
     );
 };
 
-export default DaftarBiayaRutinForm;
+export default Form;

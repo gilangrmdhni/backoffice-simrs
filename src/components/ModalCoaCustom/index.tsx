@@ -174,7 +174,7 @@ const ModalCoaCustom = ({ setIsSave, selectedRecords, setSelectedRecords, showMo
                                                     },
                                                     
                                                     {
-                                                        accessor: 'accountTypeName', 
+                                                        accessor: 'coaName', 
                                                         title: 'Nama Akun', 
                                                         sortable: true,
                                                         render: (row: COAType,index: number) => (
@@ -186,7 +186,7 @@ const ModalCoaCustom = ({ setIsSave, selectedRecords, setSelectedRecords, showMo
                                                         )
                                                     },
                                                     {
-                                                        accessor: 'coaName', 
+                                                        accessor: 'accountTypeName', 
                                                         title: 'Kategori', 
                                                         sortable: true,
                                                         render: (row: COAType,index: number) => (
@@ -208,6 +208,7 @@ const ModalCoaCustom = ({ setIsSave, selectedRecords, setSelectedRecords, showMo
                                                 selectedRecords={selectedRecords}
                                                 onSelectedRecordsChange={setSelectedRecords}
                                                 totalRecords={CoAList?.data?.totalData}
+                                                isRecordSelectable={ (record) => record.accountTypeName != "Header" }
                                                 fetching={isLoading}
                                                 minHeight={200}
                                                 idAccessor='coaCode'
