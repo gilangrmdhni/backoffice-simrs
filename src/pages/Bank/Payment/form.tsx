@@ -199,20 +199,6 @@ const PaymentForm = () => {
     }, [watch]);
 
     return (
-        <div>
-            <ToastContainer />
-            <div className='panel flex'>
-                <ol className="flex space-x-2 rtl:space-x-reverse">
-                    <li>
-                        <Link to="/payment" className="text-primary hover:underline">
-                            Payment
-                        </Link>
-                    </li>
-                    <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                        <span>{id ? 'Update' : 'Create'}</span>
-                    </li>
-                </ol>
-            </div>
             <div className="panel mt-6">
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(onSubmit)}>
                     <div className="grid md:grid-cols-1 gap-4 w-full">
