@@ -33,6 +33,7 @@ const Form = () => {
     const [parentId,setParentId] = useState<string>('');
     const [isCashFlow,setIsCashFlow] = useState<boolean>(false);
     const [isCashBank,setIsCashBank] = useState<boolean>(false);
+    const [isBatasAkhir,setIsBatasAkhir] = useState<boolean>(false);
     const dateNow = new Date
     const [isTanggal,setIsTanggal] = useState<any>(dateNow)
     const [isTime,setIsTime] = useState<any>(dateNow)
@@ -166,8 +167,8 @@ const Form = () => {
     };
 
     useEffect(() => {
-        dispatch(setPageTitle('Biaya Rution'));
-        dispatch(setTitle('Biaya Rution'));
+        dispatch(setPageTitle('Buat Tagihan Rutin'));
+        dispatch(setTitle('Buat Tagihan Rutin'));
         if(type == 'create'){
             dispatch(setBreadcrumbTitle(['Dashboard', 'Buku Kas', 'Biaya Rutin',type]));
 
@@ -194,48 +195,29 @@ const Form = () => {
     return (
         <div>
             <div className="panel mt-6">
-                <h1 className="font-semibold text-2xl text-black mb-10">
-                    Transfer Uang
-                </h1>
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(submitForm)}>
                     <div className="grid md:grid-cols-1 w-full ">
-                        <div className='flex justify-start w-full mb-10'>
-                            <div className='label mr-10 w-64'>
-                                <label htmlFor="accountTypeId">OUTLET</label>
-                            </div>
-                            <div className="relative text-white-dark w-full">
-                                <select id="accountTypeId" {...register('accountTypeId')} className="form-select font-normal w-full disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update'}>
-                                    <option value="">Enter Account Type</option>
-                                    {accountTypeList?.data?.map((d: OptionType, i: number) => {
-                                        return (
-                                            <option key={i} value={d?.value} selected={detailCOA?.data?.accountTypeId === d?.value }>
-                                                {d?.label}
-                                            </option>
-                                        );
-                                    })}
-                                </select>
-                                <span className="text-danger text-xs">{(errors.accountTypeId as FieldError)?.message}</span>
-                            </div>
-                        </div>
 
                         <div className='flex justify-start w-full mb-10'>
                             <div className='label mr-10 w-64'>
-                                <label htmlFor="coaCode">NO TRANSAKSI</label>
+                                <label htmlFor="coaCode">NAMA TAGIHAN</label>
                             </div>
                             <div className="text-white-dark w-full">
-                                <input id="coaCode" type="text" placeholder="Enter Contoh : BTU-0001" {...register('coaCode')} className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update'} />
+                                <input id="coaName" type="text" placeholder="Contoh : Tagihan Air" {...register('coaName')} className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update'} />
                                 {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                     <IconMail fill={true} />
                                 </span> */}
-                                <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
+                                <span className="text-danger text-xs">{(errors.coaName as FieldError)?.message}</span>
                             </div>
                         </div>
                         
-                       <div className='flex justify-start w-full mb-10'>
+                        <hr />
+
+                       <div className='flex justify-start w-full my-10 mt-'>
                             <div className='label mr-10 w-64'>
-                                <label htmlFor="Akun">AKUN</label>
+                                <label htmlFor="Akun">Cari No Biaya</label>
                             </div>
-                            <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
+                            <div className="text-white-dark w-full grid md:grid-cols-1 gap-4">
                                 <div className='w-full'>
                                     <label htmlFor="Akun">Akun Asal</label>
                                     <SelectSearch 
@@ -250,80 +232,80 @@ const Form = () => {
                                     />
                                     <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
                                 </div>
-                                <div className='w-full'>
-                                    <label htmlFor="Akun">Akun Tujuan</label>
-                                    <SelectSearch 
-                                        placeholder="Pilih"
-                                        options={ParentListOption} 
-                                        onInputChange={(e) => setSearchParent(e)} 
-                                        onChange={(e: any) => setParentId(`${e.label}/${e.value}`)}
-                                        defaultValue={detailCOA?.data?.parentId != null ? detailCOA?.data?.parentId : ""}
-                                        isDisabled={type == 'update'}
-                                        className='w-full font-normal'
-
-                                    />
-                                    <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
-                                </div>
                             </div>
                         </div>
                         <div className='flex justify-start w-full mb-10'>
                             <div className='label mr-10 w-64'>
-                                <label htmlFor="Akun">Transaksi</label>
+                                {/* <label htmlFor="Akun">Transaksi</label> */}
                             </div>
                             <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
                                 <div className=''>
-                                    <label htmlFor="Akun">Tanggal</label>
+                                    <label htmlFor="Akun" >Dibuat Tiap</label>
+                                    <div className='flex justify-start  '>
+                                        <input type="number" name="" id="" className='form-input w-16 font-normal mr-5'  />
+                                        <select name="" id="" className='form-select font-normal w-full'>
+                                            <option value="">Hari</option>
+                                            <option value="">Minggu</option>
+                                            <option value="">Bulan</option>
+                                        </select>
+                                    </div>
+
+                                    <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
+                                </div>
+                                <div className=''>
+                                    <label htmlFor="Akun">Mulai Tanggal</label>
                                     <Flatpickr 
                                         value={isTanggal} 
                                         options={{ dateFormat: 'Y-m-d', position: isRtl ? 'auto right' : 'auto left' }} 
                                         className="form-input font-normal" 
                                         onChange={(date:any) => setIsTanggal(date)}
-                                        />
-
-                                    <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
-                                </div>
-                                <div className=''>
-                                    <label htmlFor="Akun">Waktu</label>
-                                    <Flatpickr
-                                        options={{
-                                            noCalendar: true,
-                                            enableTime: true,
-                                            dateFormat: 'H:i',
-                                            position: isRtl ? 'auto right' : 'auto left',
-                                        }}
-                                        value={isTime}
-                                        className="form-input font-normal"
-                                        onChange={(date) => setIsTime(date)}
                                     />
                                     <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
                                 </div>
                             </div>
-                        </div>        
+                        </div>    
+                        <div className='flex justify-start w-full'>
+                            <div className='label mr-10 w-64'>
+                                <label htmlFor="">Batas Akhir</label>
+                            </div>
+                            <div className="relative text-white-dark w-full">
+                                <label className="w-12 h-6 relative">
+                                    <input type="checkbox" checked={isBatasAkhir} onClick={() => setIsBatasAkhir(!isBatasAkhir)} className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer" id="custom_switch_checkbox1" />
+                                    <span className="bg-[#ebedf2] dark:bg-dark block h-full rounded-full before:absolute before:left-1 before:bg-white dark:before:bg-white-dark dark:peer-checked:before:bg-white before:bottom-1 before:w-4 before:h-4 before:rounded-full peer-checked:before:left-7 peer-checked:bg-primary before:transition-all before:duration-300"></span>
+                                </label>
+                            </div>
+                        </div>    
                         <div className='flex justify-start w-full mb-10'>
                                 <div className='label mr-10 w-64'>
-                                    <label htmlFor="balance">Jumlah (RP)</label>
+                                    <label htmlFor="coaDesc"></label>
                                 </div>
-                                <div className="text-white-dark w-full">
-                                    <input id="balance" type="text" placeholder="Enter Contoh : 20000" {...register('balance')} className="form-input w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark font-normal" disabled={type == 'update'} />
-                                    {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                                        <IconMail fill={true} />
-                                    </span> */}
-                                    <span className="text-danger text-xs">{(errors.balance as FieldError)?.message}</span>
-                                </div>
+                                {isBatasAkhir ? 
+                                    <>
+                                        <div className="text-white-dark w-full">
+                                            <label htmlFor="">Berakhir</label>
+                                            <Flatpickr 
+                                                value={isTanggal} 
+                                                options={{ dateFormat: 'Y-m-d', position: isRtl ? 'auto right' : 'auto left' }} 
+                                                className="form-input font-normal" 
+                                                onChange={(date:any) => setIsTanggal(date)}
+                                            />
+                                            <span className="text-danger text-xs">{(errors.coaName as FieldError)?.message}</span>
+                                        </div>
+                                    </> : <></> 
+                                }
+                                
                         </div>
-                        <div className='flex justify-start w-full mb-10'>
-                                <div className='label mr-10 w-64'>
-                                    <label htmlFor="coaDesc">Keterangan</label>
-                                </div>
-                                <div className="text-white-dark w-full">
-                                    {/* <input id="coaName" type="text" placeholder="Enter Contoh : 20000" {...register('coaName')} className="form-input w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update'} /> */}
-                                    <textarea id="ctnTextarea" rows={3} className="form-textarea font-normal" placeholder="Keterangan..." disabled={type == 'update'}></textarea>
-                                    {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                                        <IconMail fill={true} />
-                                    </span> */}
-                                    <span className="text-danger text-xs">{(errors.coaName as FieldError)?.message}</span>
-                                </div>
-                        </div>
+                        <div className='flex justify-start w-full'>
+                            <div className='label mr-10 w-64'>
+                                <label htmlFor="">Status</label>
+                            </div>
+                            <div className="relative text-white-dark w-full">
+                                <label className="w-12 h-6 relative">
+                                    <input type="checkbox" className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer" id="custom_switch_checkbox1" />
+                                    <span className="bg-[#ebedf2] dark:bg-dark block h-full rounded-full before:absolute before:left-1 before:bg-white dark:before:bg-white-dark dark:peer-checked:before:bg-white before:bottom-1 before:w-4 before:h-4 before:rounded-full peer-checked:before:left-7 peer-checked:bg-primary before:transition-all before:duration-300"></span>
+                                </label>
+                            </div>
+                        </div>    
                         <div className="flex w-full justify-end">
                             <button type="button" className=" btn bg-white  w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)] mr-5 hover:bg-purple-300" onClick={()=>navigate('/daftartransfer')}>
                                 batal
