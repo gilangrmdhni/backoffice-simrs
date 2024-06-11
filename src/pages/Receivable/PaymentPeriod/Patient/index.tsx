@@ -182,13 +182,13 @@ const Patient = () => {
                         </thead>
                         <tbody>
                             {
-                                PatientList?.data?.map((data:agingSchedulePatientType,index : number) => {
+                                PatientList?.data?.data?.map((data:agingSchedulePatientType,index : number) => {
                                     totalCell = (data.zeroToFortyFive+data.fortyFiveToSixty+data.sixtyToNinety+data.ninetyToOneTwenty+data.ninetyToOneTwenty)
                                     total += totalCell
                                     return(
                                         <>
                                             <tr key={index}>
-                                                <td>{data.patientName}</td>
+                                                <td>{data.pantientName}</td>
                                                 <td>{data.insuranceName}</td>
                                                 <td>{new Date(data.billingDate).toLocaleDateString()}</td>
                                                 <td>{new Date(data.dueDate).toLocaleDateString()}</td>

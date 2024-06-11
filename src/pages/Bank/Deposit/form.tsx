@@ -9,7 +9,7 @@ import { ToastContainer } from 'react-toastify';
 import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
 import { useGetDepositDetailQuery, useCreateDepositMutation, useUpdateDepositMutation } from '@/store/api/bank/deposit/depositApiSlice';
-import { useGetBanksQuery } from '@/store/api/bank/bankApiSlice';
+import { useGetBanksQuery,useGetOptionBankQuery } from '@/store/api/bank/bankApiSlice';
 import { DepositType, DebitEntry, DepositUpdateType } from '@/types/depositType';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -23,14 +23,14 @@ const DepositForm = () => {
     const [updateDeposit, { isLoading: isUpdating }] = useUpdateDepositMutation();
 
     const schema = yup.object({
-        journalDescCredit: yup.string().required('Credit Description is Required'),
-        coaCredit: yup.string().required('Account is Required'),
-        createdDate: yup.date().required('Created Date is Required'),
-        status: yup.string().required('Status is Required'),
-        debits: yup.array().of(
+        description: yup.string().required('Credit Description is Required'),
+        coaCode: yup.string().required('Account is Required'),
+        transactionDate: yup.date().required('Created Date is Required'),
+        // status: yup.string().required('Status is Required'),
+        details: yup.array().of(
             yup.object().shape({
-                coaDebit: yup.string().required('Account is Required'),
-                journalDescDebit: yup.string().required('Memo is Required'),
+                coaCode: yup.string().required('Account is Required'),
+                description: yup.string().required('Memo is Required'),
                 amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
             })
         ).required().min(1, 'At least one debit entry is required'),
@@ -39,16 +39,18 @@ const DepositForm = () => {
     const { register, control, formState: { errors }, handleSubmit, setValue, watch } = useForm<DepositType>({
         resolver: yupResolver(schema),
         defaultValues: {
-            debits: [{ coaDebit: '', journalDescDebit: '', amount: 0 }]
+            details: [{ coaCode: '', description: '', amount: 0 }]
         }
     });
 
     const { fields, append, remove } = useFieldArray({
         control,
-        name: 'debits',
+        name: 'details',
     });
 
-    const { data: bankResponse } = useGetBanksQuery({});
+    const { data: bankResponse } = useGetOptionBankQuery({
+        parent : 952,
+    });
     const bankList = bankResponse?.data ?? [];
 
     const [total, setTotal] = useState(0);
@@ -109,15 +111,16 @@ const DepositForm = () => {
     };
 
     const onSubmit = async (data: DepositType) => {
+        console.log(data)
         console.log('Data yang dikirim:', data);
     
-        const totalDebits = data.debits.reduce((sum, debit) => sum + (Number(debit.amount) || 0), 0);
+        const totaldetails = data.details.reduce((sum, debit) => sum + (Number(debit.amount) || 0), 0);
         const formAmount = Number(data.amount);
-        console.log('Total Debits:', totalDebits);
+        console.log('Total details:', totaldetails);
         console.log('Form Amount:', formAmount);
     
         // Validasi tambahan sebelum pengiriman
-        if (totalDebits !== formAmount) {
+        if (totaldetails !== formAmount) {
             toastMessage('Total amount of debit entries must match the amount in the form.', 'error');
             return;
         }
@@ -131,18 +134,47 @@ const DepositForm = () => {
                 };
                 response = await updateDeposit(updateData).unwrap();
             } else {
-                const postData = data.debits.map(debit => ({
-                    ...data,
-                    coaDebit: debit.coaDebit,
-                    journalDescDebit: debit.journalDescDebit,
-                    amount: debit.amount,
-                }));
+                const detailsData = data.details.map(debit => ({
+                    coaCode:debit.coaCode,
+                    description:debit.description, 
+                    amount:debit.amount,
+                    isPremier: false
+                }))
+                const postData = {
+                    transactionDate:data.transactionDate,
+                    coaCode:data.coaCode,
+                    description:data.description, 
+                    transactionNo:"",
+                    transactionType:"Deposit",
+                    transactionName:"",
+                    transactionRef: "",
+                    contactId:0,
+                    details: detailsData,
+                }
+                // const postData = data.details.map(debit => ({
+                //     transactionDate: new Date(),
+                //     coaCode: debit.coaCode,
+                //     description: debit.description, 
+                //     transactionNo: data.transactionNo,
+                //     transactionType: data.transactionType,
+                //     transactionName: data.transactionName,
+                //     transactionRef: data.transactionRef,
+                //     contactId: data.contactId,
+                //     amount: data.amount, 
+                //     details: [{
+                //         coaCode: debit.coaCode,
+                //         description: debit.description, 
+                //         amount: debit.amount,
+                //         isPremier: false 
+                //     }]
+                // }));
                 // Log payload untuk debugging
                 console.log('Payload yang dikirim:', JSON.stringify(postData, null, 2));
     
                 response = await createDeposit(postData).unwrap();
             }
             responseCallback(response, () => {
+                toastMessage('Data berhasil disimpan.','success');
                 navigate('/deposit');
             }, null);
         } catch (err: any) {
@@ -155,159 +187,161 @@ const DepositForm = () => {
         dispatch(setPageTitle('Deposit'));
         dispatch(setTitle('Deposit'));
         dispatch(setBreadcrumbTitle(['Dashboard', 'Bank', 'Deposit', id ? 'Update' : 'Create']));
+
         if (id) {
             refetchDetailDeposit();
         }
-    }, [dispatch, id, refetchDetailDeposit]);
-
-    useEffect(() => {
-        if (detailDeposit && detailDeposit.data) {
-            Object.keys(detailDeposit.data).forEach((key) => {
-                if (key === 'createdDate') {
-                    const isoString = detailDeposit.data[key as keyof DepositType] as string;
-                    const date = new Date(isoString);
-                    const formattedDate = date.toISOString().split('T')[0];
-                    setValue(key as keyof DepositType, formattedDate);
-                } else {
-                    setValue(key as keyof DepositType, detailDeposit.data[key as keyof DepositType]);
+        }, [dispatch, id, refetchDetailDeposit]);
+    
+        useEffect(() => {
+            if (detailDeposit && detailDeposit.data) {
+                Object.keys(detailDeposit.data).forEach((key) => {
+                    if (key === 'transactionDate') {
+                        const isoString = detailDeposit.data[key as keyof DepositType] as string;
+                        const date = new Date(isoString);
+                        const formattedDate = date.toISOString().split('T')[0];
+                        setValue(key as keyof DepositType, formattedDate);
+                    } else {
+                        setValue(key as keyof DepositType, detailDeposit.data[key as keyof DepositType]);
+                    }
+                });
+            }
+        }, [detailDeposit, setValue]);
+    
+        useEffect(() => {
+            const subscription = watch((value, { name, type }) => {
+                if (name === 'amount') {
+                    const amount = parseFloat(value.amount?.toString() || '0') || 0;
+                    setAmountText(convertNumberToText(amount));
+                    setTotal(amount);
+                    const totaldetails = value.details?.reduce((sum, debit) => {
+                        const debitAmount = parseFloat(debit?.amount?.toString() || '0') || 0;
+                        return sum + debitAmount;
+                    }, 0) || 0;
+                    setDifference(amount - totaldetails);
                 }
             });
-        }
-    }, [detailDeposit, setValue]);
-
-    useEffect(() => {
-        const subscription = watch((value, { name, type }) => {
-            if (name === 'amount') {
-                const amount = parseFloat(value.amount?.toString() || '0') || 0;
-                setAmountText(convertNumberToText(amount));
-                setTotal(amount);
-                const totalDebits = value.debits?.reduce((sum, debit) => {
-                    const debitAmount = parseFloat(debit?.amount?.toString() || '0') || 0;
-                    return sum + debitAmount;
-                }, 0) || 0;
-                setDifference(amount - totalDebits);
-            }
-        });
-        return () => subscription.unsubscribe();
-    }, [watch]);
-
-    return (
-        <div>
-            <div className="panel mt-6">
-                <form className="flex gap-6 flex-col" onSubmit={handleSubmit(onSubmit)}>
-                    <div className="grid md:grid-cols-1 gap-4 w-full">
-                        <div>
-                            <label htmlFor="coaCredit" className="block text-sm font-medium text-gray-700">Deposit To</label>
-                            <div className="relative text-white-dark">
-                                <select id="coaCredit" {...register('coaCredit')} className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                    <option value="">Select Account</option>
-                                    {bankList.map((bank) => (
-                                        <option key={bank.desc} value={bank.desc}>{bank.label}</option>
-                                    ))}
-                                </select>
+            return () => subscription.unsubscribe();
+        }, [watch]);
+    
+        return (
+            <div>
+                <div className="panel mt-6">
+                    <form className="flex gap-6 flex-col" onSubmit={handleSubmit(onSubmit)}>
+                        <div className="grid md:grid-cols-1 gap-4 w-full">
+                            <div>
+                                <label htmlFor="coaCode" className="block text-sm font-medium text-gray-700">Deposit To</label>
+                                <div className="relative text-white-dark">
+                                    <select id="coaCode" {...register('coaCode')} className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                        <option value="">Select Account</option>
+                                        {bankList.map((bank) => (
+                                            <option key={bank.desc} value={bank.desc}>{bank.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
                             </div>
-                            <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
-                        </div>
-                        <div>
-                            <label htmlFor="journalDescCredit" className="block text-sm font-medium text-gray-700">Memo</label>
-                            <div className="relative text-white-dark">
-                                <input id="journalDescCredit" type="text" placeholder="Enter Credit Description" {...register('journalDescCredit')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                            <div>
+                                <label htmlFor="description" className="block text-sm font-medium text-gray-700">Memo</label>
+                                <div className="relative text-white-dark">
+                                    <input id="description" type="text" placeholder="Enter Credit Description" {...register('description')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                                </div>
+                                <span className="text-danger text-xs">{(errors.description as FieldError)?.message}</span>
                             </div>
-                            <span className="text-danger text-xs">{(errors.journalDescCredit as FieldError)?.message}</span>
-                        </div>
-                        <div>
-                            <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount</label>
-                            <div className="relative text-white-dark">
-                                <input id="amount" type="number" placeholder="Enter Amount" {...register('amount')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                            <div>
+                                <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount</label>
+                                <div className="relative text-white-dark">
+                                    <input id="amount" type="number" placeholder="Enter Amount" {...register('amount')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                                </div>
+                                <span className="text-danger text-xs">{(errors.amount as FieldError)?.message}</span>
                             </div>
-                            <span className="text-danger text-xs">{(errors.amount as FieldError)?.message}</span>
-                        </div>
-
-                        <div>
-                            <label htmlFor="createdDate" className="block text-sm font-medium text-gray-700">Created Date</label>
-                            <div className="relative text-white-dark">
-                                <input id="createdDate" type="date" {...register('createdDate')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+    
+                            <div>
+                                <label htmlFor="transactionDate" className="block text-sm font-medium text-gray-700">Created Date</label>
+                                <div className="relative text-white-dark">
+                                    <input id="transactionDate" type="date" {...register('transactionDate')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                                </div>
+                                <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
                             </div>
-                            <span className="text-danger text-xs">{(errors.createdDate as FieldError)?.message}</span>
+                            {/* <div>
+                                <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
+                                <div className="relative text-white-dark">
+                                    <select id="status" {...register('status')} className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                        <option value="">Select Status</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Completed">Completed</option>
+                                    </select>
+                                </div>
+                                <span className="text-danger text-xs">{(errors.status as FieldError)?.message}</span>
+                            </div> */}
                         </div>
-                        <div>
-                            <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
-                            <div className="relative text-white-dark">
-                                <select id="status" {...register('status')} className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                    <option value="">Select Status</option>
-                                    <option value="Pending">Pending</option>
-                                    <option value="Completed">Completed</option>
-                                </select>
-                            </div>
-                            <span className="text-danger text-xs">{(errors.status as FieldError)?.message}</span>
+    
+                        <div className="mt-6">
+                            <label className="block text-sm font-medium text-gray-700">Amount in Words</label>
+                            <p className="mt-1 text-gray-500">{amountText}</p>
                         </div>
-                    </div>
-
-                    <div className="mt-6">
-                        <label className="block text-sm font-medium text-gray-700">Say</label>
-                        <p className="mt-1 text-gray-500">{amountText}</p>
-                    </div>
-                    <div className="mt-6">
-                        <div className="mt-2 space-y-4">
-                            {fields.map((field, index) => (
-                                <div key={field.id} className="grid grid-cols-4 gap-4 items-center">
-                                    <div>
-                                        <label htmlFor={`debits.${index}.coaDebit`} className="block text-sm font-medium text-gray-700">Account</label>
-                                        <div className="relative text-white-dark">
-                                            <select
-                                                id={`debits.${index}.coaDebit`}
-                                                className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                {...register(`debits.${index}.coaDebit` as const)}
-                                            >
-                                                <option value="">Select Account</option>
-                                                {bankList.map((bank) => (
-                                                    <option key={bank.desc} value={bank.desc}>{bank.label}</option>
-                                                ))}
-                                            </select>
+                        <div className="mt-6">
+                            <div className="mt-2 space-y-4">
+                                {fields.map((field, index) => (
+                                    <div key={field.id} className="grid grid-cols-4 gap-4 items-center">
+                                        <div>
+                                            <label htmlFor={`details.${index}.coaCode`} className="block text-sm font-medium text-gray-700">Account</label>
+                                            <div className="relative text-white-dark">
+                                                <select
+                                                    id={`details.${index}.coaCode`}
+                                                    className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                    {...register(`details.${index}.coaCode` as const)}
+                                                >
+                                                    <option value="">Select Account</option>
+                                                    {bankList.map((bank) => (
+                                                        <option key={bank.desc} value={bank.desc}>{bank.label}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <span className="text-danger text-xs">{(errors.details?.[index]?.coaCode as FieldError)?.message}</span>
                                         </div>
-                                        <span className="text-danger text-xs">{(errors.debits?.[index]?.coaDebit as FieldError)?.message}</span>
-                                    </div>
-                                    <div>
-                                        <label htmlFor={`debits.${index}.amount`} className="block text-sm font-medium text-gray-700">Amount</label>
-                                        <div className="relative text-white-dark">
-                                            <input
-                                                id={`debits.${index}.amount`}
-                                                type="number"
-                                                className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                {...register(`debits.${index}.amount` as const)}
-                                                placeholder="Enter Amount"
-                                            />
+                                        <div>
+                                            <label htmlFor={`details.${index}.amount`} className="block text-sm font-medium text-gray-700">Amount</label>
+                                            <div className="relative text-white-dark">
+                                                <input
+                                                    id={`details.${index}.amount`}
+                                                    type="number"
+                                                    className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                    {...register(`details.${index}.amount` as const)}
+                                                    placeholder="Enter Amount"
+                                                />
+                                            </div>
+                                            <span className="text-danger text-xs">{(errors.details?.[index]?.amount as FieldError)?.message}</span>
                                         </div>
-                                        <span className="text-danger text-xs">{(errors.debits?.[index]?.amount as FieldError)?.message}</span>
-                                    </div>
-                                    <div>
-                                        <label htmlFor={`debits.${index}.journalDescDebit`} className="block text-sm font-medium text-gray-700">Memo</label>
-                                        <div className="relative text-white-dark">
-                                            <input
-                                                id={`debits.${index}.journalDescDebit`}
-                                                type="text"
-                                                className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                {...register(`debits.${index}.journalDescDebit` as const)}
-                                                placeholder="Enter Debit Description"
-                                            />
-                                        </div>
-                                        <span className="text-danger text-xs">{(errors.debits?.[index]?.journalDescDebit as FieldError)?.message}</span>
+                                        <div>
+                                            <label htmlFor={`details.${index}.description`} className="block text-sm font-medium text-gray-700">Memo</label>
+                                            <div className="relative text-white-dark">
+                                                <input
+                                                    id={`details.${index}.description`}
+                                                    type="text"
+                                                    className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                    {...register(`details.${index}.description` as const)}
+                                                    placeholder="Enter Debit Description"
+                                                />
+                                            </div>
+                                            <span
+                                                                                        className="text-danger text-xs">{(errors.details?.[index]?.description as FieldError)?.message}</span>
                                     </div>
 
-                                    <div className='grid-cols-2 flex justify-center gap-2'>
+                                    <div className="flex justify-start ">
                                         <button
                                             type="button"
                                             className="text-green-600 flex items-center"
-                                            onClick={() => append({ coaDebit: '', journalDescDebit: '', amount: 0 })}
+                                            onClick={() => append({ coaCode: '', description: '', amount: 0 })}
                                         >
                                             <FontAwesomeIcon icon={faPlus} className="mr-2" />
                                         </button>
                                         <button
                                             type="button"
-                                            className="text-red-600"
+                                            className="text-red-600 flex items-center"
                                             onClick={() => remove(index)}
                                         >
-                                            <FontAwesomeIcon icon={faTimes} />
+                                            <FontAwesomeIcon icon={faTimes} className="mr-2" />
                                         </button>
                                     </div>
                                 </div>

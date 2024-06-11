@@ -1,5 +1,5 @@
 export interface agingSchedulePatientType {
-    patientName: string;
+    pantientName: string;
     insuranceName: string;
     billingDate: Date;
     zeroToFortyFive: number;

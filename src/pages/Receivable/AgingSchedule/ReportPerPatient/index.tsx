@@ -91,7 +91,7 @@ const ReportPerPatient = ()=>{
             }
         }, 3000);
     }, [searchOptionInsurance]);
-
+    console.log(agingSchedulePatientList)
     const formatNumber = (number: any) => {
         // Mengubah angka menjadi string dengan dua digit desimal
         let formattedNumber = number.toFixed(0);
@@ -173,7 +173,7 @@ const ReportPerPatient = ()=>{
                         </thead>
                         <tbody>
                             {
-                                agingSchedulePatientList?.data?.map((data: agingSchedulePatientType,index:number) => {
+                                agingSchedulePatientList?.data?.data?.map((data: agingSchedulePatientType,index:number) => {
                                     totalCell = (data.zeroToFortyFive+data.fortyFiveToSixty+data.sixtyToNinety+data.ninetyToOneTwenty+data.ninetyToOneTwenty)
                                     total += totalCell
                                     zeroToFortyFiveTotal += data.zeroToFortyFive
@@ -184,7 +184,7 @@ const ReportPerPatient = ()=>{
                                     return(
                                         <>
                                             <tr key={index} className='hover:bg-'>
-                                                <td>{data.patientName}</td>
+                                                <td>{data.pantientName}</td>
                                                 <td>{data.insuranceName}</td>
                                                 <td>{new Date(data.billingDate).toLocaleDateString()}</td>
                                                 <td>{formatNumber(totalCell)}</td>
