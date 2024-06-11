@@ -131,7 +131,6 @@ const Index = () => {
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
                         records={companyList?.data?.data}
                         columns={[
-                            { accessor: 'companyId', title: 'ID', sortable: true, textAlignment: 'center', width: 100 },
                             { accessor: 'companyName', title: 'Company Name', sortable: true },
                             { accessor: 'phone', title: 'Phone', sortable: true },
                             { accessor: 'email', title: 'Email', sortable: true },
@@ -165,7 +164,7 @@ const Index = () => {
                                 ),
                             },
                         ]}
-                        totalRecords={companyList?.totalCount}
+                        totalRecords={companyList?.data?.totalData}
                         recordsPerPage={pageSize}
                         page={page}
                         onPageChange={(p) => setPage(p)}

@@ -145,6 +145,9 @@ const BookBankIndex = () => {
                             { accessor: 'coaParentCode', title: 'COA Parent Code', sortable: true },
                             { accessor: 'coaParentName', title: 'COA Parent Name', sortable: true },
                             { accessor: 'amount', title: 'Amount', sortable: true },
+                            { accessor: 'source', title: 'Source', sortable: true },
+                            { accessor: 'transactionDate', title: 'Transaction Date', sortable: true, render: (record: any) => new Date(record.transactionDate).toLocaleDateString() },
+                            { accessor: 'vourcherId', title: 'Voucher ID', sortable: true },
                             { accessor: 'status', title: 'Status', sortable: true },
                             {
                                 accessor: '',
@@ -170,6 +173,7 @@ const BookBankIndex = () => {
                                     </>
                                 ),
                             },
+
                         ]}
                         totalRecords={bookBankList?.data?.totalData}
                         recordsPerPage={pageSize}
