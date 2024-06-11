@@ -154,7 +154,7 @@ const BookBankIndex = () => {
                             { accessor: 'coaCreditParent', title: 'Credit Account Parent', sortable: true },
                             { accessor: 'amount', title: 'Amount', sortable: true },
                             { accessor: 'source', title: 'Source', sortable: true },
-                            { accessor: 'createdDate', title: 'Created Date', sortable: true, render: ({ createdDate }) => new Date(createdDate).toLocaleDateString() },
+                            { accessor: 'transactionDate', title: 'Transaction Date', sortable: true, render: (record: any) => new Date(record.transactionDate).toLocaleDateString() },
                             { accessor: 'vourcherId', title: 'Voucher ID', sortable: true },
                             { accessor: 'status', title: 'Status', sortable: true },
 

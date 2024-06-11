@@ -234,7 +234,7 @@ const DepositForm = () => {
                                 <div className="relative text-white-dark">
                                     <select id="coaCode" {...register('coaCode')} className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                         <option value="">Select Account</option>
-                                        {bankList.map((bank) => (
+                                        {bankList.map((bank : any) => (
                                             <option key={bank.desc} value={bank.desc}>{bank.label}</option>
                                         ))}
                                     </select>
@@ -293,7 +293,7 @@ const DepositForm = () => {
                                                     {...register(`details.${index}.coaCode` as const)}
                                                 >
                                                     <option value="">Select Account</option>
-                                                    {bankList.map((bank) => (
+                                                    {bankList.map((bank: any) => (
                                                         <option key={bank.desc} value={bank.desc}>{bank.label}</option>
                                                     ))}
                                                 </select>

@@ -107,7 +107,6 @@ const Index = () => {
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
                         records={accountTypeList?.data?.data}
                         columns={[
-                            { accessor: 'accountTypeId', title: 'ID', sortable: true, textAlignment: 'center', width: 100 },
                             { accessor: 'accountTypeName', title: 'Account Type Name', sortable: true },
                             {
                                 accessor: '',
@@ -135,7 +134,7 @@ const Index = () => {
                                 ),
                             },
                         ]}
-                        totalRecords={accountTypeList?.totalCount}
+                        totalRecords={accountTypeList?.data?.totalData}
                         recordsPerPage={pageSize}
                         page={page}
                         onPageChange={(p) => setPage(p)}

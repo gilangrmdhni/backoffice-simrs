@@ -67,6 +67,7 @@ const Index = () => {
             setDeleteId(0);
             setShowDeleteModal(false);
             responseCallback(response, null, null);
+            toastMessage("success Deleted Data","success")
             refetch();
         } catch (err: any) {
             toastMessage(err.message, 'error');
@@ -118,7 +119,6 @@ const Index = () => {
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
                         records={currencyList?.data?.data}
                         columns={[
-                            { accessor: 'currencyId', title: 'ID', width: 100,textAlignment:'center',sortable: true,render: (s:CurrencyType) => (<span className="flex justify-center">{s.currencyId}</span>) },
                             { accessor: 'currencyName', title: 'Currency Name', sortable: true },
                             { accessor: 'currencyCode', title: 'Currency Code', sortable: true },
                             { accessor: 'symbol', title: 'symbol', sortable: true },
