@@ -157,30 +157,6 @@ const BookBankIndex = () => {
                             { accessor: 'createdDate', title: 'Created Date', sortable: true, render: ({ createdDate }) => new Date(createdDate).toLocaleDateString() },
                             { accessor: 'vourcherId', title: 'Voucher ID', sortable: true },
                             { accessor: 'status', title: 'Status', sortable: true },
-                            {
-                                accessor: '',
-                                title: 'Actions',
-                                render: (s: BookBankType) => (
-                                    <>
-                                        <Tippy content="Edit">
-                                            <button type="button" onClick={() => handleEdit(s.journalId)}>
-                                                <IconPencil className="ltr:mr-2 rtl:ml-2" />
-                                            </button>
-                                        </Tippy>
-                                        <Tippy content="Delete">
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setDeleteId(s.journalId);
-                                                    setShowDeleteModal(true);
-                                                }}
-                                            >
-                                                <IconTrashLines className="m-auto" />
-                                            </button>
-                                        </Tippy>
-                                    </>
-                                ),
-                            },
 
                         ]}
                         totalRecords={bookBankList?.data?.totalData}
