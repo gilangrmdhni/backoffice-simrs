@@ -184,9 +184,9 @@ const DepositForm = () => {
     
 
     useEffect(() => {
-        dispatch(setPageTitle('Deposit'));
-        dispatch(setTitle('Deposit'));
-        dispatch(setBreadcrumbTitle(['Dashboard', 'Bank', 'Deposit', id ? 'Update' : 'Create']));
+        dispatch(setPageTitle('Payment'));
+        dispatch(setTitle('Payment'));
+        dispatch(setBreadcrumbTitle(['Dashboard', 'Bank', 'Payment', id ? 'Update' : 'Create']));
 
         if (id) {
             refetchDetailDeposit();
