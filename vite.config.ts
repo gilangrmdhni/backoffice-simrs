@@ -9,12 +9,12 @@ export default defineConfig({
         alias: [{ find: "@", replacement: resolve(__dirname, "./src") }],
     },
     build: {
-        rollupOptions: {
-          output: {
-            manualChunks: {
-              'fontawesome': ['@fortawesome/fontawesome-svg-core'],
-            },
-          },
-        },
-      },
+      rollupOptions: {
+        external: [
+          '@fortawesome/fontawesome-svg-core', // Mark as external
+          '@fortawesome/free-solid-svg-icons',
+          '@fortawesome/react-fontawesome'
+        ]
+      }
+    }
 });
