@@ -105,7 +105,7 @@ const DaftarPengeluaranIndex = () => {
                                 type="button"
                                 className="btn btn-primary"
                             >
-                                + Tambah Daftar Penerimaan
+                                + Tambah Daftar Pengeluaran
                             </button>
                         </div>
                     </div>
@@ -162,11 +162,11 @@ const DaftarPengeluaranIndex = () => {
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
                         records={bookBankList?.data?.data}
                         columns={[
-                            { accessor: 'coaCode', title: 'No Transaksi', sortable: true },
+                            { accessor: 'transactionNo', title: 'No Transaksi', sortable: true },
                             { accessor: 'createdDate', title: 'Tanggal Transaksi', sortable: true, render: ({ createdDate }) => new Date(createdDate).toLocaleDateString() },
                             { accessor: 'coaName', title: 'Nama Akun', sortable: true },
                             { accessor: 'amount', title: 'Amount', sortable: true },
-                            { accessor: 'journalDescDebit', title: 'Keterangan', sortable: true },
+                            { accessor: 'desciption', title: 'Keterangan', sortable: true },
                             {
                                 accessor: '',
                                 title: 'Actions',

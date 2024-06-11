@@ -1,18 +1,17 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { setPageTitle, setTitle, setBreadcrumbTitle } from '../../../store/themeConfigSlice';
 import { useForm, FieldError, useFieldArray } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { ToastContainer } from 'react-toastify';
 import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
 import { useGetDepositDetailQuery, useCreateDepositMutation, useUpdateDepositMutation } from '@/store/api/bank/deposit/depositApiSlice';
-import { useGetBanksQuery } from '@/store/api/bank/bankApiSlice';
-import { DepositType, DebitEntry, DepositUpdateType } from '@/types/depositType';
+import { useGetOptionBankQuery } from '@/store/api/bank/bankApiSlice';
+import { DepositType, DepositUpdateType } from '@/types/depositType';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTimes, faPlaceOfWorship, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import Tippy from '@tippyjs/react';
@@ -20,6 +19,12 @@ import 'tippy.js/dist/tippy.css';
 import IconPlus from '@/components/Icon/IconPlus';
 import ModalCoaCustom from '@/components/ModalCoaCustom';
 import { COAType } from '@/types';
+
+interface BankOption {
+    desc: string;
+    label: string;
+}
+
 const DaftarPenerimaanForm = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -28,33 +33,37 @@ const DaftarPenerimaanForm = () => {
     const { data: detailDeposit, refetch: refetchDetailDeposit } = id ? useGetDepositDetailQuery(Number(id)) : { data: null, refetch: () => { } };
     const [createDeposit, { isLoading: isCreating }] = useCreateDepositMutation();
     const [updateDeposit, { isLoading: isUpdating }] = useUpdateDepositMutation();
-    const dateNow = new Date
-    const [isTanggal, setIsTanggal] = useState<any>(dateNow)
-    const [isTime, setIsTime] = useState<any>(dateNow)
-    const [isShowModalCoa, setIsShowModalCoa] = useState<boolean>(false)
+    const dateNow = new Date();
+    const [isShowModalCoa, setIsShowModalCoa] = useState<boolean>(false);
     const [selectedRecords, setSelectedRecords] = useState<any>([]);
     const [showSelected, setShowSelected] = useState<any>([]);
-    const [isSave, setIsSave] = useState<boolean>(false)
-
+    const [isSave, setIsSave] = useState<boolean>(false);
 
     const schema = yup.object({
-        description: yup.string().required('Credit Description is Required'),
         coaCode: yup.string().required('Account is Required'),
-        transactionDate: yup.date().required('Created Date is Required'),
-        status: yup.string().required('Status is Required'),
-        details: yup.array().of(
-            yup.object().shape({
-                coaCode: yup.string().required('Account is Required'),
-                description: yup.string().required('Memo is Required'),
-                amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
-            })
-        ).required().min(1, 'At least one debit entry is required'),
+        transactionDate: yup.date().required('Transaction Date is Required'),
+        // details: yup.array().of(
+        //     yup.object().shape({
+        //         coaCode: yup.string().required('Account is Required'),
+        //         description: yup.string().required('Memo is Required'),
+        //         amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
+        //         isPremier: yup.boolean().required('IsPremier is Required'),
+        //     })
+        // ).required().min(1, 'At least one detail entry is required'),
     }).required();
 
     const { register, control, formState: { errors }, handleSubmit, setValue, watch } = useForm<DepositType>({
         resolver: yupResolver(schema),
         defaultValues: {
-            details: [{ coaCode: '', description: '', amount: 0 }]
+            transactionDate: '',
+            coaCode: '',
+            description: '',
+            transactionNo: '',
+            transactionType: 'Deposit',
+            transactionName: '',
+            transactionRef: '',
+            contactId: 0,
+            details: [{ coaCode: '', description: '', amount: 0, isPremier: false }]
         }
     });
 
@@ -63,6 +72,11 @@ const DaftarPenerimaanForm = () => {
         name: 'details',
     });
 
+    const { data: bankResponse } = useGetOptionBankQuery({
+        parent: 952,
+    });
+    const bankList: BankOption[] = bankResponse?.data ?? [];
+
     const handleDeleteDetail = (key: any) => {
         const index = selectedRecords.indexOf(key);
         if (index > -1) {
@@ -70,8 +84,8 @@ const DaftarPenerimaanForm = () => {
             setShowSelected(selectedRecords);
             setSelectedRecords(selectedRecords);
         }
-        console.log(key)
-    }
+        console.log(key);
+    };
 
     const deleteItem = (indexToDelete: any) => {
         const newItems = showSelected.filter((value: any, index: number) => index !== indexToDelete);
@@ -79,8 +93,8 @@ const DaftarPenerimaanForm = () => {
         setSelectedRecords(newItems);
     };
 
-    const { data: bankResponse } = useGetBanksQuery({});
-    const bankList = bankResponse?.data ?? [];
+    const { data: coaResponse, isLoading: isCoaLoading, error: coaError } = useGetOptionBankQuery({});
+    const coaList = coaResponse?.data ?? [];
 
     const [total, setTotal] = useState(0);
     const [difference, setDifference] = useState(0);
@@ -140,51 +154,39 @@ const DaftarPenerimaanForm = () => {
     };
 
     const onSubmit = async (data: DepositType) => {
-        console.log('Data yang dikirim:', data);
+        console.log('Data yang dikirim:', data.details);
 
-        const totaldetails = data.details.reduce((sum, debit) => sum + (Number(debit.amount) || 0), 0);
-        const formAmount = Number(data.amount);
-        console.log('Total details:', totaldetails);
+        const totalDetails = data.details.reduce((sum, detail) => sum + (Number(detail.amount) || 0), 0);
+        const formAmount = totalDetails;
+        console.log('Total details:', totalDetails);
         console.log('Form Amount:', formAmount);
 
-        // Validasi tambahan sebelum pengiriman
-        if (totaldetails !== formAmount) {
-            toastMessage('Total amount of debit entries must match the amount in the form.', 'error');
-            return;
-        }
+        console.log('Tanggal yang dipilih:', data.transactionDate);
 
         try {
             let response;
             if (id) {
-                const updateData = {
+                const updateData: DepositUpdateType = {
                     ...data,
                     journalId: parseInt(id),
                 };
                 response = await updateDeposit(updateData).unwrap();
             } else {
-                const detailsData = data.details.map(debit => ({
-                    coaCode: debit.coaCode,
-                    description: debit.description,
-                    amount: debit.amount,
-                    isPremier: false
-                }));
-                const postData = {
-                    transactionDate: data.transactionDate,
-                    coaCode: data.coaCode,
-                    description: data.description,
-                    amount: data.amount, // Pastikan amount ada di sini
-                    transactionNo: "",
-                    transactionType: "Deposit",
-                    transactionName: "",
-                    transactionRef: "",
-                    contactId: 0,
-                    details: detailsData,
+                const postData: DepositType = {
+                    ...data,
+                    transactionType: 'deposit',
+                    details: data.details.map(detail => ({
+                        ...detail,
+                        isPremier: true 
+                    }))
                 };
-    
+
                 console.log('Payload yang dikirim:', JSON.stringify(postData, null, 2));
-    
+
+                response = await createDeposit(postData).unwrap();
             }
             responseCallback(response, () => {
+                toastMessage('Data berhasil disimpan.', 'success');
                 navigate('/daftarpenerimaan');
             }, null);
         } catch (err: any) {
@@ -207,8 +209,7 @@ const DaftarPenerimaanForm = () => {
                 if (key === 'transactionDate') {
                     const isoString = detailDeposit.data[key as keyof DepositType] as string;
                     const date = new Date(isoString);
-                    const formattedDate = date.toISOString().split('T')[0];
-                    setValue(key as keyof DepositType, formattedDate);
+                    setValue(key as keyof DepositType, isoString);
                 } else {
                     setValue(key as keyof DepositType, detailDeposit.data[key as keyof DepositType]);
                 }
@@ -218,16 +219,14 @@ const DaftarPenerimaanForm = () => {
 
     useEffect(() => {
         const subscription = watch((value, { name, type }) => {
-            if (name === 'amount') {
-                const amount = parseFloat(value.amount?.toString() || '0') || 0;
-                setAmountText(convertNumberToText(amount));
-                setTotal(amount);
-                const totaldetails = value.details?.reduce((sum, debit) => {
-                    const debitAmount = parseFloat(debit?.amount?.toString() || '0') || 0;
-                    return sum + debitAmount;
-                }, 0) || 0;
-                setDifference(amount - totaldetails);
-            }
+            const totalDetails = value.details?.reduce((sum, detail) => {
+                const detailAmount = parseFloat(detail?.amount?.toString() || '0') || 0;
+                return sum + detailAmount;
+            }, 0) || 0;
+
+            setAmountText(convertNumberToText(totalDetails));
+            setTotal(totalDetails);
+            setDifference(totalDetails - (parseFloat(value.amount?.toString() || '0') || 0));
         });
         return () => subscription.unsubscribe();
     }, [watch]);
@@ -245,7 +244,8 @@ const DaftarPenerimaanForm = () => {
                                 <label htmlFor="coaCode">NO TRANSAKSI</label>
                             </div>
                             <div className="text-white-dark w-full">
-                                <input id="coaCode" type="text" placeholder="Enter Contoh : 0001" className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" />
+                                <input id="transactionNo" type="text" placeholder="Enter Contoh : 0001" className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" {...register('transactionNo')} />
+                                <span className="text-danger text-xs">{(errors.transactionNo as FieldError)?.message}</span>
                             </div>
                         </div>
                         <div className='flex justify-start w-full mb-5'>
@@ -255,7 +255,7 @@ const DaftarPenerimaanForm = () => {
                             <div className="relative text-white-dark w-full">
                                 <select id="coaCode" {...register('coaCode')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                     <option value="">Pilih</option>
-                                    {bankList.map((bank) => (
+                                    {bankList.map((bank: any) => (
                                         <option key={bank.desc} value={bank.desc}>{bank.label}</option>
                                     ))}
                                 </select>
@@ -265,35 +265,22 @@ const DaftarPenerimaanForm = () => {
 
                         <div className='flex justify-start w-full mb-5'>
                             <div className='label mr-10 w-64'>
-                                <label htmlFor="Akun">TANGGAL TRANSAKSI</label>
+                                <label htmlFor="transactionDate">TANGGAL TRANSAKSI</label>
                             </div>
-                            <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
-                                <div className=''>
-                                    <label htmlFor="Akun">Tanggal</label>
-                                    <Flatpickr
-                                        value={isTanggal}
-                                        options={{ dateFormat: 'Y-m-d', position: isRtl ? 'auto right' : 'auto left' }}
-                                        className="form-input font-normal"
-                                        onChange={(date: any) => setIsTanggal(date)}
-                                    />
-
-                                    <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
-                                </div>
-                                <div className=''>
-                                    <label htmlFor="Akun">Waktu</label>
-                                    <Flatpickr
-                                        options={{
-                                            noCalendar: true,
-                                            enableTime: true,
-                                            dateFormat: 'H:i',
-                                            position: isRtl ? 'auto right' : 'auto left',
-                                        }}
-                                        value={isTime}
-                                        className="form-input font-normal"
-                                        onChange={(date) => setIsTime(date)}
-                                    />
-                                    <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
-                                </div>
+                            <div className="text-white-dark w-full">
+                                <Flatpickr
+                                    value={dateNow}
+                                    options={{
+                                        enableTime: true,
+                                        dateFormat: 'Y-m-d H:i',
+                                        position: isRtl ? 'auto right' : 'auto left'
+                                    }}
+                                    className="form-input font-normal"
+                                    onChange={(date: Date[]) => {
+                                        setValue('transactionDate', date[0].toISOString());
+                                    }}
+                                />
+                                <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
                             </div>
                         </div>
                         <div className="mt-6">
@@ -335,73 +322,23 @@ const DaftarPenerimaanForm = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {/* {fields.map((field, index) => (
-                                            <tr key={field.id} className="">
-                                                <td>
-                                                    <div className="relative text-white-dark">
-                                                        <select
-                                                            id={`details.${index}.coaCode`}
-                                                            className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                            {...register(`details.${index}.coaCode` as const)}
-                                                        >
-                                                            <option value="">Select Account</option>
-                                                            {bankList.map((bank) => (
-                                                                <option key={bank.desc} value={bank.desc}>{bank.label}</option>
-                                                            ))}
-                                                        </select>
-                                                    </div>
-                                                    <span className="text-danger text-xs">{(errors.details?.[index]?.coaCode as FieldError)?.message}</span>
-                                                </td>
-                                                <td>
-                                                    <div className="relative text-white-dark">
-                                                        <input
-                                                            id={`details.${index}.amount`}
-                                                            type="number"
-                                                            className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                            {...register(`details.${index}.amount` as const)}
-                                                            placeholder="Enter Amount"
-                                                        />
-                                                    </div>
-                                                    <span className="text-danger text-xs">{(errors.details?.[index]?.amount as FieldError)?.message}</span>
-                                                </td>
-                                                <td>
-                                                    <div className="relative text-white-dark">
-                                                        <input
-                                                            id={`details.${index}.description`}
-                                                            type="text"
-                                                            className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                            {...register(`details.${index}.description` as const)}
-                                                            placeholder="Enter Debit Description"
-                                                        />
-                                                    </div>
-                                                    <span className="text-danger text-xs">{(errors.details?.[index]?.description as FieldError)?.message}</span>
-                                                </td>
-
-                                                <td className='grid-cols-2 flex justify-center gap-2'>
-                                                    <button
-                                                        type="button"
-                                                        className="border-none h-10 w-10"
-                                                        onClick={() => remove(index)}
-                                                    >
-                                                        <div className="grid place-content-center w-10 h-10 rounded-md">
-                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
-                                                                <path d="M9 12C9 11.5341 9 11.3011 9.07612 11.1173C9.17761 10.8723 9.37229 10.6776 9.61732 10.5761C9.80109 10.5 10.0341 10.5 10.5 10.5H13.5C13.9659 10.5 14.1989 10.5 14.3827 10.5761C14.6277 10.6776 14.8224 10.8723 14.9239 11.1173C15 11.3011 15 11.5341 15 12C15 12.4659 15 12.6989 14.9239 12.8827C14.8224 13.1277 14.6277 13.3224 14.3827 13.4239C14.1989 13.5 13.9659 13.5 13.5 13.5H10.5C10.0341 13.5 9.80109 13.5 9.61732 13.4239C9.37229 13.3224 9.17761 13.1277 9.07612 12.8827C9 12.6989 9 12.4659 9 12Z" stroke="currentColor" stroke-width="1.5"></path>
-                                                                <path opacity="0.5" d="M20.5 7V13C20.5 16.7712 20.5 18.6569 19.3284 19.8284C18.1569 21 16.2712 21 12.5 21H11.5C7.72876 21 5.84315 21 4.67157 19.8284C3.5 18.6569 3.5 16.7712 3.5 13V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-                                                                <path d="M2 5C2 4.05719 2 3.58579 2.29289 3.29289C2.58579 3 3.05719 3 4 3H20C20.9428 3 21.4142 3 21.7071 3.29289C22 3.58579 22 4.05719 22 5C22 5.94281 22 6.41421 21.7071 6.70711C21.4142 7 20.9428 7 20 7H4C3.05719 7 2.58579 7 2.29289 6.70711C2 6.41421 2 5.94281 2 5Z" stroke="currentColor" stroke-width="1.5"></path>
-                                                            </svg>
-                                                        </div>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))} */}
                                         {isSave ? (
                                             showSelected.map((record: COAType, index: number) => (
                                                 <tr key={index}>
                                                     <td>
-                                                        {record.coaName}
+                                                        {/* {record.coaName}
                                                         <input type="hidden" id={`details.${index}.coaCode`}
                                                             {...register(`details.${index}.coaCode` as const)}
-                                                        />
+                                                        /> */}
+                                                        <select
+                                                            id={`details.${index}.coaCode`}
+                                                            className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                            {...register(`details.${index}.coaCode` as const)}
+                                                            disabled={true}
+                                                            defaultValue={record.coaCode}
+                                                        >
+                                                            <option value={record.coaCode} selected>{record.coaName}</option>
+                                                        </select>
                                                     </td>
                                                     <td>
                                                         <div className="relative text-white-dark">
@@ -416,7 +353,6 @@ const DaftarPenerimaanForm = () => {
                                                         <span className="text-danger text-xs">{(errors.details?.[index]?.description as FieldError)?.message}</span>
                                                     </td>
                                                     <td>
-
                                                         <div className="relative text-white-dark">
                                                             <input
                                                                 id={`details.${index}.amount`}
@@ -429,6 +365,7 @@ const DaftarPenerimaanForm = () => {
                                                         <span className="text-danger text-xs">{(errors.details?.[index]?.amount as FieldError)?.message}</span>
                                                     </td>
                                                     <td>
+                                                        <input type="hidden" id={`details.${index}.isPremier`} {...register(`details.${index}.isPremier` as const)} value="true" />
                                                         <button
                                                             type="button"
                                                             className="border-none h-10 w-10"
@@ -445,11 +382,9 @@ const DaftarPenerimaanForm = () => {
                                                     Data Tidak Tersedia
                                                 </td>
                                             </tr>
-                                            // 'Data tidak tersedia'
                                         )}
                                     </tbody>
                                 </table>
-
                             </div>
                         </div>
 
@@ -463,13 +398,12 @@ const DaftarPenerimaanForm = () => {
                                 <p>{difference.toLocaleString()}</p>
                             </div>
                         </div>
-
                     </div>
                     <div className="mt-6 flex justify-end space-x-4">
                         <button
                             type="button"
                             className="px-4 py-2 bg-gray-600 text-white rounded-md shadow-sm"
-                            onClick={() => navigate('/daftartransfer')}
+                            onClick={() => navigate('/daftarpenerimaan')}
                         >
                             Cancel
                         </button>
@@ -479,7 +413,6 @@ const DaftarPenerimaanForm = () => {
                         >
                             {isCreating || isUpdating ? 'Loading' : id ? 'Update' : 'Create'}
                         </button>
-
                     </div>
                     <ModalCoaCustom setIsSave={setIsSave} selectedRecords={selectedRecords} setShowSelected={setShowSelected} setSelectedRecords={setSelectedRecords} showModal={isShowModalCoa} setIsShowModal={setIsShowModalCoa} />
                 </form>
