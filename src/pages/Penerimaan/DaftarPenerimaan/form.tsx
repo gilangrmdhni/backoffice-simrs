@@ -42,14 +42,12 @@ const DaftarPenerimaanForm = () => {
     const schema = yup.object({
         coaCode: yup.string().required('Account is Required'),
         transactionDate: yup.date().required('Transaction Date is Required'),
-        // details: yup.array().of(
-        //     yup.object().shape({
-        //         coaCode: yup.string().required('Account is Required'),
-        //         description: yup.string().required('Memo is Required'),
-        //         amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
-        //         isPremier: yup.boolean().required('IsPremier is Required'),
-        //     })
-        // ).required().min(1, 'At least one detail entry is required'),
+        details: yup.array().of(
+            yup.object().shape({
+                description: yup.string().required('Memo is Required'),
+                amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
+            })
+        ).required().min(1, 'At least one detail entry is required'),
     }).required();
 
     const { register, control, formState: { errors }, handleSubmit, setValue, watch } = useForm<DepositType>({
@@ -174,10 +172,11 @@ const DaftarPenerimaanForm = () => {
             } else {
                 const postData: DepositType = {
                     ...data,
-                    transactionType: 'deposit',
-                    details: data.details.map(detail => ({
+                    transactionType: 'Deposit',
+                    details: data.details.map((detail,index : number) => ({
                         ...detail,
-                        isPremier: true 
+                        coaCode:  showSelected[index].coaCode,
+                        isPremier: false 
                     }))
                 };
 
@@ -244,7 +243,7 @@ const DaftarPenerimaanForm = () => {
                                 <label htmlFor="coaCode">NO TRANSAKSI</label>
                             </div>
                             <div className="text-white-dark w-full">
-                                <input id="transactionNo" type="text" placeholder="Enter Contoh : 0001" className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" {...register('transactionNo')} />
+                                <input id="transactionNo" type="text" placeholder="Enter Contoh : 0001" className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b]" {...register('transactionNo')} />
                                 <span className="text-danger text-xs">{(errors.transactionNo as FieldError)?.message}</span>
                             </div>
                         </div>
@@ -283,10 +282,10 @@ const DaftarPenerimaanForm = () => {
                                 <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
                             </div>
                         </div>
-                        <div className="mt-6">
+                        {/* <div className="mt-6">
                             <label className="block text-sm font-medium text-gray-700">Say</label>
                             <p className="mt-1 text-gray-500">{amountText}</p>
-                        </div>
+                        </div> */}
                     </div>
 
                     <div className="grid md:grid-cols-1 gap-4 w-full panel">
@@ -326,19 +325,7 @@ const DaftarPenerimaanForm = () => {
                                             showSelected.map((record: COAType, index: number) => (
                                                 <tr key={index}>
                                                     <td>
-                                                        {/* {record.coaName}
-                                                        <input type="hidden" id={`details.${index}.coaCode`}
-                                                            {...register(`details.${index}.coaCode` as const)}
-                                                        /> */}
-                                                        <select
-                                                            id={`details.${index}.coaCode`}
-                                                            className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                            {...register(`details.${index}.coaCode` as const)}
-                                                            disabled={true}
-                                                            defaultValue={record.coaCode}
-                                                        >
-                                                            <option value={record.coaCode} selected>{record.coaName}</option>
-                                                        </select>
+                                                        {record.coaName}
                                                     </td>
                                                     <td>
                                                         <div className="relative text-white-dark">
@@ -388,15 +375,15 @@ const DaftarPenerimaanForm = () => {
                             </div>
                         </div>
 
-                        <div className="mt-6 grid grid-cols-2 gap-4">
+                        <div className="mt-6 grid grid-cols-1 gap-4">
                             <div className="flex justify-end">
                                 <p>Total :</p>
                                 <p>{total.toLocaleString()}</p>
                             </div>
-                            <div className="flex justify-end">
+                            {/* <div className="flex justify-end">
                                 <p>Difference :</p>
                                 <p>{difference.toLocaleString()}</p>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                     <div className="mt-6 flex justify-end space-x-4">

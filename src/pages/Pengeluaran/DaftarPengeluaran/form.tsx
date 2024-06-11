@@ -1,18 +1,17 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { setPageTitle, setTitle, setBreadcrumbTitle } from '../../../store/themeConfigSlice';
 import { useForm, FieldError, useFieldArray } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { ToastContainer } from 'react-toastify';
 import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
 import { useGetDepositDetailQuery, useCreateDepositMutation, useUpdateDepositMutation } from '@/store/api/bank/deposit/depositApiSlice';
-import { useGetBanksQuery } from '@/store/api/bank/bankApiSlice';
-import { DepositType, DebitEntry, DepositUpdateType } from '@/types/depositType';
+import { useGetOptionBankQuery } from '@/store/api/bank/bankApiSlice';
+import { DepositType, DepositUpdateType } from '@/types/depositType';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTimes, faPlaceOfWorship, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import Tippy from '@tippyjs/react';
@@ -20,6 +19,12 @@ import 'tippy.js/dist/tippy.css';
 import IconPlus from '@/components/Icon/IconPlus';
 import ModalCoaCustom from '@/components/ModalCoaCustom';
 import { COAType } from '@/types';
+
+interface BankOption {
+    desc: string;
+    label: string;
+}
+
 const DaftarPengeluaranForm = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -28,33 +33,35 @@ const DaftarPengeluaranForm = () => {
     const { data: detailDeposit, refetch: refetchDetailDeposit } = id ? useGetDepositDetailQuery(Number(id)) : { data: null, refetch: () => { } };
     const [createDeposit, { isLoading: isCreating }] = useCreateDepositMutation();
     const [updateDeposit, { isLoading: isUpdating }] = useUpdateDepositMutation();
-    const dateNow = new Date
-    const [isTanggal, setIsTanggal] = useState<any>(dateNow)
-    const [isTime, setIsTime] = useState<any>(dateNow)
-    const [isShowModalCoa, setIsShowModalCoa] = useState<boolean>(false)
+    const dateNow = new Date();
+    const [isShowModalCoa, setIsShowModalCoa] = useState<boolean>(false);
     const [selectedRecords, setSelectedRecords] = useState<any>([]);
     const [showSelected, setShowSelected] = useState<any>([]);
-    const [isSave, setIsSave] = useState<boolean>(false)
-
+    const [isSave, setIsSave] = useState<boolean>(false);
 
     const schema = yup.object({
-        description: yup.string().required('Credit Description is Required'),
         coaCode: yup.string().required('Account is Required'),
-        transactionDate: yup.date().required('Created Date is Required'),
-        status: yup.string().required('Status is Required'),
+        transactionDate: yup.date().required('Transaction Date is Required'),
         details: yup.array().of(
             yup.object().shape({
-                coaCode: yup.string().required('Account is Required'),
                 description: yup.string().required('Memo is Required'),
                 amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
             })
-        ).required().min(1, 'At least one debit entry is required'),
+        ).required().min(1, 'At least one detail entry is required'),
     }).required();
 
     const { register, control, formState: { errors }, handleSubmit, setValue, watch } = useForm<DepositType>({
         resolver: yupResolver(schema),
         defaultValues: {
-            details: [{ coaCode: '', description: '', amount: 0 }]
+            transactionDate: '',
+            coaCode: '',
+            description: '',
+            transactionNo: '',
+            transactionType: 'Payment',
+            transactionName: '',
+            transactionRef: '',
+            contactId: 0,
+            details: [{ coaCode: '', description: '', amount: 0, isPremier: false }]
         }
     });
 
@@ -63,6 +70,11 @@ const DaftarPengeluaranForm = () => {
         name: 'details',
     });
 
+    const { data: bankResponse } = useGetOptionBankQuery({
+        parent: 952,
+    });
+    const bankList: BankOption[] = bankResponse?.data ?? [];
+
     const handleDeleteDetail = (key: any) => {
         const index = selectedRecords.indexOf(key);
         if (index > -1) {
@@ -70,8 +82,8 @@ const DaftarPengeluaranForm = () => {
             setShowSelected(selectedRecords);
             setSelectedRecords(selectedRecords);
         }
-        console.log(key)
-    }
+        console.log(key);
+    };
 
     const deleteItem = (indexToDelete: any) => {
         const newItems = showSelected.filter((value: any, index: number) => index !== indexToDelete);
@@ -79,8 +91,8 @@ const DaftarPengeluaranForm = () => {
         setSelectedRecords(newItems);
     };
 
-    const { data: bankResponse } = useGetBanksQuery({});
-    const bankList = bankResponse?.data ?? [];
+    const { data: coaResponse, isLoading: isCoaLoading, error: coaError } = useGetOptionBankQuery({});
+    const coaList = coaResponse?.data ?? [];
 
     const [total, setTotal] = useState(0);
     const [difference, setDifference] = useState(0);
@@ -140,52 +152,41 @@ const DaftarPengeluaranForm = () => {
     };
 
     const onSubmit = async (data: DepositType) => {
-        console.log('Data yang dikirim:', data);
+        console.log('Data yang dikirim:', data.details);
 
-        const totaldetails = data.details.reduce((sum, debit) => sum + (Number(debit.amount) || 0), 0);
-        const formAmount = Number(data.amount);
-        console.log('Total details:', totaldetails);
+        const totalDetails = data.details.reduce((sum, detail) => sum + (Number(detail.amount) || 0), 0);
+        const formAmount = totalDetails;
+        console.log('Total details:', totalDetails);
         console.log('Form Amount:', formAmount);
 
-        // Validasi tambahan sebelum pengiriman
-        if (totaldetails !== formAmount) {
-            toastMessage('Total amount of debit entries must match the amount in the form.', 'error');
-            return;
-        }
+        console.log('Tanggal yang dipilih:', data.transactionDate);
 
         try {
             let response;
             if (id) {
-                const updateData = {
+                const updateData: DepositUpdateType = {
                     ...data,
                     journalId: parseInt(id),
                 };
                 response = await updateDeposit(updateData).unwrap();
             } else {
-                const detailsData = data.details.map(debit => ({
-                    coaCode: debit.coaCode,
-                    description: debit.description,
-                    amount: debit.amount,
-                    isPremier: false
-                }));
-                const postData = {
-                    transactionDate: data.transactionDate,
-                    coaCode: data.coaCode,
-                    description: data.description,
-                    amount: data.amount, 
-                    transactionNo: "",
-                    transactionType: "Payment",
-                    transactionName: "",
-                    transactionRef: "",
-                    contactId: 0,
-                    details: detailsData,
+                const postData: DepositType = {
+                    ...data,
+                    transactionType: 'Deposit',
+                    details: data.details.map((detail,index : number) => ({
+                        ...detail,
+                        coaCode:  showSelected[index].coaCode,
+                        isPremier: false 
+                    }))
                 };
-    
+
                 console.log('Payload yang dikirim:', JSON.stringify(postData, null, 2));
-    
+
+                response = await createDeposit(postData).unwrap();
             }
             responseCallback(response, () => {
-                navigate('/daftarpengeluaran');
+                toastMessage('Data berhasil disimpan.', 'success');
+                navigate('/daftarPengeluaran');
             }, null);
         } catch (err: any) {
             toastMessage(err.message, 'error');
@@ -207,8 +208,7 @@ const DaftarPengeluaranForm = () => {
                 if (key === 'transactionDate') {
                     const isoString = detailDeposit.data[key as keyof DepositType] as string;
                     const date = new Date(isoString);
-                    const formattedDate = date.toISOString().split('T')[0];
-                    setValue(key as keyof DepositType, formattedDate);
+                    setValue(key as keyof DepositType, isoString);
                 } else {
                     setValue(key as keyof DepositType, detailDeposit.data[key as keyof DepositType]);
                 }
@@ -218,16 +218,14 @@ const DaftarPengeluaranForm = () => {
 
     useEffect(() => {
         const subscription = watch((value, { name, type }) => {
-            if (name === 'amount') {
-                const amount = parseFloat(value.amount?.toString() || '0') || 0;
-                setAmountText(convertNumberToText(amount));
-                setTotal(amount);
-                const totaldetails = value.details?.reduce((sum, debit) => {
-                    const debitAmount = parseFloat(debit?.amount?.toString() || '0') || 0;
-                    return sum + debitAmount;
-                }, 0) || 0;
-                setDifference(amount - totaldetails);
-            }
+            const totalDetails = value.details?.reduce((sum, detail) => {
+                const detailAmount = parseFloat(detail?.amount?.toString() || '0') || 0;
+                return sum + detailAmount;
+            }, 0) || 0;
+
+            setAmountText(convertNumberToText(totalDetails));
+            setTotal(totalDetails);
+            setDifference(totalDetails - (parseFloat(value.amount?.toString() || '0') || 0));
         });
         return () => subscription.unsubscribe();
     }, [watch]);
@@ -245,7 +243,8 @@ const DaftarPengeluaranForm = () => {
                                 <label htmlFor="coaCode">NO TRANSAKSI</label>
                             </div>
                             <div className="text-white-dark w-full">
-                                <input id="coaCode" type="text" placeholder="Enter Contoh : 0001" className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" />
+                                <input id="transactionNo" type="text" placeholder="Enter Contoh : 0001" className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b]" {...register('transactionNo')} />
+                                <span className="text-danger text-xs">{(errors.transactionNo as FieldError)?.message}</span>
                             </div>
                         </div>
                         <div className='flex justify-start w-full mb-5'>
@@ -255,7 +254,7 @@ const DaftarPengeluaranForm = () => {
                             <div className="relative text-white-dark w-full">
                                 <select id="coaCode" {...register('coaCode')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                     <option value="">Pilih</option>
-                                    {bankList.map((bank) => (
+                                    {bankList.map((bank: any) => (
                                         <option key={bank.desc} value={bank.desc}>{bank.label}</option>
                                     ))}
                                 </select>
@@ -265,46 +264,33 @@ const DaftarPengeluaranForm = () => {
 
                         <div className='flex justify-start w-full mb-5'>
                             <div className='label mr-10 w-64'>
-                                <label htmlFor="Akun">TANGGAL TRANSAKSI</label>
+                                <label htmlFor="transactionDate">TANGGAL TRANSAKSI</label>
                             </div>
-                            <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
-                                <div className=''>
-                                    <label htmlFor="Akun">Tanggal</label>
-                                    <Flatpickr
-                                        value={isTanggal}
-                                        options={{ dateFormat: 'Y-m-d', position: isRtl ? 'auto right' : 'auto left' }}
-                                        className="form-input font-normal"
-                                        onChange={(date: any) => setIsTanggal(date)}
-                                    />
-
-                                    <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
-                                </div>
-                                <div className=''>
-                                    <label htmlFor="Akun">Waktu</label>
-                                    <Flatpickr
-                                        options={{
-                                            noCalendar: true,
-                                            enableTime: true,
-                                            dateFormat: 'H:i',
-                                            position: isRtl ? 'auto right' : 'auto left',
-                                        }}
-                                        value={isTime}
-                                        className="form-input font-normal"
-                                        onChange={(date) => setIsTime(date)}
-                                    />
-                                    <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
-                                </div>
+                            <div className="text-white-dark w-full">
+                                <Flatpickr
+                                    value={dateNow}
+                                    options={{
+                                        enableTime: true,
+                                        dateFormat: 'Y-m-d H:i',
+                                        position: isRtl ? 'auto right' : 'auto left'
+                                    }}
+                                    className="form-input font-normal"
+                                    onChange={(date: Date[]) => {
+                                        setValue('transactionDate', date[0].toISOString());
+                                    }}
+                                />
+                                <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
                             </div>
                         </div>
-                        <div className="mt-6">
+                        {/* <div className="mt-6">
                             <label className="block text-sm font-medium text-gray-700">Say</label>
                             <p className="mt-1 text-gray-500">{amountText}</p>
-                        </div>
+                        </div> */}
                     </div>
 
                     <div className="grid md:grid-cols-1 gap-4 w-full panel">
                         <h1 className="font-semibold text-2xl text-black mb-5">
-                            Detail Penerimaan
+                            Detail Pengeluaran
                         </h1>
                         <div className="mt-6 flex justify-between">
                             <label className="">Daftar Akun</label>
@@ -340,9 +326,6 @@ const DaftarPengeluaranForm = () => {
                                                 <tr key={index}>
                                                     <td>
                                                         {record.coaName}
-                                                        <input type="hidden" id={`details.${index}.coaCode`}
-                                                            {...register(`details.${index}.coaCode` as const)}
-                                                        />
                                                     </td>
                                                     <td>
                                                         <div className="relative text-white-dark">
@@ -357,7 +340,6 @@ const DaftarPengeluaranForm = () => {
                                                         <span className="text-danger text-xs">{(errors.details?.[index]?.description as FieldError)?.message}</span>
                                                     </td>
                                                     <td>
-
                                                         <div className="relative text-white-dark">
                                                             <input
                                                                 id={`details.${index}.amount`}
@@ -370,6 +352,7 @@ const DaftarPengeluaranForm = () => {
                                                         <span className="text-danger text-xs">{(errors.details?.[index]?.amount as FieldError)?.message}</span>
                                                     </td>
                                                     <td>
+                                                        <input type="hidden" id={`details.${index}.isPremier`} {...register(`details.${index}.isPremier` as const)} value="true" />
                                                         <button
                                                             type="button"
                                                             className="border-none h-10 w-10"
@@ -386,31 +369,28 @@ const DaftarPengeluaranForm = () => {
                                                     Data Tidak Tersedia
                                                 </td>
                                             </tr>
-                                            // 'Data tidak tersedia'
                                         )}
                                     </tbody>
                                 </table>
-
                             </div>
                         </div>
 
-                        <div className="mt-6 grid grid-cols-2 gap-4">
+                        <div className="mt-6 grid grid-cols-1 gap-4">
                             <div className="flex justify-end">
                                 <p>Total :</p>
                                 <p>{total.toLocaleString()}</p>
                             </div>
-                            <div className="flex justify-end">
+                            {/* <div className="flex justify-end">
                                 <p>Difference :</p>
                                 <p>{difference.toLocaleString()}</p>
-                            </div>
+                            </div> */}
                         </div>
-
                     </div>
                     <div className="mt-6 flex justify-end space-x-4">
                         <button
                             type="button"
                             className="px-4 py-2 bg-gray-600 text-white rounded-md shadow-sm"
-                            onClick={() => navigate('/daftarpengeluaran')}
+                            onClick={() => navigate('/daftarPengeluaran')}
                         >
                             Cancel
                         </button>
@@ -420,7 +400,6 @@ const DaftarPengeluaranForm = () => {
                         >
                             {isCreating || isUpdating ? 'Loading' : id ? 'Update' : 'Create'}
                         </button>
-
                     </div>
                     <ModalCoaCustom setIsSave={setIsSave} selectedRecords={selectedRecords} setShowSelected={setShowSelected} setSelectedRecords={setSelectedRecords} showModal={isShowModalCoa} setIsShowModal={setIsShowModalCoa} />
                 </form>
