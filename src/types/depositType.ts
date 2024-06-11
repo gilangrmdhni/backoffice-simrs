@@ -1,17 +1,21 @@
 export interface DebitEntry {
-    coaDebit: string;
-    journalDescDebit: string;
-    amount: number;
+    coaCode?: string;
+    description?: string;
+    amount?: number;
+    isPremier?: boolean;
 }
 
 export interface DepositType {
-    journalDescCredit: string | null;
-    journalRef: string;
-    coaCredit: string;
-    amount: number;
-    createdDate: string;
-    status: string;
-    debits: DebitEntry[];
+    transactionDate: string;
+    coaCode: string;
+    description?: string;
+    transactionNo?: string;
+    transactionType?: string | "Deposit";
+    transactionName?: string;
+    transactionRef?: string;
+    contactId?: number;
+    amount:number;
+    details: DebitEntry[];
 }
 
 export interface DepositUpdateType extends DepositType {

@@ -15,7 +15,7 @@ export const bankApi = apiSlice.injectEndpoints({
                 `/Bank?orderBy=${orderBy}&orderType=${orderType}&page=${page}&pageSize=${pageSize}`,
         }),
         getOptionBank: builder.query({
-            query: (params) => `/Bank?${new URLSearchParams(params).toString()}`,
+            query: (params) => `/coa/option?${new URLSearchParams(params).toString()}`,
         }),
     }),
 });
