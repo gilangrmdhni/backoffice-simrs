@@ -1,20 +1,21 @@
-export interface CreditEntry {
-    coaCredit: string;
-    journalDescCredit: string;
+export interface DetailEntry {
+    coaCode: string;
+    description: string;
     amount: number;
+    isPremier: boolean;
 }
 
-
 export interface PaymentType {
-    journalDescCredit: string | null;
-    journalDescDebit: string | null;
-    journalRef: string;
-    coaDebit: string;
-    coaCredit: string;
+    transactionDate: string;
+    coaCode: string;
+    description: string;
+    transactionNo: string;
     amount: number;
-    createdDate: string;
-    status: string;
-    credits: CreditEntry[];
+    transactionType: string;
+    transactionName: string;
+    transactionRef: string;
+    contactId: number;
+    details: DetailEntry[];
 }
 
 export interface PaymentUpdateType extends PaymentType {

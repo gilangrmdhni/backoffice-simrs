@@ -9,10 +9,16 @@ import { ToastContainer } from 'react-toastify';
 import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
 import { useGetPaymentDetailQuery, useCreatePaymentMutation, useUpdatePaymentMutation } from '@/store/api/bank/payment/paymentApiSlice';
-import { useGetBanksQuery } from '@/store/api/bank/bankApiSlice';
+import { useGetOptionBankQuery } from '@/store/api/bank/bankApiSlice';
 import { PaymentType, PaymentUpdateType } from '@/types/paymentType';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
+
+
+interface BankOption {
+    desc: string;
+    label: string;
+}
 
 const PaymentForm = () => {
     const dispatch = useDispatch();
@@ -23,41 +29,34 @@ const PaymentForm = () => {
     const [updatePayment, { isLoading: isUpdating }] = useUpdatePaymentMutation();
 
     const schema = yup.object({
-        journalDescDebit: yup.string().required('Debit Description is Required'),
-        coaDebit: yup.string().required('Account is Required'),
-        amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
-        createdDate: yup.date().required('Pay Date is Required'),
-        credits: yup.array().of(
+        description: yup.string().required('Credit Description is Required'),
+        coaCode: yup.string().required('Account is Required'),
+        transactionDate: yup.date().required('Created Date is Required'),
+        details: yup.array().of(
             yup.object().shape({
-                coaCredit: yup.string().required('Account is Required'),
-                journalDescCredit: yup.string().required('Memo is Required'),
+                coaCode: yup.string().required('Account is Required'),
+                description: yup.string().required('Memo is Required'),
                 amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
             })
-        ).required().min(1, 'At least one credit entry is required'),
+        ).required().min(1, 'At least one debit entry is required'),
     }).required();
 
     const { register, control, formState: { errors }, handleSubmit, setValue, watch } = useForm<PaymentType>({
         resolver: yupResolver(schema),
         defaultValues: {
-            journalDescCredit: null,
-            journalDescDebit: null,
-            journalRef: '',
-            coaDebit: '',
-            coaCredit: '',
-            amount: 0,
-            createdDate: '',
-            status: '',
-            credits: [{ coaCredit: '', journalDescCredit: '', amount: 0 }]
+            details: [{ coaCode: '', description: '', amount: 0 }]
         }
     });
 
     const { fields, append, remove } = useFieldArray({
         control,
-        name: 'credits',
+        name: 'details',
     });
 
-    const { data: bankResponse } = useGetBanksQuery({});
-    const bankList = bankResponse?.data ?? [];
+    const { data: bankResponse } = useGetOptionBankQuery({
+        parent: 952,
+    });
+    const bankList: BankOption[] = bankResponse?.data ?? [];
 
     const [total, setTotal] = useState(0);
     const [difference, setDifference] = useState(0);
@@ -67,7 +66,7 @@ const PaymentForm = () => {
         const units = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan'];
         const teens = ['Sepuluh', 'Sebelas', 'Dua Belas', 'Tiga Belas', 'Empat Belas', 'Lima Belas', 'Enam Belas', 'Tujuh Belas', 'Delapan Belas', 'Sembilan Belas'];
         const tens = ['', '', 'Dua Puluh', 'Tiga Puluh', 'Empat Puluh', 'Lima Puluh', 'Enam Puluh', 'Tujuh Puluh', 'Delapan Puluh', 'Sembilan Puluh'];
-        const thousands = ['', 'Ribu', 'Juta', 'Miliar', 'Triliun'];
+        const thousands = ['', 'ribu', 'Juta', 'Miliar', 'Triliun'];
 
         if (num === 0) return 'Nol';
 
@@ -117,18 +116,12 @@ const PaymentForm = () => {
     };
 
     const onSubmit = async (data: PaymentType) => {
+        console.log(data);
         console.log('Data yang dikirim:', data);
 
-        const totalDebits = data.credits.reduce((sum, credit) => sum + (Number(credit.amount) || 0), 0);
-        const formAmount = Number(data.amount);
-        console.log('Total Debits:', totalDebits);
-        console.log('Form Amount:', formAmount);
-
-        // Validasi tambahan sebelum pengiriman
-        if (totalDebits !== formAmount) {
-            toastMessage('Total amount of credit entries must match the amount in the form.', 'error');
-            return;
-        }
+        const totaldetails = data.details.reduce((sum, debit) => sum + (Number(debit.amount) || 0), 0);
+        const formAmount = totaldetails; 
+        console.log('Total details:', totaldetails);
 
         try {
             let response;
@@ -136,21 +129,35 @@ const PaymentForm = () => {
                 const updateData = {
                     ...data,
                     journalId: parseInt(id),
+                    amount: formAmount 
                 };
                 response = await updatePayment(updateData).unwrap();
             } else {
-                const postData = data.credits.map(credit => ({
-                    ...data,
-                    coaCredit: credit.coaCredit,
-                    journalDescCredit: credit.journalDescCredit,
-                    amount: credit.amount,
+                const detailsData = data.details.map(debit => ({
+                    coaCode: debit.coaCode,
+                    description: debit.description,
+                    amount: debit.amount,
+                    isPremier: true
                 }));
-                // Log payload untuk debugging
+                const postData: PaymentType = {
+                    transactionDate: data.transactionDate,
+                    coaCode: data.coaCode,
+                    description: data.description,
+                    transactionNo: "",
+                    transactionType: "payment",
+                    transactionName: "",
+                    transactionRef: "",
+                    contactId: 0,
+                    details: detailsData,
+                    amount: formAmount
+                };
+
                 console.log('Payload yang dikirim:', JSON.stringify(postData, null, 2));
 
                 response = await createPayment(postData).unwrap();
             }
             responseCallback(response, () => {
+                toastMessage('Data berhasil disimpan.', 'success');
                 navigate('/payment');
             }, null);
         } catch (err: any) {
@@ -162,6 +169,7 @@ const PaymentForm = () => {
         dispatch(setPageTitle('Payment'));
         dispatch(setTitle('Payment'));
         dispatch(setBreadcrumbTitle(['Dashboard', 'Bank', 'Payment', id ? 'Update' : 'Create']));
+
         if (id) {
             refetchDetailPayment();
         }
@@ -170,7 +178,7 @@ const PaymentForm = () => {
     useEffect(() => {
         if (detailPayment && detailPayment.data) {
             Object.keys(detailPayment.data).forEach((key) => {
-                if (key === 'createdDate') {
+                if (key === 'transactionDate') {
                     const isoString = detailPayment.data[key as keyof PaymentType] as string;
                     const date = new Date(isoString);
                     const formattedDate = date.toISOString().split('T')[0];
@@ -184,19 +192,18 @@ const PaymentForm = () => {
 
     useEffect(() => {
         const subscription = watch((value, { name, type }) => {
-            if (name === 'amount') {
-                const amount = parseFloat(value.amount?.toString() || '0') || 0;
-                setAmountText(convertNumberToText(amount));
-                setTotal(amount);
-                const totalCredits = value.credits?.reduce((sum, credit) => {
-                    const creditAmount = parseFloat(credit?.amount?.toString() || '0') || 0;
-                    return sum + creditAmount;
-                }, 0) || 0;
-                setDifference(amount - totalCredits);
-            }
+            const totaldetails = value.details?.reduce((sum, debit) => {
+                const debitAmount = parseFloat(debit?.amount?.toString() || '0') || 0;
+                return sum + debitAmount;
+            }, 0) || 0;
+
+            setAmountText(convertNumberToText(totaldetails));
+            setTotal(totaldetails);
+            setDifference(totaldetails);
         });
         return () => subscription.unsubscribe();
     }, [watch]);
+
 
     return (
         <div>
@@ -204,25 +211,24 @@ const PaymentForm = () => {
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(onSubmit)}>
                     <div className="grid md:grid-cols-1 gap-4 w-full">
                         <div>
-                            <label htmlFor="coaDebit" className="block text-sm font-medium text-gray-700">Pay To</label>
+                            <label htmlFor="coaCode" className="block text-sm font-medium text-gray-700">Payment To</label>
                             <div className="relative text-white-dark">
-                                <select id="coaDebit" {...register('coaDebit')} className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                <select id="coaCode" {...register('coaCode')} className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                     <option value="">Select Account</option>
-                                    {bankList.map((bank) => (
+                                    {bankList.map((bank: BankOption) => (
                                         <option key={bank.desc} value={bank.desc}>{bank.label}</option>
                                     ))}
                                 </select>
                             </div>
-                            <span className="text-danger text-xs">{(errors.coaDebit as FieldError)?.message}</span>
+                            <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
                         </div>
                         <div>
-                            <label htmlFor="journalDescDebit" className="block text-sm font-medium text-gray-700">Memo</label>
+                            <label htmlFor="description" className="block text-sm font-medium text-gray-700">Memo</label>
                             <div className="relative text-white-dark">
-                                <textarea id="journalDescDebit" placeholder="Enter Debit Description" {...register('journalDescDebit')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                                <input id="description" type="text" placeholder="Enter Credit Description" {...register('description')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
                             </div>
-                            <span className="text-danger text-xs">{(errors.journalDescDebit as FieldError)?.message}</span>
+                            <span className="text-danger text-xs">{(errors.description as FieldError)?.message}</span>
                         </div>
-
                         <div>
                             <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount</label>
                             <div className="relative text-white-dark">
@@ -230,82 +236,85 @@ const PaymentForm = () => {
                             </div>
                             <span className="text-danger text-xs">{(errors.amount as FieldError)?.message}</span>
                         </div>
+
                         <div>
-                            <label htmlFor="createdDate" className="block text-sm font-medium text-gray-700">Pay Date</label>
+                            <label htmlFor="transactionDate" className="block text-sm font-medium text-gray-700">Created Date</label>
                             <div className="relative text-white-dark">
-                                <input id="createdDate" type="date" {...register('createdDate')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                                <input id="transactionDate" type="date" {...register('transactionDate')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
                             </div>
-                            <span className="text-danger text-xs">{(errors.createdDate as FieldError)?.message}</span>
+                            <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
                         </div>
+
                     </div>
 
                     <div className="mt-6">
-                        <label className="block text-sm font-medium text-gray-700">Say</label>
+                        <label className="block text-sm font-medium text-gray-700">Amount in Words</label>
                         <p className="mt-1 text-gray-500">{amountText}</p>
                     </div>
                     <div className="mt-6">
                         <div className="mt-2 space-y-4">
                             {fields.map((field, index) => (
-                                <div key={field.id} className="grid grid-cols-5 gap-4 items-center">
+                                <div key={field.id} className="grid grid-cols-4 gap-4 items-center">
                                     <div>
-                                        <label htmlFor={`credits.${index}.coaCredit`} className="block text-sm font-medium text-gray-700">Account</label>
+                                        <label htmlFor={`details.${index}.coaCode`} className="block text-sm font-medium text-gray-700">Account</label>
                                         <div className="relative text-white-dark">
                                             <select
-                                                id={`credits.${index}.coaCredit`}
+                                                id={`details.${index}.coaCode`}
                                                 className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                {...register(`credits.${index}.coaCredit` as const)}
+                                                {...register(`details.${index}.coaCode` as const)}
                                             >
                                                 <option value="">Select Account</option>
-                                                {bankList.map((bank) => (
+                                                {bankList.map((bank: BankOption) => (
                                                     <option key={bank.desc} value={bank.desc}>{bank.label}</option>
                                                 ))}
                                             </select>
                                         </div>
-                                        <span className="text-danger text-xs">{(errors.credits?.[index]?.coaCredit as FieldError)?.message}</span>
+                                        <span className="text-danger text-xs">{(errors.details?.[index]?.coaCode as FieldError)?.message}</span>
                                     </div>
                                     <div>
-                                        <label htmlFor={`credits.${index}.amount`} className="block text-sm font-medium text-gray-700">Amount</label>
+                                        <label htmlFor={`details.${index}.amount`} className="block text-sm font-medium text-gray-700">Amount</label>
                                         <div className="relative text-white-dark">
                                             <input
-                                                id={`credits.${index}.amount`}
+                                                id={`details.${index}.amount`}
                                                 type="number"
                                                 className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                {...register(`credits.${index}.amount` as const)}
+                                                {...register(`details.${index}.amount` as const)}
                                                 placeholder="Enter Amount"
                                             />
                                         </div>
-                                        <span className="text-danger text-xs">{(errors.credits?.[index]?.amount as FieldError)?.message}</span>
+                                        <span className="text-danger text-xs">{(errors.details?.[index]?.amount as FieldError)?.message}</span>
                                     </div>
                                     <div>
-                                        <label htmlFor={`credits.${index}.journalDescCredit`} className="block text-sm font-medium text-gray-700">Memo</label>
+                                        <label htmlFor={`details.${index}.description`} className="block text-sm font-medium text-gray-700">Memo</label>
                                         <div className="relative text-white-dark">
                                             <input
-                                                id={`credits.${index}.journalDescCredit`}
+                                                id={`details.${index}.description`}
                                                 type="text"
                                                 className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                {...register(`credits.${index}.journalDescCredit` as const)}
-                                                placeholder="Enter Credit Description"
+                                                {...register(`details.${index}.description` as const)}
+                                                placeholder="Enter Debit Description"
                                             />
                                         </div>
-                                        <span className="text-danger text-xs">{(errors.credits?.[index]?.journalDescCredit as FieldError)?.message}</span>
+                                        <span className="text-danger text-xs">{(errors.details?.[index]?.description as FieldError)?.message}</span>
                                     </div>
 
-                                    <div className='grid-cols-2 flex justify-center gap-2'>
+                                    <div className="flex justify-start ">
                                         <button
                                             type="button"
                                             className="text-green-600 flex items-center"
-                                            onClick={() => append({ coaCredit: '', journalDescCredit: '', amount: 0 })}
+                                            onClick={() => append({ coaCode: '', description: '', amount: 0, isPremier: true })}
                                         >
                                             <FontAwesomeIcon icon={faPlus} className="mr-2" />
                                         </button>
                                         <button
                                             type="button"
-                                            className="text-red-600"
+                                            className="text-red-600 flex items-center"
                                             onClick={() => remove(index)}
                                         >
-                                            <FontAwesomeIcon icon={faTimes} />
+                                            <FontAwesomeIcon icon={faTimes} className="mr-2" />
                                         </button>
                                     </div>
+
                                 </div>
                             ))}
                         </div>

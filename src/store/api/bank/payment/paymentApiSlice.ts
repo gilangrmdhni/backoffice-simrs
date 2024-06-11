@@ -10,8 +10,8 @@ export const paymentApi = apiSlice.injectEndpoints({
             query: (id: number) => `/Bank/payment/${id}`,
         }),
         createPayment: builder.mutation({
-            query: (data: PaymentType[]) => ({
-                url: '/Bank/payment',
+            query: (data: PaymentType) => ({
+                url: '/Transaction',
                 method: 'POST',
                 body: data,
             }),

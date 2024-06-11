@@ -38,14 +38,14 @@ const DaftarPenerimaanForm = () => {
 
 
     const schema = yup.object({
-        journalDescCredit: yup.string().required('Credit Description is Required'),
-        coaCredit: yup.string().required('Account is Required'),
-        createdDate: yup.date().required('Created Date is Required'),
+        description: yup.string().required('Credit Description is Required'),
+        coaCode: yup.string().required('Account is Required'),
+        transactionDate: yup.date().required('Created Date is Required'),
         status: yup.string().required('Status is Required'),
-        debits: yup.array().of(
+        details: yup.array().of(
             yup.object().shape({
-                coaDebit: yup.string().required('Account is Required'),
-                journalDescDebit: yup.string().required('Memo is Required'),
+                coaCode: yup.string().required('Account is Required'),
+                description: yup.string().required('Memo is Required'),
                 amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
             })
         ).required().min(1, 'At least one debit entry is required'),
@@ -54,13 +54,13 @@ const DaftarPenerimaanForm = () => {
     const { register, control, formState: { errors }, handleSubmit, setValue, watch } = useForm<DepositType>({
         resolver: yupResolver(schema),
         defaultValues: {
-            debits: [{ coaDebit: '', journalDescDebit: '', amount: 0 }]
+            details: [{ coaCode: '', description: '', amount: 0 }]
         }
     });
 
     const { fields, append, remove } = useFieldArray({
         control,
-        name: 'debits',
+        name: 'details',
     });
 
     const handleDeleteDetail = (key: any) => {
@@ -142,13 +142,13 @@ const DaftarPenerimaanForm = () => {
     const onSubmit = async (data: DepositType) => {
         console.log('Data yang dikirim:', data);
 
-        const totalDebits = data.debits.reduce((sum, debit) => sum + (Number(debit.amount) || 0), 0);
+        const totaldetails = data.details.reduce((sum, debit) => sum + (Number(debit.amount) || 0), 0);
         const formAmount = Number(data.amount);
-        console.log('Total Debits:', totalDebits);
+        console.log('Total details:', totaldetails);
         console.log('Form Amount:', formAmount);
 
         // Validasi tambahan sebelum pengiriman
-        if (totalDebits !== formAmount) {
+        if (totaldetails !== formAmount) {
             toastMessage('Total amount of debit entries must match the amount in the form.', 'error');
             return;
         }
@@ -162,16 +162,27 @@ const DaftarPenerimaanForm = () => {
                 };
                 response = await updateDeposit(updateData).unwrap();
             } else {
-                const postData = data.debits.map(debit => ({
-                    ...data,
-                    coaDebit: debit.coaDebit,
-                    journalDescDebit: debit.journalDescDebit,
+                const detailsData = data.details.map(debit => ({
+                    coaCode: debit.coaCode,
+                    description: debit.description,
                     amount: debit.amount,
+                    isPremier: false
                 }));
-                // Log payload untuk debugging
+                const postData = {
+                    transactionDate: data.transactionDate,
+                    coaCode: data.coaCode,
+                    description: data.description,
+                    amount: data.amount, // Pastikan amount ada di sini
+                    transactionNo: "",
+                    transactionType: "Deposit",
+                    transactionName: "",
+                    transactionRef: "",
+                    contactId: 0,
+                    details: detailsData,
+                };
+    
                 console.log('Payload yang dikirim:', JSON.stringify(postData, null, 2));
-
-                response = await createDeposit(postData).unwrap();
+    
             }
             responseCallback(response, () => {
                 navigate('/daftarpenerimaan');
@@ -193,7 +204,7 @@ const DaftarPenerimaanForm = () => {
     useEffect(() => {
         if (detailDeposit && detailDeposit.data) {
             Object.keys(detailDeposit.data).forEach((key) => {
-                if (key === 'createdDate') {
+                if (key === 'transactionDate') {
                     const isoString = detailDeposit.data[key as keyof DepositType] as string;
                     const date = new Date(isoString);
                     const formattedDate = date.toISOString().split('T')[0];
@@ -211,11 +222,11 @@ const DaftarPenerimaanForm = () => {
                 const amount = parseFloat(value.amount?.toString() || '0') || 0;
                 setAmountText(convertNumberToText(amount));
                 setTotal(amount);
-                const totalDebits = value.debits?.reduce((sum, debit) => {
+                const totaldetails = value.details?.reduce((sum, debit) => {
                     const debitAmount = parseFloat(debit?.amount?.toString() || '0') || 0;
                     return sum + debitAmount;
                 }, 0) || 0;
-                setDifference(amount - totalDebits);
+                setDifference(amount - totaldetails);
             }
         });
         return () => subscription.unsubscribe();
@@ -239,16 +250,16 @@ const DaftarPenerimaanForm = () => {
                         </div>
                         <div className='flex justify-start w-full mb-5'>
                             <div className='label mr-10 w-64'>
-                                <label htmlFor="coaCredit">AKUN TUJUAN</label>
+                                <label htmlFor="coaCode">AKUN TUJUAN</label>
                             </div>
                             <div className="relative text-white-dark w-full">
-                                <select id="coaCredit" {...register('coaCredit')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                <select id="coaCode" {...register('coaCode')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                     <option value="">Pilih</option>
                                     {bankList.map((bank) => (
                                         <option key={bank.desc} value={bank.desc}>{bank.label}</option>
                                     ))}
                                 </select>
-                                <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
+                                <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
                             </div>
                         </div>
 
@@ -266,7 +277,7 @@ const DaftarPenerimaanForm = () => {
                                         onChange={(date: any) => setIsTanggal(date)}
                                     />
 
-                                    <span className="text-danger text-xs">{(errors.createdDate as FieldError)?.message}</span>
+                                    <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
                                 </div>
                                 <div className=''>
                                     <label htmlFor="Akun">Waktu</label>
@@ -281,7 +292,7 @@ const DaftarPenerimaanForm = () => {
                                         className="form-input font-normal"
                                         onChange={(date) => setIsTime(date)}
                                     />
-                                    <span className="text-danger text-xs">{(errors.createdDate as FieldError)?.message}</span>
+                                    <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
                                 </div>
                             </div>
                         </div>
@@ -329,9 +340,9 @@ const DaftarPenerimaanForm = () => {
                                                 <td>
                                                     <div className="relative text-white-dark">
                                                         <select
-                                                            id={`debits.${index}.coaDebit`}
+                                                            id={`details.${index}.coaCode`}
                                                             className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                            {...register(`debits.${index}.coaDebit` as const)}
+                                                            {...register(`details.${index}.coaCode` as const)}
                                                         >
                                                             <option value="">Select Account</option>
                                                             {bankList.map((bank) => (
@@ -339,31 +350,31 @@ const DaftarPenerimaanForm = () => {
                                                             ))}
                                                         </select>
                                                     </div>
-                                                    <span className="text-danger text-xs">{(errors.debits?.[index]?.coaDebit as FieldError)?.message}</span>
+                                                    <span className="text-danger text-xs">{(errors.details?.[index]?.coaCode as FieldError)?.message}</span>
                                                 </td>
                                                 <td>
                                                     <div className="relative text-white-dark">
                                                         <input
-                                                            id={`debits.${index}.amount`}
+                                                            id={`details.${index}.amount`}
                                                             type="number"
                                                             className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                            {...register(`debits.${index}.amount` as const)}
+                                                            {...register(`details.${index}.amount` as const)}
                                                             placeholder="Enter Amount"
                                                         />
                                                     </div>
-                                                    <span className="text-danger text-xs">{(errors.debits?.[index]?.amount as FieldError)?.message}</span>
+                                                    <span className="text-danger text-xs">{(errors.details?.[index]?.amount as FieldError)?.message}</span>
                                                 </td>
                                                 <td>
                                                     <div className="relative text-white-dark">
                                                         <input
-                                                            id={`debits.${index}.journalDescDebit`}
+                                                            id={`details.${index}.description`}
                                                             type="text"
                                                             className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                            {...register(`debits.${index}.journalDescDebit` as const)}
+                                                            {...register(`details.${index}.description` as const)}
                                                             placeholder="Enter Debit Description"
                                                         />
                                                     </div>
-                                                    <span className="text-danger text-xs">{(errors.debits?.[index]?.journalDescDebit as FieldError)?.message}</span>
+                                                    <span className="text-danger text-xs">{(errors.details?.[index]?.description as FieldError)?.message}</span>
                                                 </td>
 
                                                 <td className='grid-cols-2 flex justify-center gap-2'>
@@ -388,34 +399,34 @@ const DaftarPenerimaanForm = () => {
                                                 <tr key={index}>
                                                     <td>
                                                         {record.coaName}
-                                                        <input type="hidden" id={`debits.${index}.coaDebit`}
-                                                            {...register(`debits.${index}.coaDebit` as const)}
+                                                        <input type="hidden" id={`details.${index}.coaCode`}
+                                                            {...register(`details.${index}.coaCode` as const)}
                                                         />
                                                     </td>
                                                     <td>
                                                         <div className="relative text-white-dark">
                                                             <input
-                                                                id={`debits.${index}.journalDescDebit`}
+                                                                id={`details.${index}.description`}
                                                                 type="text"
                                                                 className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                {...register(`debits.${index}.journalDescDebit` as const)}
+                                                                {...register(`details.${index}.description` as const)}
                                                                 placeholder="Enter Debit Description"
                                                             />
                                                         </div>
-                                                        <span className="text-danger text-xs">{(errors.debits?.[index]?.journalDescDebit as FieldError)?.message}</span>
+                                                        <span className="text-danger text-xs">{(errors.details?.[index]?.description as FieldError)?.message}</span>
                                                     </td>
                                                     <td>
 
                                                         <div className="relative text-white-dark">
                                                             <input
-                                                                id={`debits.${index}.amount`}
+                                                                id={`details.${index}.amount`}
                                                                 type="number"
                                                                 className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                {...register(`debits.${index}.amount` as const)}
+                                                                {...register(`details.${index}.amount` as const)}
                                                                 placeholder="Enter Amount"
                                                             />
                                                         </div>
-                                                        <span className="text-danger text-xs">{(errors.debits?.[index]?.amount as FieldError)?.message}</span>
+                                                        <span className="text-danger text-xs">{(errors.details?.[index]?.amount as FieldError)?.message}</span>
                                                     </td>
                                                     <td>
                                                         <button

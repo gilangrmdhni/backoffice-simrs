@@ -162,9 +162,9 @@ const DaftarPengeluaranIndex = () => {
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
                         records={bookBankList?.data?.data}
                         columns={[
-                            { accessor: 'coaDebit', title: 'No Transaksi', sortable: true },
+                            { accessor: 'coaCode', title: 'No Transaksi', sortable: true },
                             { accessor: 'createdDate', title: 'Tanggal Transaksi', sortable: true, render: ({ createdDate }) => new Date(createdDate).toLocaleDateString() },
-                            { accessor: 'coaDebitName', title: 'Nama Akun', sortable: true },
+                            { accessor: 'coaName', title: 'Nama Akun', sortable: true },
                             { accessor: 'amount', title: 'Amount', sortable: true },
                             { accessor: 'journalDescDebit', title: 'Keterangan', sortable: true },
                             {

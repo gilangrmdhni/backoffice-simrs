@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
-import { Fragment } from 'react';
 import { setBreadcrumbTitle, setPageTitle, setTitle } from '../../../store/themeConfigSlice';
 import IconTrashLines from '@/components/Icon/IconTrashLines';
 import Tippy from '@tippyjs/react';
@@ -8,11 +7,8 @@ import 'tippy.js/dist/tippy.css';
 import IconPencil from '@/components/Icon/IconPencil';
 import { Dialog, Transition } from '@headlessui/react';
 import IconX from '@/components/Icon/IconX';
-import IconPlus from '@/components/Icon/IconPlus';
-import IconDownload from '@/components/Icon/IconDownload';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
 import AnimateHeight from 'react-animate-height';
 import { useGetBookBanksQuery, useDeleteBookBankMutation } from '@/store/api/bank/bookBank/bookBankApiSlice';
@@ -53,25 +49,23 @@ const BookBankIndex = () => {
 
     const [deleteBookBank, { isError: isDeleteError }] = useDeleteBookBankMutation();
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-    const [deleteId, setDeleteId] = useState<number>(0);
+    const [deleteId, setDeleteId] = useState<string>(''); 
 
 
-    const handleDelete = async (id: number) => {
+    const handleDelete = async (id: string) => {
         try {
-            const response = await deleteBookBank(id).unwrap();
-            // Handle success response
+            const response = await deleteBookBank(Number(id)).unwrap(); // Konversi id ke number
+            toastMessage("Book bank deleted successfully.", 'success');
+            refetch();
         } catch (err) {
-            // Handle error
             console.error("Error deleting book bank:", err);
             toastMessage("Failed to delete book bank.", 'error');
         }
     };
-    
 
-    const handleEdit = (id: number) => {
+    const handleEdit = (id: string) => {
         navigate(`/bookBank/update/${id}`);
     };
-
 
     useEffect(() => {
         refetch();
@@ -143,19 +137,14 @@ const BookBankIndex = () => {
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
                         records={bookBankList?.data?.data}
                         columns={[
-                            { accessor: 'journalId', title: 'ID', sortable: true, textAlignment: 'center' },
-                            { accessor: 'journalDescDebit', title: 'Debit Description', sortable: true },
-                            { accessor: 'journalDescCredit', title: 'Credit Description', sortable: true },
-                            { accessor: 'coaDebit', title: 'Debit', sortable: true },
-                            { accessor: 'coaCredit', title: 'Credit', sortable: true },
-                            { accessor: 'coaDebitName', title: 'Debit Account Name', sortable: true },
-                            { accessor: 'coaDebitParent', title: 'Debit Account Parent', sortable: true },
-                            { accessor: 'coaCreditName', title: 'Credit Account Name', sortable: true },
-                            { accessor: 'coaCreditParent', title: 'Credit Account Parent', sortable: true },
+                            { accessor: 'transactionNo', title: 'Transaction No', sortable: true },
+                            { accessor: 'transactionType', title: 'Transaction Type', sortable: true },
+                            { accessor: 'transactionDate', title: 'Transaction Date', sortable: true, render: ({ transactionDate }) => new Date(transactionDate).toLocaleDateString() },
+                            { accessor: 'coaCode', title: 'COA Code', sortable: true },
+                            { accessor: 'coaName', title: 'COA Name', sortable: true },
+                            { accessor: 'coaParentCode', title: 'COA Parent Code', sortable: true },
+                            { accessor: 'coaParentName', title: 'COA Parent Name', sortable: true },
                             { accessor: 'amount', title: 'Amount', sortable: true },
-                            { accessor: 'source', title: 'Source', sortable: true },
-                            { accessor: 'createdDate', title: 'Created Date', sortable: true, render: ({ createdDate }) => new Date(createdDate).toLocaleDateString() },
-                            { accessor: 'vourcherId', title: 'Voucher ID', sortable: true },
                             { accessor: 'status', title: 'Status', sortable: true },
                             {
                                 accessor: '',
@@ -163,7 +152,7 @@ const BookBankIndex = () => {
                                 render: (s: BookBankType) => (
                                     <>
                                         <Tippy content="Edit">
-                                            <button type="button" onClick={() => handleEdit(s.journalId)}>
+                                            <button type="button" onClick={() => handleEdit(String(s.transactionId))}> 
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>
@@ -171,7 +160,7 @@ const BookBankIndex = () => {
                                             <button
                                                 type="button"
                                                 onClick={() => {
-                                                    setDeleteId(s.journalId);
+                                                    setDeleteId(String(s.transactionId)); 
                                                     setShowDeleteModal(true);
                                                 }}
                                             >
@@ -181,7 +170,6 @@ const BookBankIndex = () => {
                                     </>
                                 ),
                             },
-
                         ]}
                         totalRecords={bookBankList?.data?.totalData}
                         recordsPerPage={pageSize}
@@ -234,7 +222,6 @@ const BookBankIndex = () => {
                                             >
                                                 Delete
                                             </button>
-
                                         </div>
                                     </div>
                                 </Dialog.Panel>

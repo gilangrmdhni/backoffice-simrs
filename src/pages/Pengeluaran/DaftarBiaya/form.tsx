@@ -30,37 +30,39 @@ const DaftarBiayaForm = () => {
     const [isTime, setIsTime] = useState<any>(dateNow)
 
     const schema = yup.object({
-        journalDescDebit: yup.string().required('Debit Description is Required'),
-        coaDebit: yup.string().required('Account is Required'),
+        description: yup.string().required('Description is Required'),
+        coaCode: yup.string().required('Account is Required'),
         amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
-        createdDate: yup.date().required('Pay Date is Required'),
-        credits: yup.array().of(
+        transactionDate: yup.date().required('Transaction Date is Required'),
+        details: yup.array().of(
             yup.object().shape({
-                coaCredit: yup.string().required('Account is Required'),
-                journalDescCredit: yup.string().required('Memo is Required'),
+                coaCode: yup.string().required('Account is Required'),
+                description: yup.string().required('Memo is Required'),
                 amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
+                isPremier: yup.boolean().required('IsPremier is Required'),
             })
-        ).required().min(1, 'At least one credit entry is required'),
+        ).required().min(1, 'At least one detail entry is required'),
     }).required();
 
     const { register, control, formState: { errors }, handleSubmit, setValue, watch } = useForm<PaymentType>({
         resolver: yupResolver(schema),
         defaultValues: {
-            journalDescCredit: null,
-            journalDescDebit: null,
-            journalRef: '',
-            coaDebit: '',
-            coaCredit: '',
+            transactionDate: '',
+            coaCode: '',
+            description: '',
+            transactionNo: '',
             amount: 0,
-            createdDate: '',
-            status: '',
-            credits: [{ coaCredit: '', journalDescCredit: '', amount: 0 }]
+            transactionType: 'payment',
+            transactionName: '',
+            transactionRef: '',
+            contactId: 0,
+            details: [{ coaCode: '', description: '', amount: 0, isPremier: false }]
         }
     });
 
     const { fields, append, remove } = useFieldArray({
         control,
-        name: 'credits',
+        name: 'details',
     });
 
     const { data: bankResponse } = useGetBanksQuery({});
@@ -126,39 +128,43 @@ const DaftarBiayaForm = () => {
     const onSubmit = async (data: PaymentType) => {
         console.log('Data yang dikirim:', data);
 
-        const totalDebits = data.credits.reduce((sum, credit) => sum + (Number(credit.amount) || 0), 0);
+        const totalDetails = data.details.reduce((sum, detail) => sum + (Number(detail.amount) || 0), 0);
         const formAmount = Number(data.amount);
-        console.log('Total Debits:', totalDebits);
+        console.log('Total Details:', totalDetails);
         console.log('Form Amount:', formAmount);
 
         // Validasi tambahan sebelum pengiriman
-        if (totalDebits !== formAmount) {
-            toastMessage('Total amount of credit entries must match the amount in the form.', 'error');
+        if (totalDetails !== formAmount) {
+            toastMessage('Total amount of details must match the amount in the form.', 'error');
             return;
         }
 
         try {
             let response;
             if (id) {
-                const updateData = {
+                const updateData: PaymentUpdateType = {
                     ...data,
                     journalId: parseInt(id),
                 };
                 response = await updatePayment(updateData).unwrap();
             } else {
-                const postData = data.credits.map(credit => ({
+                const postData: PaymentType = {
                     ...data,
-                    coaCredit: credit.coaCredit,
-                    journalDescCredit: credit.journalDescCredit,
-                    amount: credit.amount,
-                }));
-                // Log payload untuk debugging
+                    amount: formAmount,
+                    transactionType: 'payment', // Hardcode transaction type to "payment"
+                    details: data.details.map(detail => ({
+                        ...detail,
+                        isPremier: true // Assigning isPremier as true for each detail
+                    }))
+                };
+
                 console.log('Payload yang dikirim:', JSON.stringify(postData, null, 2));
 
                 response = await createPayment(postData).unwrap();
             }
             responseCallback(response, () => {
-                navigate('/daftarbiaya');
+                toastMessage('Data berhasil disimpan.', 'success');
+                navigate('/payment');
             }, null);
         } catch (err: any) {
             toastMessage(err.message, 'error');
@@ -177,7 +183,7 @@ const DaftarBiayaForm = () => {
     useEffect(() => {
         if (detailPayment && detailPayment.data) {
             Object.keys(detailPayment.data).forEach((key) => {
-                if (key === 'createdDate') {
+                if (key === 'transactionDate') {
                     const isoString = detailPayment.data[key as keyof PaymentType] as string;
                     const date = new Date(isoString);
                     const formattedDate = date.toISOString().split('T')[0];
@@ -191,16 +197,14 @@ const DaftarBiayaForm = () => {
 
     useEffect(() => {
         const subscription = watch((value, { name, type }) => {
-            if (name === 'amount') {
-                const amount = parseFloat(value.amount?.toString() || '0') || 0;
-                setAmountText(convertNumberToText(amount));
-                setTotal(amount);
-                const totalCredits = value.credits?.reduce((sum, credit) => {
-                    const creditAmount = parseFloat(credit?.amount?.toString() || '0') || 0;
-                    return sum + creditAmount;
-                }, 0) || 0;
-                setDifference(amount - totalCredits);
-            }
+            const totalDetails = value.details?.reduce((sum, detail) => {
+                const detailAmount = parseFloat(detail?.amount?.toString() || '0') || 0;
+                return sum + detailAmount;
+            }, 0) || 0;
+
+            setAmountText(convertNumberToText(totalDetails));
+            setTotal(totalDetails);
+            // setDifference(totalDetails - value.amount);
         });
         return () => subscription.unsubscribe();
     }, [watch]);
@@ -230,31 +234,31 @@ const DaftarBiayaForm = () => {
                                 <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
                                     <div className=''>
                                         <label htmlFor="Akun">Bayar Dari</label>
-                                        <select id="coaCredit" {...register('coaCredit')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                        <select id="coaCode" {...register('coaCode')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                             <option value="">Pilih</option>
                                             {bankList.map((bank) => (
                                                 <option key={bank.desc} value={bank.desc}>{bank.label}</option>
                                             ))}
                                         </select>
 
-                                        <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
+                                        <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
                                     </div>
                                     <div className=''>
-                                        <label htmlFor="Akun">No Transaksi</label>
-                                        <input type="text" id="coaCredit" className="form-input font-normal" placeholder='CONTOH : BTB-10001'
+                                        <label htmlFor="transactionNo">No Transaksi</label>
+                                        <input type="text" id="transactionNo" {...register('transactionNo')} className="form-input font-normal" placeholder='CONTOH : BTB-10001'
                                         />
-                                        <span className="text-danger text-xs">{(errors.createdDate as FieldError)?.message}</span>
+                                        <span className="text-danger text-xs">{(errors.transactionNo as FieldError)?.message}</span>
                                     </div>
                                 </div>
                             ) : (
                                 <div className="text-white-dark w-full grid md:grid-cols-1 gap-4">
                                     <div className=''>
-                                        <label htmlFor="Akun">Bayar Dari</label>
-                                        <select disabled id="coaCredit" {...register('coaCredit')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                        <label htmlFor="coaCode">Bayar Dari</label>
+                                        <select disabled id="coaCode" {...register('coaCode')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                             <option value="" disabled>Pilih</option>
                                         </select>
 
-                                        {/* <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span> */}
+                                        {/* <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span> */}
                                     </div>
                                 </div>
                             )
@@ -267,17 +271,17 @@ const DaftarBiayaForm = () => {
                             </div>
                             <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
                                 <div className=''>
-                                    <label htmlFor="Akun">No Refrensi</label>
-                                    <input type="text" id="coaCredit" className="form-input font-normal" placeholder='CONTOH : BTB-10001'
+                                    <label htmlFor="transactionRef">No Refrensi</label>
+                                    <input type="text" id="transactionRef" {...register('transactionRef')} className="form-input font-normal" placeholder='CONTOH : BTB-10001'
                                     />
 
-                                    <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
+                                    <span className="text-danger text-xs">{(errors.transactionRef as FieldError)?.message}</span>
                                 </div>
                                 <div className=''>
-                                    <label htmlFor="Akun">No Biaya</label>
-                                    <input type="text" id="coaCredit" className="form-input font-normal" placeholder='CONTOH : BTB-10001'
+                                    <label htmlFor="transactionName">No Biaya</label>
+                                    <input type="text" id="transactionName" {...register('transactionName')} className="form-input font-normal" placeholder='CONTOH : BTB-10001'
                                     />
-                                    <span className="text-danger text-xs">{(errors.createdDate as FieldError)?.message}</span>
+                                    <span className="text-danger text-xs">{(errors.transactionName as FieldError)?.message}</span>
                                 </div>
                             </div>
                         </div>
@@ -290,15 +294,15 @@ const DaftarBiayaForm = () => {
                             </div>
                             <div className="text-white-dark w-full grid md:grid-cols-1 gap-4">
                                 <div className=''>
-                                    <label htmlFor="Akun">No Refrensi</label>
-                                    <select id="coaCredit" {...register('coaCredit')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                    <label htmlFor="contactId">No Refrensi</label>
+                                    <select id="contactId" {...register('contactId')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                         <option value="">Pilih</option>
                                         {bankList.map((bank) => (
                                             <option key={bank.desc} value={bank.desc}>{bank.label}</option>
                                         ))}
                                     </select>
 
-                                    <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
+                                    <span className="text-danger text-xs">{(errors.contactId as FieldError)?.message}</span>
                                 </div>
                             </div>
                         </div>
@@ -308,7 +312,7 @@ const DaftarBiayaForm = () => {
                             </div>
                             <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
                                 <div className=''>
-                                    <label htmlFor="Akun">Tanggal Refrensi</label>
+                                    <label htmlFor="transactionDate">Tanggal Refrensi</label>
                                     <Flatpickr
                                         value={isTanggal}
                                         options={{ dateFormat: 'Y-m-d', position: isRtl ? 'auto right' : 'auto left' }}
@@ -316,40 +320,40 @@ const DaftarBiayaForm = () => {
                                         onChange={(date: any) => setIsTanggal(date)}
                                     />
 
-                                    <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
+                                    <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
                                 </div>
                                 <div className=''>
-                                    <label htmlFor="Akun">Tanggal Jatuh Tempo</label>
+                                    <label htmlFor="transactionDate">Tanggal Jatuh Tempo</label>
                                     <Flatpickr
                                         value={isTanggal}
                                         options={{ dateFormat: 'Y-m-d', position: isRtl ? 'auto right' : 'auto left' }}
                                         className="form-input font-normal"
                                         onChange={(date: any) => setIsTanggal(date)}
                                     />
-                                    <span className="text-danger text-xs">{(errors.createdDate as FieldError)?.message}</span>
+                                    <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div className="mt-6">
                         <div className="mt-2 space-y-4">
-                            <label htmlFor="Akun">Nama Akun</label>
+                            <label htmlFor="details">Nama Akun</label>
 
                             {fields.map((field, index) => (
-                                <>
+                                <div key={field.id}>
                                     <div className='flex justify-start w-full mb-5'>
                                         <div className='label mr-10 w-64'>
                                         </div>
                                         <div className="text-white-dark w-full grid md:grid-cols-1 gap-4">
                                             <div className=''>
-                                                <select id="coaCredit" {...register('coaCredit')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                                <select id="details" {...register(`details.${index}.coaCode`)} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                                     <option value="">Pilih</option>
                                                     {bankList.map((bank) => (
                                                         <option key={bank.desc} value={bank.desc}>{bank.label}</option>
                                                     ))}
                                                 </select>
 
-                                                <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
+                                                <span className="text-danger text-xs">{(errors.details?.[index]?.coaCode as FieldError)?.message}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -359,18 +363,18 @@ const DaftarBiayaForm = () => {
                                         </div>
                                         <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
                                             <div className=''>
-                                                <label htmlFor="journalDescDebit">Deskripsi</label>
-                                                <input type="text" id="journalDescDebit" className="form-input font-normal" placeholder='Deskripsi'
+                                                <label htmlFor="details">Deskripsi</label>
+                                                <input type="text" id="details" {...register(`details.${index}.description`)} className="form-input font-normal" placeholder='Deskripsi'
                                                 />
 
-                                                <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
+                                                <span className="text-danger text-xs">{(errors.details?.[index]?.description as FieldError)?.message}</span>
                                             </div>
                                             <div className=''>
-                                                <label htmlFor="amount">Jumlah</label>
-                                                <input type="number" id="amount" className="form-input font-normal" placeholder='Masukan Jumlah'
+                                                <label htmlFor="details">Jumlah</label>
+                                                <input type="number" id="details" {...register(`details.${index}.amount`)} className="form-input font-normal" placeholder='Masukan Jumlah'
                                                 />
 
-                                                <span className="text-danger text-xs">{(errors.coaCredit as FieldError)?.message}</span>
+                                                <span className="text-danger text-xs">{(errors.details?.[index]?.amount as FieldError)?.message}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -383,26 +387,22 @@ const DaftarBiayaForm = () => {
                                             Hapus
                                         </button>
                                     </div>
-                                </>
+                                </div>
                             ))}
                         </div>
                         <div className='flex justify-center '>
                             <button
                                 type="button"
                                 className="  text-green-600 border border-green-600 rounded-lg px-4 py-2 hover:bg-green-600 hover:text-white transition-colors duration-300 ease-in-out"
-                                onClick={() => append({ coaCredit: '', journalDescCredit: '', amount: 0 })}
+                                onClick={() => append({ coaCode: '', description: '', amount: 0, isPremier: true })}
                             >
                                 Tambah
                             </button>
                         </div>
-
-
                     </div>
-                    <div className="flex1 justify-start space-x-6">
-
+                    <div className="flex justify-start space-x-6">
                         <span className='text-md'>Total :</span>
                         <span className='text-md'> {total.toLocaleString()}</span>
-
                     </div>
 
                     <div className="mt-6 flex justify-end space-x-4">
@@ -415,7 +415,7 @@ const DaftarBiayaForm = () => {
                         <button
                             type="button"
                             className="px-4 py-2 bg-gray-600 text-white rounded-md shadow-sm"
-                            onClick={() => navigate('/payment')}
+                            onClick={() => navigate('/daftarbiayas')}
                         >
                             Cancel
                         </button>

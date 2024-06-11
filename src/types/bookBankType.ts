@@ -1,5 +1,6 @@
 export interface BookBankType {
     journalId: number;
+    transactionId: number;
     journalDescDebit: string | null;
     journalDescCredit: string | null;
     journalRef: string;
@@ -20,4 +21,5 @@ export interface BookBankType {
     updatedDate: string | null;
     reconciledDate: string | null;
     reconciledBy: number | null;
+    transactionDate: string;
 }

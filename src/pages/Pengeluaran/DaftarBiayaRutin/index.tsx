@@ -162,9 +162,9 @@ const DaftarBiayaRutinIndex = () => {
                         records={bookBankList?.data?.data}
                         columns={[
                             // { accessor: 'journalId', title: 'ID', sortable: true, textAlignment: 'center' },
-                            { accessor: 'journalDescDebit', title: 'Nama Tagihan', sortable: true },
+                            { accessor: 'coaName', title: 'Nama Tagihan', sortable: true },
                             // { accessor: 'coaDebit', title: 'CoA Debit', sortable: true },
-                            { accessor: 'coaCredit', title: 'Nomor Biaya', sortable: true },
+                            { accessor: 'coaCode', title: 'Nomor Biaya', sortable: true },
                             // { accessor: 'coaDebitName', title: 'Account Name', sortable: true },
                             // { accessor: 'coaCreditName', title: 'Account Credit Name', sortable: true },
                             // { accessor: 'amount', title: 'Amount', sortable: true },
