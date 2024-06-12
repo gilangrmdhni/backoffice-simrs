@@ -11,7 +11,7 @@ import { number } from 'yup';
 import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
 import './index.css'
 
-const ModalCoaCustom = ({ setIsSave, selectedRecords, setSelectedRecords, showModal, setShowSelected, setIsShowModal,excludeId,setExcludeId} : {setIsSave : any, selectedRecords : any, setSelectedRecords : any, setShowSelected : any, showModal : boolean, setIsShowModal : any,excludeId : any}) => {
+const ModalCoaCustom = ({ setIsSave, selectedRecords, setSelectedRecords, showModal, setShowSelected, setIsShowModal,excludeId} : {setIsSave : any, selectedRecords : any, setSelectedRecords : any, setShowSelected : any, showModal : boolean, setIsShowModal : any,excludeId : any}) => {
     const [isLoadingUpload, setIsLoadingUpload] = useState<boolean>(false);
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const [page, setPage] = useState<number>(1);
