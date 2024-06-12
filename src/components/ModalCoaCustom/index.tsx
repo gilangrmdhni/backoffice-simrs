@@ -9,8 +9,9 @@ import '@/pages/Master/Coa/index.css';
 import { COAType, usersType, OptionType } from '@/types';
 import { number } from 'yup';
 import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
+import './index.css'
 
-const ModalCoaCustom = ({ setIsSave, selectedRecords, setSelectedRecords, showModal, setShowSelected, setIsShowModal} : {setIsSave : any, selectedRecords : any, setSelectedRecords : any, setShowSelected : any, showModal : boolean, setIsShowModal : any}) => {
+const ModalCoaCustom = ({ setIsSave, selectedRecords, setSelectedRecords, showModal, setShowSelected, setIsShowModal,excludeId,setExcludeId} : {setIsSave : any, selectedRecords : any, setSelectedRecords : any, setShowSelected : any, showModal : boolean, setIsShowModal : any,excludeId : any}) => {
     const [isLoadingUpload, setIsLoadingUpload] = useState<boolean>(false);
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const [page, setPage] = useState<number>(1);
@@ -128,7 +129,7 @@ const ModalCoaCustom = ({ setIsSave, selectedRecords, setSelectedRecords, showMo
                     >
                         <div className="fixed inset-0" />
                     </Transition.Child>
-                    <div id="fadein_modal" className="fixed inset-0 bg-[black]/60 z-[998] overflow-y-auto">
+                    <div id="coaModal fadein_modal" className="fixed inset-0 bg-[black]/60 z-[998] overflow-y-auto">
                         <div className="flex items-start justify-center min-h-screen px-4">
                             <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-5xl my-8 text-black dark:text-white-dark animate__animated animate__fadeIn">
                                 <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
@@ -208,13 +209,13 @@ const ModalCoaCustom = ({ setIsSave, selectedRecords, setSelectedRecords, showMo
                                                 selectedRecords={selectedRecords}
                                                 onSelectedRecordsChange={setSelectedRecords}
                                                 totalRecords={CoAList?.data?.totalData}
-                                                isRecordSelectable={ (record) => record.accountTypeName != "Header" }
+                                                isRecordSelectable={ (record) => record.accountTypeName != "Header" && record.coaCode != excludeId }
                                                 fetching={isLoading}
                                                 minHeight={200}
                                                 idAccessor='coaCode'
                                             />
                                     <div className="flex justify-end items-center mt-8">
-                                        <button onClick={() => setIsShowModal(false)} type="button" className="btn btn-outline-dark">
+                                        <button onClick={() => setIsShowModal(false)} type="button" className="text-primary">
                                             Cancel
                                         </button>
                                         <button type="button" onClick={handleButtonSave} className="btn btn-primary ltr:ml-4 rtl:mr-4">

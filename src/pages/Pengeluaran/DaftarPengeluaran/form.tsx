@@ -19,6 +19,8 @@ import 'tippy.js/dist/tippy.css';
 import IconPlus from '@/components/Icon/IconPlus';
 import ModalCoaCustom from '@/components/ModalCoaCustom';
 import { COAType } from '@/types';
+import { useTranslation } from 'react-i18next';
+import i18next from 'i18next';
 
 interface BankOption {
     desc: string;
@@ -37,6 +39,7 @@ const DaftarPengeluaranForm = () => {
     const [isShowModalCoa, setIsShowModalCoa] = useState<boolean>(false);
     const [selectedRecords, setSelectedRecords] = useState<any>([]);
     const [showSelected, setShowSelected] = useState<any>([]);
+    const [excludeId, setExcludeId] = useState<any>('');
     const [isSave, setIsSave] = useState<boolean>(false);
 
     const schema = yup.object({
@@ -44,7 +47,7 @@ const DaftarPengeluaranForm = () => {
         transactionDate: yup.date().required('Transaction Date is Required'),
         details: yup.array().of(
             yup.object().shape({
-                description: yup.string().required('Memo is Required'),
+                desciption: yup.string().required('Memo is Required'),
                 amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
             })
         ).required().min(1, 'At least one detail entry is required'),
@@ -55,13 +58,13 @@ const DaftarPengeluaranForm = () => {
         defaultValues: {
             transactionDate: '',
             coaCode: '',
-            description: '',
+            desciption: '',
             transactionNo: '',
             transactionType: 'Payment',
             transactionName: '',
             transactionRef: '',
             contactId: 0,
-            details: [{ coaCode: '', description: '', amount: 0, isPremier: false }]
+            details: [{ coaCode: '', desciption: '', amount: 0, isPremier: false }]
         }
     });
 
@@ -230,17 +233,19 @@ const DaftarPengeluaranForm = () => {
         return () => subscription.unsubscribe();
     }, [watch]);
 
+    const { t } = useTranslation();
+
     return (
         <div>
             <div className="mt-6">
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(onSubmit)}>
                     <div className="grid md:grid-cols-1 gap-4 w-full panel ">
                         <h1 className="font-semibold text-2xl text-black mb-5">
-                            Informasi Pengeluaran Kas & Bank
+                            {t('Informasi Pengeluaran Kas & Bank')} 
                         </h1>
                         <div className='flex justify-start w-full mb-10'>
                             <div className='label mr-10 w-64'>
-                                <label htmlFor="coaCode">NO TRANSAKSI</label>
+                                <label htmlFor="coaCode">{t('NO TRANSAKSI')}</label>
                             </div>
                             <div className="text-white-dark w-full">
                                 <input id="transactionNo" type="text" placeholder="Enter Contoh : 0001" className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b]" {...register('transactionNo')} />
@@ -252,7 +257,7 @@ const DaftarPengeluaranForm = () => {
                                 <label htmlFor="coaCode">AKUN TUJUAN</label>
                             </div>
                             <div className="relative text-white-dark w-full">
-                                <select id="coaCode" {...register('coaCode')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                <select id="coaCode" {...register('coaCode')} className="form-select font-normal placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" onChange={(record)=>setExcludeId(record.target.value)}>
                                     <option value="">Pilih</option>
                                     {bankList.map((bank: any) => (
                                         <option key={bank.desc} value={bank.desc}>{bank.label}</option>
@@ -268,7 +273,6 @@ const DaftarPengeluaranForm = () => {
                             </div>
                             <div className="text-white-dark w-full">
                                 <Flatpickr
-                                    value={dateNow}
                                     options={{
                                         enableTime: true,
                                         dateFormat: 'Y-m-d H:i',
@@ -278,8 +282,21 @@ const DaftarPengeluaranForm = () => {
                                     onChange={(date: Date[]) => {
                                         setValue('transactionDate', date[0].toISOString());
                                     }}
+                                    placeholder='Pilih Tanggal Pengeluaran'
                                 />
-                                <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
+                                <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message ? t('Tanggal Transaksi Wajib Diisi') : ''}</span>
+                            </div>
+                        </div>
+                        
+                        <div className='flex justify-start w-full mb-10'>
+                            <div className='label mr-10 w-64'>
+                                <label htmlFor="desciption">KETERANGAN</label>
+                            </div>
+                            <div className="text-white-dark w-full">
+                                {/* <input id="transactionNo" type="text" placeholder="Enter Contoh : 0001" className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b]" {...register('transactionNo')} /> */}
+                                {/* <textarea name="" id="desciption"></textarea> */}
+                                <textarea id="desciption"  rows={3} className="form-textarea font-normal" placeholder="Keterangan..." {...register('desciption')}></textarea>
+                                <span className="text-danger text-xs">{(errors.desciption as FieldError)?.message}</span>
                             </div>
                         </div>
                         {/* <div className="mt-6">
@@ -289,23 +306,22 @@ const DaftarPengeluaranForm = () => {
                     </div>
 
                     <div className="grid md:grid-cols-1 gap-4 w-full panel">
-                        <h1 className="font-semibold text-2xl text-black mb-5">
+                        <h1 className="font-semibold text-2xl text-black">
                             Detail Pengeluaran
                         </h1>
-                        <div className="mt-6 flex justify-between">
-                            <label className="">Daftar Akun</label>
-                            <Tippy content="Tambah Daftar Transfer">
-                                <button
-                                    onClick={() => setIsShowModalCoa(true)}
-                                    type="button"
-                                    className="flex justify-left w-auto h-10 p-2.5 bg-primary rounded-md ">
-                                    <IconPlus className='text-white font-bold' />
-                                    <span className='text-white font-bold'>Pilih Akun</span>
-                                </button>
-                            </Tippy>
-                        </div>
-                        <div className="mt-6">
-                            <div className="mt-2 space-y-4">
+                        <div className=" flex justify-end">
+                                <Tippy content="Tambah Daftar Transfer">
+                                    <button
+                                        onClick={() => setIsShowModalCoa(true)}
+                                        type="button"
+                                        className="flex justify-left w-auto h-10 p-2.5 btn btn-outline-primary rounded-md ">
+                                        <IconPlus className='font-bold' />
+                                        <span className='font-bold'>Pilih Akun</span>
+                                    </button>
+                                </Tippy>
+                            </div>
+                        <div className="">
+                            <div className="space-y-4">
                                 <table className="datatables">
                                     <thead>
                                         <tr>
@@ -333,11 +349,11 @@ const DaftarPengeluaranForm = () => {
                                                                 id={`details.${index}.description`}
                                                                 type="text"
                                                                 className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                {...register(`details.${index}.description` as const)}
-                                                                placeholder="Enter Debit Description"
+                                                                {...register(`details.${index}.desciption` as const)}
+                                                                placeholder={t('Masukan Deskripsi')}
                                                             />
                                                         </div>
-                                                        <span className="text-danger text-xs">{(errors.details?.[index]?.description as FieldError)?.message}</span>
+                                                        <span className="text-danger text-xs">{(errors.details?.[index]?.desciption as FieldError)?.message ? t('Deskripsi Wajib Diisi') : ''}</span>
                                                     </td>
                                                     <td>
                                                         <div className="relative text-white-dark">
@@ -346,10 +362,10 @@ const DaftarPengeluaranForm = () => {
                                                                 type="number"
                                                                 className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                                                                 {...register(`details.${index}.amount` as const)}
-                                                                placeholder="Enter Amount"
+                                                                placeholder={t('Masukan Jumlah')}
                                                             />
                                                         </div>
-                                                        <span className="text-danger text-xs">{(errors.details?.[index]?.amount as FieldError)?.message}</span>
+                                                        <span className="text-danger text-xs">{(errors.details?.[index]?.amount as FieldError)?.message ? t('Jumlah Wajib Diisi') : ''}</span>
                                                     </td>
                                                     <td>
                                                         <input type="hidden" id={`details.${index}.isPremier`} {...register(`details.${index}.isPremier` as const)} value="true" />
@@ -377,31 +393,28 @@ const DaftarPengeluaranForm = () => {
 
                         <div className="mt-6 grid grid-cols-1 gap-4">
                             <div className="flex justify-end">
-                                <p>Total :</p>
-                                <p>{total.toLocaleString()}</p>
+                                <label className='font-bold text-xl'>Total : </label>
+                                <label className='font-bold text-xl'>{total.toLocaleString()}</label>
                             </div>
-                            {/* <div className="flex justify-end">
-                                <p>Difference :</p>
-                                <p>{difference.toLocaleString()}</p>
-                            </div> */}
+                            
                         </div>
                     </div>
                     <div className="mt-6 flex justify-end space-x-4">
                         <button
                             type="button"
-                            className="px-4 py-2 bg-gray-600 text-white rounded-md shadow-sm"
+                            className="px-4 py-2 text-primary"
                             onClick={() => navigate('/daftarPengeluaran')}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm"
+                            className="px-4 py-2 bg-primary text-white rounded-md shadow-sm"
                         >
                             {isCreating || isUpdating ? 'Loading' : id ? 'Update' : 'Create'}
                         </button>
                     </div>
-                    <ModalCoaCustom setIsSave={setIsSave} selectedRecords={selectedRecords} setShowSelected={setShowSelected} setSelectedRecords={setSelectedRecords} showModal={isShowModalCoa} setIsShowModal={setIsShowModalCoa} />
+                    <ModalCoaCustom setIsSave={setIsSave} selectedRecords={selectedRecords} setShowSelected={setShowSelected} setSelectedRecords={setSelectedRecords} showModal={isShowModalCoa} setIsShowModal={setIsShowModalCoa} excludeId={excludeId}/>
                 </form>
             </div>
         </div>

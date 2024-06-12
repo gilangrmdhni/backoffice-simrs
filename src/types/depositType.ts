@@ -1,6 +1,6 @@
 export interface DebitEntry {
     coaCode?: string;
-    description?: string;
+    desciption?: string;
     amount?: number;
     isPremier?: boolean;
 }
@@ -8,7 +8,7 @@ export interface DebitEntry {
 export interface DepositType {
     transactionDate: string;
     coaCode: string;
-    description?: string;
+    desciption?: string;
     transactionNo?: string;
     transactionType?: string | "Deposit";
     transactionName?: string;

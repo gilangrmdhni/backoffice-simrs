@@ -1,0 +1,5 @@
+.mantine-Checkbox-inner > .mantine-Checkbox-input:disabled {
+    background-color: #9b9b9b !important;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+}
