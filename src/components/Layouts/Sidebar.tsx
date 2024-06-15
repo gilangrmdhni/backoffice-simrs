@@ -143,7 +143,7 @@ const Sidebar = () => {
                                     </div>
                                     <div className={currentMenu !== 'master' ? 'rtl:rotate-90 -rotate-90' : ''}>
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'master' ? 'white' : 'black'}`} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'master' ? 'white' : 'black'}`} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
                                         </svg>
                                     </div>
                                 </button>
@@ -210,7 +210,7 @@ const Sidebar = () => {
                                     </div>
                                     <div className={currentMenu !== 'buku-kas' ? 'rtl:rotate-90 -rotate-90' : ''}>
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'buku-kas' ? 'white' : 'black'}`} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'buku-kas' ? 'white' : 'black'}`} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
                                         </svg>
                                     </div>
                                 </button>
@@ -257,7 +257,7 @@ const Sidebar = () => {
                                     </div>
                                     <div className={currentMenu !== 'penerimaan' ? 'rtl:rotate-90 -rotate-90' : ''}>
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'penerimaan' ? 'white' : 'black'}`} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'penerimaan' ? 'white' : 'black'}`} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
                                         </svg>
                                     </div>
                                 </button>
@@ -299,7 +299,7 @@ const Sidebar = () => {
                                     </div>
                                     <div className={currentMenu !== 'pengeluaran' ? 'rtl:rotate-90 -rotate-90' : ''}>
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'pengeluaran' ? 'white' : 'black'}`} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'pengeluaran' ? 'white' : 'black'}`} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
                                         </svg>
                                     </div>
                                 </button>
@@ -351,7 +351,7 @@ const Sidebar = () => {
                                     </div>
                                     <div className={currentMenu !== 'receivable' ? 'rtl:rotate-90 -rotate-90' : ''}>
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'receivable' ? 'white' : 'black'}`} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'receivable' ? 'white' : 'black'}`} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
                                         </svg>
                                     </div>
                                 </button>
@@ -397,7 +397,7 @@ const Sidebar = () => {
                                     </div>
                                     <div className={currentMenu !== 'bookBank' ? 'rtl:rotate-90 -rotate-90' : ''}>
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'receivable' ? 'white' : 'black'}`} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'receivable' ? 'white' : 'black'}`} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
                                         </svg>
                                     </div>
                                 </button>
@@ -453,7 +453,7 @@ const Sidebar = () => {
                                     </div>
                                     <div className={currentMenu !== 'generalLedger' ? 'rtl:rotate-90 -rotate-90' : ''}>
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'generalLedger' ? 'white' : 'black'}`} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'generalLedger' ? 'white' : 'black'}`} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
                                         </svg>
                                     </div>
                                 </button>

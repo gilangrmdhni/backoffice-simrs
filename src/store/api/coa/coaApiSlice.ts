@@ -62,7 +62,13 @@ export const CoAApi = apiSlice.injectEndpoints({
         getOptionCOA: builder.query({
             query: (params :any) => `/COA/option?${new URLSearchParams(params).toString()}`,
         }),
+        // getDetailCoaWithCoa: builder.query>({
+        //     query: ([coa,params]) => `/COA/${coa}?${new URLSearchParams(params).toString()}`,
+        // }),
+        getDetailCoaWithCoa: builder.query({
+            query: (params :any) =>`/code/${params.coa}?startDate=${params.startDate}&endDate=${params.endDate}`,
+        }),
     }),
 });
 
-export const { useGetCOAQuery, useDownloadCoaMutation,  useDeleteCOAMutation, usePostCOAMutation, useUpdateCOAMutation, useGetDetailCOAQuery,useGetOptionCOAQuery,useCOAUploadMutation } = CoAApi;
+export const { useGetCOAQuery, useDownloadCoaMutation,  useDeleteCOAMutation, usePostCOAMutation, useUpdateCOAMutation, useGetDetailCOAQuery,useGetOptionCOAQuery,useCOAUploadMutation,useGetDetailCoaWithCoaQuery } = CoAApi;

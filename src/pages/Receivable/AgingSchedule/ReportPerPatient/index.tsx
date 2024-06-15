@@ -182,7 +182,6 @@ const ReportPerPatient = ()=>{
                                     ninetyToOneTwentyTotal += data.ninetyToOneTwenty
                                     greaterThanOneTwentyTotal += data.greaterThanOneTwenty
                                     return(
-                                        <>
                                             <tr key={index} className='hover:bg-'>
                                                 <td>{data.pantientName}</td>
                                                 <td>{data.insuranceName}</td>
@@ -194,7 +193,6 @@ const ReportPerPatient = ()=>{
                                                 <td>{formatNumber(data.ninetyToOneTwenty)}</td>
                                                 <td>{formatNumber(data.greaterThanOneTwenty)}</td>
                                             </tr>
-                                        </>
                                     )
                                 })
                             }

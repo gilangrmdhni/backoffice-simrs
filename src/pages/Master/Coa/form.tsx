@@ -233,7 +233,7 @@ const Form = () => {
                                     <option value="">Enter Account Type</option>
                                     {accountGroupList?.data?.map((d: OptionType, i: number) => {
                                         return (
-                                            <option value={d?.value} selected={detailCOA?.data?.accountGroupId === d.value }>
+                                            <option key={i} value={d?.value} selected={detailCOA?.data?.accountGroupId === d.value }>
                                                 {d?.label}
                                             </option>
                                         );

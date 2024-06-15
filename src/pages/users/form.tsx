@@ -148,7 +148,7 @@ const Form = () => {
                                     <option value="">Enter Role</option>
                                     {rolesList?.data?.data?.map((d: rolesType, i: number) => {
                                         return (
-                                            <option value={d.roleID} selected={detailUsers?.data?.roleID === d.roleID}>
+                                            <option key={i} value={d.roleID} selected={detailUsers?.data?.roleID === d.roleID}>
                                                 {d.roleName}
                                             </option>
                                         );

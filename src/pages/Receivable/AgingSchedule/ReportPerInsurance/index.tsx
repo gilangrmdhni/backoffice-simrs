@@ -190,8 +190,8 @@ const ReportPerInsurance = () => {
                                     ninetyToOneTwentyTotal += data.ninetyToOneTwenty
                                     greaterThanOneTwentyTotal += data.greaterThanOneTwenty
                                     return(
-                                        <>
-                                            <tr key={index}>
+                                        <React.Fragment key={index}>
+                                            <tr >
                                                 <td>{data.insuranceName}</td>
                                                 <td>{formatNumber(totalCell)}</td>
                                                 <td>{formatNumber(data.zeroToFortyFive)}</td>
@@ -200,7 +200,7 @@ const ReportPerInsurance = () => {
                                                 <td>{formatNumber(data.ninetyToOneTwenty)}</td>
                                                 <td>{formatNumber(data.greaterThanOneTwenty)}</td>
                                             </tr>
-                                        </>
+                                        </React.Fragment>
                                     )
                                 })
                             }
