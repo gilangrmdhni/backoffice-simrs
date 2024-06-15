@@ -24,7 +24,7 @@ import SelectSearch from 'react-select';
 const Form = () => {
     // const user = useSelector((state: any) => state.auth.user);
     const accountTypeRef = useRef<HTMLSelectElement>(null);
-    const accountGroupRef = useReflapf = useRef<HTMLSelectElement>(null);
+    const accountGroupRef = useRef<HTMLSelectElement>(null);
     const currencyRef = useRef<HTMLSelectElement>(null);
     const [parentId, setParentId] = useState<string>('');
     const [isCashFlow, setIsCashFlow] = useState<boolean>(false);
