@@ -168,7 +168,7 @@ const Index = () => {
     let totalCredits = 0;
     let totalDebits = 0;
     return (
-        <div>
+        <div className='history'>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5 max-w-64">
                     <div className="rtl:ml-auto rtl:mr-auto">
@@ -228,14 +228,14 @@ const Index = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                HistoryList?.data?.data.map((row: journalType, index: Number) => {
+                                HistoryList?.data?.data.map((row: journalType, index: number) => {
                                     if (row.source === 'PaymentBank') {
                                         totalCredits += Number(row.amount)
                                     }else{
                                         totalDebits += Number(row.amount)
                                     }
                                     return(
-                                        <tr className='hover:bg-[#e0e6ed33]'>
+                                        <tr key={index} className='hover:bg-[#e0e6ed33]'>
                                             <td className="mantine">{new Date(row.createdDate).toLocaleDateString()}</td>
                                             <td className="mantine">{row.source}</td>
                                             <td className="mantine">{row.source === 'PaymentBank' ? row.coaDebit : row.coaCredit}</td>

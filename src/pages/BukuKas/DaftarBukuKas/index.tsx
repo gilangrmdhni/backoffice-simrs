@@ -26,6 +26,7 @@ import { SerializedError } from '@reduxjs/toolkit';
 import SelectSearch from 'react-select';
 import moment from "moment";
 import './index.css';
+import IconEye from '@/components/Icon/IconEye';
 
 const Index = () => {
     const dispatch = useDispatch();
@@ -221,33 +222,26 @@ const Index = () => {
 
 
     return (
-        <div>
+        <div className='bukukas'>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5 max-w-64 justify-between">
                     <div className="flex items-center gap-2 text-3xl">
                         Daftar Buku Bank & Kas
                     </div>
-                    <div className="flex items-center gap-2">
+                    {/* <div className="flex items-center gap-2">
                         <button
                             type="button"
                             className="btn btn-secondary"
                         >
                             Tambah Transaksi
                         </button>
-                        <button
-                            onClick={() => navigate(`/bukukas/create`)}
-                            type="button"
-                            className="btn btn-primary"
-                        >
-                            + Tambah Buku Kas & Banks
-                        </button>
-                    </div>
+                    </div> */}
                 </div>
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5 max-w-64 justify-between">
                     <div className="flex items-center gap-2">
                         <input type="text" className="form-input" placeholder="Cari..." value={search} onChange={(e) => setSearch(e.target.value)} />
                     </div>
-                    <div className="ltr:ml-auto">
+                    {/* <div className="ltr:ml-auto">
                         <div className="flex items-center gap-1">
                             <div className="flex border-2 rounded-lg overflow-hidden">
                                 <button
@@ -270,7 +264,7 @@ const Index = () => {
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
                 <div className="datatables z-0">
@@ -279,24 +273,6 @@ const Index = () => {
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
                         records={CoAList?.data?.data}
                         columns={[
-                            {
-                                accessor: 'select',
-                                title: (
-                                    <input
-                                        type="checkbox"
-                                        onChange={handleSelectAll}
-                                        checked={selectedRecords.length === CoAList?.data?.data.length}
-                                    />
-                                ),
-                                render: (row: COAType) => (
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedRecords.includes(row.coaId ?? 0)} // Menggunakan 0 sebagai default jika undefined
-                                        onChange={() => handleSelectRow(row.coaId ?? 0)} // Menggunakan 0 sebagai default jika undefined
-                                    />
-                                ),
-                                width: '50px', // Optional: Adjust the width of the checkbox column
-                            },
                             {
                                 accessor: 'coaCode',
                                 title: 'KODE AKUN',
@@ -323,10 +299,12 @@ const Index = () => {
                                 sortable: true,
                                 render: (row: COAType, index: number) => (
                                     <>
+                                        <span style={{paddingLeft: (row.coaLevel > 4) ? `${(row.coaLevel - 4) * 0.5}rem` : '0rem' }}>
+                                        </span>
                                         {row.accountTypeName !== "Header" && (
                                             <span className="yellow-bullet"></span>
                                         )}
-                                        <span style={{ fontWeight: row.accountTypeName === "Header" ? 'bold' : 'normal', paddingLeft: (row.coaLevel > 4) ? `${(row.coaLevel - 3) * 0.5}rem` : '0rem' }}>
+                                        <span style={{fontWeight: row.accountTypeName === "Header" ? 'bold' : 'normal',}}>
                                             {row.coaName}
                                         </span>
                                     </>
@@ -345,26 +323,27 @@ const Index = () => {
                             {
                                 accessor: '',
                                 title: 'ACTION',
-                                render: (s: COAType) => (
-                                    <>
-                                        <Tippy content="Edit">
-                                            <button type="button" onClick={() => navigate(`/CoA/update/${s.coaId}`)} className="">
-                                                <IconPencil className="ltr:mr-2 rtl:ml-2" />
-                                            </button>
-                                        </Tippy>
-                                        <Tippy content="Delete">
-                                            <button
-                                                type="button"
-                                                onClick={async () => {
-                                                    setDeleteId(s.coaId as number);
-                                                    setShowDeleteModal(true);
-                                                }}
-                                            >
-                                                <IconTrashLines className="m-auto" />
-                                            </button>
-                                        </Tippy>
-                                    </>
-                                ),
+                                render: (s: COAType) => {
+                                    if(s.accountTypeName !== 'Header'){
+                                        return(
+                                            <>
+                                                <Tippy content="Details">
+                                                    <button type="button" onClick={() => navigate(`/bukukas/detail/${s.coaCode.replace(/\./g, '-')}`)} className="">
+                                                        {/* <IconPencil className="ltr:mr-2 rtl:ml-2" /> */}
+                                                        <IconEye className="ltr:mr-2 rtl:ml-2" />
+                                                    </button>
+                                                </Tippy>
+                                            
+                                            </>
+                                        );
+                                    }else{
+                                        return(
+                                            <>
+                                                <span>-</span>
+                                            </>
+                                        )
+                                    }
+                                }
                             },
                         ]}
                         horizontalSpacing={`xs`}

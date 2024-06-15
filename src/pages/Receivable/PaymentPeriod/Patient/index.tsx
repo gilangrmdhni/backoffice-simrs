@@ -142,7 +142,7 @@ const Patient = () => {
                             <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
                                 <option value={''}>All Status</option>
                                 {statusListOption?.data?.map((d: OptionType, i: number) => {
-                                    return <option value={d.value}>{d.label}</option>;
+                                    return <option key={i} value={d.value}>{d.label}</option>;
                                 })}
                             </select>
                             <SelectSearch 
@@ -186,7 +186,6 @@ const Patient = () => {
                                     totalCell = (data.zeroToFortyFive+data.fortyFiveToSixty+data.sixtyToNinety+data.ninetyToOneTwenty+data.ninetyToOneTwenty)
                                     total += totalCell
                                     return(
-                                        <>
                                             <tr key={index}>
                                                 <td>{data.pantientName}</td>
                                                 <td>{data.insuranceName}</td>
@@ -199,7 +198,6 @@ const Patient = () => {
                                                 </td>
                                                 <td>{formatNumber(totalCell)}</td>
                                             </tr>
-                                        </>
                                     )
                                 })
                             }

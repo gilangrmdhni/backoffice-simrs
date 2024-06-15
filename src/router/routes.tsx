@@ -65,6 +65,7 @@ const GeneralLedgerSummaryIndex = lazy(() => import('../pages/GeneralLedger/Summ
 // Kas Bank
 const DaftarBukuKasIndex = lazy(() => import('../pages/BukuKas/DaftarBukuKas'));
 const DaftarBukuKasCreate = lazy(() => import('../pages/BukuKas/DaftarBukuKas/form'));
+const DaftarBukuKasDetail = lazy(() => import('../pages/BukuKas/DaftarBukuKas/detail'));
 const DaftarTransferIndex = lazy(() => import('../pages/BukuKas/DaftarTransfer'));
 const DaftarTransferCreate = lazy(() => import('../pages/BukuKas/DaftarTransfer/form'));
 
@@ -271,6 +272,11 @@ const routes = [
     {
         path: '/bukukas',
         element: <DaftarBukuKasIndex />,
+        layout: 'default',
+    },
+    {
+        path: '/bukukas/detail/:coa',
+        element: <DaftarBukuKasDetail />,
         layout: 'default',
     },
     {

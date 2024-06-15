@@ -35,7 +35,7 @@ const BreadCrumb = () => {
                             <span className="text-gray-500">{index !== breadcrumbTitle.length - 1 && " / "}</span>  
                         </span>
                     ) : (
-                        <span className="">
+                        <span key={index} className="">
                             <span className={`${ SkyText.includes(dt) ? 'text-sky-400'  : 'text-gray-500'}`}>{dt}</span>
                             {
                                NotLink.includes(dt) ? <span className="text-gray-500">{index !== breadcrumbTitle.length - 1 && " / "}</span> 

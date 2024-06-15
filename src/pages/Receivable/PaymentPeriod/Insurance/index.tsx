@@ -142,7 +142,7 @@ const Insurance = () => {
                             <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
                                 <option value={''}>All Status</option>
                                 {statusListOption?.data?.map((d: OptionType, i: number) => {
-                                    return <option value={d.value}>{d.label}</option>;
+                                    return <option key={i} value={d.value}>{d.label}</option>;
                                 })}
                             </select>
                             <SelectSearch 
@@ -186,7 +186,6 @@ const Insurance = () => {
                                     totalCell = (data.zeroToFortyFive+data.fortyFiveToSixty+data.sixtyToNinety+data.ninetyToOneTwenty+data.ninetyToOneTwenty)
                                     total += totalCell
                                     return(
-                                        <>
                                             <tr key={index}>
                                                 <td>{data.insuranceName}</td>
                                                 <td>{new Date(data.billingDate).toLocaleDateString()}</td>
@@ -198,7 +197,6 @@ const Insurance = () => {
                                                 </td>
                                                 <td>{formatNumber(totalCell)}</td>
                                             </tr>
-                                        </>
                                     )
                                 })
                             }

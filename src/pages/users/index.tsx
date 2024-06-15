@@ -100,7 +100,7 @@ const Index = () => {
                             <select id="ctnSelect2" className="form-select text-white-dark" onChange={(e) => setRole(e.target.value)}>
                                 <option value={''}>All Role</option>
                                 {rolesList?.data?.data?.map((d: rolesType, i: number) => {
-                                    return <option value={d.roleID}>{d.roleName}</option>;
+                                    return <option key={i} value={d.roleID}>{d.roleName}</option>;
                                 })}
                             </select>
                             <button
