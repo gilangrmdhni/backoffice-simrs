@@ -133,7 +133,7 @@ const Patient = () => {
     
     return(
         <>
-        <div className='report-insurance'>
+        <div className='report-patient'>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
                     <div className="rtl:ml-auto rtl:mr-auto">

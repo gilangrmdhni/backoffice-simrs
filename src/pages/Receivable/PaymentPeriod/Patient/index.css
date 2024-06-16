@@ -1,8 +1,8 @@
-.report-patient :is([dir="ltr"] table thead tr th), :is([dir="ltr"] table tfoot tr th), :is([dir="ltr"] table tbody tr td){
+.report-patient :is([dir="ltr"] table thead tr th), .report-patient :is([dir="ltr"] table tfoot tr th), :is([dir="ltr"] table tbody tr td){
     text-align:center !important;
 }
 
-.report-patient .datatables table thead tr th, .datatables table tfoot tr th{
+.report-patient .datatables table thead tr th, .report-patient .datatables table tfoot tr th{
     /* border: 1px solid black !important; */
     background-color: rgb(224 230 237 / 0.3) !important;
     --tw-text-opacity: 1;
