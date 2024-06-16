@@ -120,15 +120,17 @@ const Form = () => {
 
 
     const schema = yup.object({
-        // transactionNo: yup.string().required('Transaction No is Required'),
-        // coaCode: yup.string().required('Account is Required'),
-        // transactionDate: yup.date().required('Transaction Date is Required'),
-        // details: yup.array().of(
-        //     yup.object().shape({
-        //         description: yup.string().required('Memo is Required'),
-        //         amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
-        //     })
-        // ).required().min(1, 'At least one detail entry is required'),
+        transactionNo: yup.string().required('Transaction No is Required'),
+        coaCode: yup.string().required('Account is Required'),
+        transactionDate: yup.date().required('Transaction Date is Required'),
+        description: yup.string().required('Description is Required'),
+        amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
+        details: yup.array().of(
+            yup.object().shape({
+                // description: yup.string().required('Memo is Required'),
+                amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
+            })
+        ).required().min(1, 'At least one detail entry is required'),
     }).required();
 
     const { register, control, formState: { errors }, handleSubmit, setValue, watch } = useForm<DepositType>({
@@ -267,7 +269,7 @@ const Form = () => {
                                     {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                         <IconMail fill={true} />
                                     </span> */}
-                                    <span className="text-danger text-xs">{(errors.amount as FieldError)?.message}</span>
+                                    <span className="text-danger text-xs">{(errors.amount as FieldError) ? "Jumlah is required" : ''}</span>
                                 </div>
                         </div>
                         <div className='flex justify-start w-full mb-10'>
