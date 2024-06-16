@@ -238,8 +238,8 @@ const Index = () => {
                                             <td className="mantine">{row.coaCode}</td>
                                             <td className="mantine">{row.coaName}</td>
                                             <td className="mantine">{ row.journalDesc}</td>
-                                            <td className="mantine">{formatNumber(row.creditAmount)}</td>
-                                            <td className="mantine">{formatNumber(row.debitAmount)}</td>
+                                            <td className="mantine">{row.creditAmount != null ? formatNumber(row.creditAmount) : 0}</td>
+                                            <td className="mantine">{row.debitAmount != null ? formatNumber(row.debitAmount) : 0}</td>
                                         </tr>
                                     )
                                 })
