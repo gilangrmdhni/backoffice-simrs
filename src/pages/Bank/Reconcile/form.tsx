@@ -9,11 +9,13 @@ import { useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { setPageTitle, setTitle, setBreadcrumbTitle } from '../../../store/themeConfigSlice';
 import { useGetBanksQuery } from '@/store/api/bank/bankApiSlice';
-import { useGetReconciliationDetailQuery, useCreateReconciliationMutation, useUpdateReconciliationMutation } from '@/store/api/bank/reconcile/reconcileApiSlice';
+import { useGetJournalQuery,useGetReconciliationDetailQuery, useCreateReconciliationMutation, useUpdateReconciliationMutation } from '@/store/api/bank/reconcile/reconcileApiSlice';
 import { ReconciliationType, ReconciliationUpdateType } from '@/types/reconcileType';
 import { BookBankType } from '@/types/bookBankType';
 import { responseCallback } from '@/utils/responseCallback';
 import { useGetBookBanksQuery } from '@/store/api/bank/bookBank/bookBankApiSlice';
+import { BankType } from '@/types/bankType';
+import { journalType } from '@/types';
 
 const ReconciliationForm = () => {
     const dispatch = useDispatch();
@@ -22,7 +24,7 @@ const ReconciliationForm = () => {
     const { data: detailReconciliation, refetch: refetchDetailReconciliation } = id ? useGetReconciliationDetailQuery(Number(id)) : { data: null, refetch: () => { } };
     const [createReconciliation, { isLoading: isCreating }] = useCreateReconciliationMutation();
     const [updateReconciliation, { isLoading: isUpdating }] = useUpdateReconciliationMutation();
-    const { data: bookBanks, refetch: refetchBookBanks } = useGetBookBanksQuery({ orderBy: 'createdDate', orderType: 'desc', page: 1, pageSize: 1000 });
+    const { data: bookBanks, refetch: refetchBookBanks } = useGetJournalQuery({ orderBy: 'createdDate', orderType: 'desc', page: -1, pageSize: 5 });
 
     const schema = yup.object({
         coaCode: yup.string().required('Account is required'),
@@ -39,8 +41,7 @@ const ReconciliationForm = () => {
         resolver: yupResolver(schema),
     });
 
-    const { data: bankResponse } = useGetBanksQuery({});
-    const bankList = bankResponse?.data ?? [];
+    const { data: bankList } = useGetBanksQuery({});
 
     const [totalClear, setTotalClear] = useState(0);
     const [totalOutstanding, setTotalOutstanding] = useState(0);
@@ -178,8 +179,8 @@ const ReconciliationForm = () => {
                 setBalanceText(convertNumberToText(balance));
             }
 
-            const selectedBookBanks = bookBanks?.data?.data?.filter((entry: BookBankType) => selectedBookBankIds.includes(entry.journalId));
-            const totalClearAmount = selectedBookBanks?.reduce((sum: number, entry: BookBankType) => sum + (entry.amount || 0), 0) || 0;
+            const selectedBookBanks = bookBanks?.data?.data?.filter((entry: journalType) => selectedBookBankIds.includes(Number(entry.journalId)));
+            const totalClearAmount = selectedBookBanks?.reduce((sum: number, entry: journalType) => sum + (entry.balance || 0), 0) || 0;
             setTotalClear(totalClearAmount);
             const balance = parseFloat(value.newStatementBalance?.toString() || '0') || 0;
             setTotalOutstanding(balance - totalClearAmount);
@@ -198,7 +199,7 @@ const ReconciliationForm = () => {
                             <label htmlFor="coaCode" className="block text-sm font-medium text-gray-700">Bank Account</label>
                             <select id="coaCode" {...register('coaCode')} className="form-select mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                 <option value="">Select Account</option>
-                                {bankList.map((bank) => (
+                                {bankList?.data.map((bank : BankType) => (
                                     <option key={bank.desc} value={bank.desc}>{bank.label}</option>
                                 ))}
                             </select>
@@ -260,22 +261,23 @@ const ReconciliationForm = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {bookBanks?.data?.data?.map((entry: BookBankType) => (
+                                {bookBanks?.data?.data?.map((entry: journalType) => (
                                     <tr key={entry.journalId}>
-                                        <td className="py-2">{new Date(entry.createdDate).toLocaleDateString('id-ID', {
+                                        <td className="py-2">{entry.createdDate ? new Date(entry.createdDate).toLocaleDateString('id-ID', {
                                             year: 'numeric',
                                             month: 'long',
                                             day: 'numeric',
                                             hour: '2-digit',
                                             minute: '2-digit',
                                             second: '2-digit',
-                                        })}</td>
-                                        <td className="py-2">{entry.coaCredit || '0'}</td>
-                                        <td className="py-2">{entry.coaCreditName}</td>
-                                        <td className="py-2">{entry.journalDescCredit}</td>
-                                        <td className="py-2">{entry.amount || '0'}</td>
+                                        }):''}</td>
+                                        <td>{entry.coaCode}</td>
+                                        <td>{entry.coaName}</td>
+                                        <td>{entry.journalDesc}</td>
+                                        <td>{entry.creditAmount != null ? entry.creditAmount : 0}</td>
+                                        <td>{entry.debitAmount != null ? entry.debitAmount : 0}</td>
                                         <td className="py-2">
-                                            <input type="checkbox" onChange={(e) => handleSelectBookBank(entry.journalId, e.target.checked)} />
+                                            <input type="checkbox" onChange={(e) => handleSelectBookBank(Number(entry.journalId), e.target.checked)} />
                                         </td>
                                         <td className="py-2">{entry.reconciledDate ? new Date(entry.reconciledDate).toLocaleDateString('id-ID', {
                                             year: 'numeric',

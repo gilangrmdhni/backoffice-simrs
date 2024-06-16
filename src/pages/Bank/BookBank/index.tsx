@@ -139,7 +139,6 @@ const BookBankIndex = () => {
                         columns={[
                             { accessor: 'transactionNo', title: 'Transaction No', sortable: true },
                             { accessor: 'transactionType', title: 'Transaction Type', sortable: true },
-                            { accessor: 'transactionDate', title: 'Transaction Date', sortable: true, render: ({ transactionDate }) => new Date(transactionDate).toLocaleDateString() },
                             { accessor: 'coaCode', title: 'COA Code', sortable: true },
                             { accessor: 'coaName', title: 'COA Name', sortable: true },
                             { accessor: 'coaParentCode', title: 'COA Parent Code', sortable: true },

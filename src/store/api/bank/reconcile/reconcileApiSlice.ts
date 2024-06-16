@@ -3,6 +3,9 @@ import { apiSlice } from '../../apiSlice';
 
 export const reconciliationApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
+        getJournal : builder.query({
+            query: (params) => `/Journal?${new URLSearchParams(params).toString()}`,
+        }),
         getReconciliations: builder.query({
             query: (params) => `/Bank/reconciliation?${new URLSearchParams(params).toString()}`,
         }),
@@ -33,6 +36,7 @@ export const reconciliationApi = apiSlice.injectEndpoints({
 });
 
 export const {
+    useGetJournalQuery,
     useGetReconciliationsQuery,
     useGetReconciliationDetailQuery,
     useCreateReconciliationMutation,

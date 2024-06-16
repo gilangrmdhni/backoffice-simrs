@@ -44,13 +44,13 @@ const PaymentForm = () => {
     
     const schema = yup.object({
         transactionNo: yup.string().required('Transaction No is Required'),
-        desciption: yup.string().required('Credit Description is Required'),
+        description: yup.string().required('Credit Description is Required'),
         coaCode: yup.string().required('Account is Required'),
         transactionDate: yup.date().required('Created Date is Required'),
         details: yup.array().of(
             yup.object().shape({
                 // coaCode: yup.string().required('Account is Required'),
-                desciption: yup.string().required('Memo is Required'),
+                description: yup.string().required('Memo is Required'),
                 amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
             })
         ).required().min(1, 'At least one debit entry is required'),
@@ -59,7 +59,7 @@ const PaymentForm = () => {
     const { register, control, formState: { errors }, handleSubmit, setValue, watch } = useForm<DepositType>({
         resolver: yupResolver(schema),
         defaultValues: {
-            details: [{ coaCode: '', desciption: '', amount: 0 }]
+            details: [{ coaCode: '', description: '', amount: 0 }]
         }
     });
 
@@ -162,7 +162,7 @@ const PaymentForm = () => {
             } else {
                 const detailsData = data.details.map(debit => ({
                     coaCode: debit.coaCode,
-                    description: debit.desciption,
+                    description: debit.description,
                     amount: debit.amount,
                     isPremier: false
                 }));
@@ -261,9 +261,9 @@ const PaymentForm = () => {
                             <div>
                                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">Memo</label>
                                 <div className="relative text-white-dark">
-                                    <input id="description" type="text" placeholder="Enter Credit Description" {...register('desciption')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                                    <input id="description" type="text" placeholder="Enter Credit Description" {...register('description')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
                                 </div>
-                                <span className="text-danger text-xs">{(errors.desciption as FieldError)?.message}</span>
+                                <span className="text-danger text-xs">{(errors.description as FieldError)?.message}</span>
                             </div>
                             <div>
                                 <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount</label>
@@ -331,11 +331,11 @@ const PaymentForm = () => {
                                                             id={`details.${index}.description`}
                                                             type="text"
                                                             className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                            {...register(`details.${index}.desciption` as const)}
+                                                            {...register(`details.${index}.description` as const)}
                                                             placeholder={t('Masukan Deskripsi')}
                                                         />
                                                     </div>
-                                                    <span className="text-danger text-xs">{(errors.details?.[index]?.desciption as FieldError)?.message ? t('Deskripsi Wajib Diisi') : ''}</span>
+                                                    <span className="text-danger text-xs">{(errors.details?.[index]?.description as FieldError)?.message ? t('Deskripsi Wajib Diisi') : ''}</span>
                                                 </td>
                                                 <td>
                                                     <div className="relative text-white-dark">

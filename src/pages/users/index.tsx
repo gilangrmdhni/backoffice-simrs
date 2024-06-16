@@ -202,7 +202,7 @@ const Index = () => {
                                 ),
                             },
                         ]}
-                        totalRecords={usersList?.totalCount}
+                        totalRecords={usersList?.data?.totalData}
                         recordsPerPage={pageSize}
                         page={page}
                         onPageChange={(p) => setPage(p)}

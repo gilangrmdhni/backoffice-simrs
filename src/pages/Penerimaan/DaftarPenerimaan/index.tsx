@@ -20,6 +20,8 @@ import { BookBankType } from '@/types/bookBankType';
 import DateRangePicker from '@/components/DateRangePicker';
 import { addDays } from 'date-fns';
 
+import Flatpickr from 'react-flatpickr';
+import 'flatpickr/dist/flatpickr.css';
 
 const DaftarPenerimaanIndex = () => {
     const dispatch = useDispatch();
@@ -39,7 +41,30 @@ const DaftarPenerimaanIndex = () => {
     const [status, setStatus] = useState<string>('');
     const [showFilter, setShowFilter] = useState<boolean>(false);
     const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'createdDate', direction: 'desc' });
+    const dateNow = new Date();
+    const dateFirst = new Date(dateNow.getFullYear(), dateNow.getMonth(), 1);
+    const [startDate, setStartDate] = useState<any>('');
+    const [endDate, setEndDate] = useState<any>('');
 
+    const formatDateState = (date: Date): string => {
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+        const milliseconds = String(date.getUTCMilliseconds()).padStart(3, '0');
+
+        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
+    };
+
+    const formatDateInput = (date: Date): string => {
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    };
     const {
         data: bookBankList,
         refetch,
@@ -52,6 +77,9 @@ const DaftarPenerimaanIndex = () => {
         pageSize: pageSize,
         keyword: search,
         status: status,
+        transactionType:"Deposit",
+        startDate:startDate,
+        endDate:endDate,
     });
 
     const [deleteBookBank, { isError: isDeleteError }] = useDeleteBookBankMutation();
@@ -77,6 +105,9 @@ const DaftarPenerimaanIndex = () => {
     useEffect(() => {
         setPage(1);
     }, [sortStatus, search, pageSize]);
+    useEffect(() => {
+        refetch()
+    },[startDate,endDate]);
 
     const [dates, setDates] = useState<{ startDate: Date | null, endDate: Date | null }>({ startDate: new Date(), endDate: addDays(new Date(), 30) });
 
@@ -85,9 +116,6 @@ const DaftarPenerimaanIndex = () => {
         console.log('Filtering data from', startDate, 'to', endDate);
     };
 
-    const handleClick = (newStatus: React.SetStateAction<string>) => {
-        setStatus(newStatus);
-    };
     return (
         <div>
             <div className="panel mt-6">
@@ -113,31 +141,24 @@ const DaftarPenerimaanIndex = () => {
                     <div className="rtl:ml-auto rtl:mr-auto">
                         <div className="grid grid-cols-4 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                            <DateRangePicker onFilter={handleFilter} />
-                        </div>
-                    </div>
-                    <div className="ltr:ml-auto">
-                        <div className="flex items-center gap-1">
-                            <div className="flex border-2 rounded-lg overflow-hidden">
-                                <button
-                                    onClick={() => handleClick('Selesai')}
-                                    className={`flex-1 px-4 py-2 ${status === 'Selesai' ? 'bg-purple-500 text-white' : 'bg-white text-black'}`}
-                                >
-                                    Selesai
-                                </button>
-                                <button
-                                    onClick={() => handleClick('Draf')}
-                                    className={`flex-1 px-4 py-2 ${status === 'Draf' ? 'bg-purple-500 text-white border-l ' : 'bg-white text-black'}`}
-                                >
-                                    Draf
-                                </button>
-                                <button
-                                    onClick={() => handleClick('Void')}
-                                    className={`flex-1 px-4 py-2 ${status === 'Void' ? 'bg-purple-500 text-white border-l ' : 'bg-white text-black'}`}
-                                >
-                                    Void
-                                </button>
-                            </div>
+                            <Flatpickr
+                                options={{
+                                    mode: 'range',
+                                    dateFormat: 'Y-m-d',
+                                    // position: isRtl ? 'auto right' : 'auto left',
+                                }}
+                                className="form-input w-64 font-normal placeholder:"
+                                // value={[startDate,endDate]}
+                                placeholder={`Start Date - End Date`}
+                                onChange={([startDate, endDate]) => {
+                                    if(startDate != undefined){
+                                        setStartDate(formatDateState(startDate));
+                                    }
+                                    if(endDate != undefined){
+                                        setEndDate(formatDateState(endDate));
+                                    }
+                                }}
+                            />
                         </div>
                     </div>
                 </div>
@@ -149,34 +170,11 @@ const DaftarPenerimaanIndex = () => {
                         records={bookBankList?.data?.data}
                         columns={[
                             { accessor: 'transactionNo', title: 'No Transaksi', sortable: true },
-                            { accessor: 'createdDate', title: 'Tanggal Transaksi', sortable: true, render: ({ createdDate }) => new Date(createdDate).toLocaleDateString() },
+                            { accessor: 'transactionDate', title: 'Tanggal Transaksi', sortable: true, render: (row: BookBankType) => (row.transactionDate ? new Date(row.transactionDate).toLocaleDateString() : '') },
+
                             { accessor: 'coaName', title: 'Nama Akun', sortable: true },
                             { accessor: 'amount', title: 'Amount', sortable: true },
-                            { accessor: 'desciption', title: 'Keterangan', sortable: true },
-                            {
-                                accessor: '',
-                                title: 'Actions',
-                                render: (s: BookBankType) => (
-                                    <>
-                                        <Tippy content="Edit">
-                                            <button type="button" onClick={() => navigate(`/bookBank/update/${s.journalId}`)}>
-                                                <IconPencil className="ltr:mr-2 rtl:ml-2" />
-                                            </button>
-                                        </Tippy>
-                                        <Tippy content="Delete">
-                                            <button
-                                                type="button"
-                                                onClick={async () => {
-                                                    setDeleteId(s.journalId as number);
-                                                    setShowDeleteModal(true);
-                                                }}
-                                            >
-                                                <IconTrashLines className="m-auto" />
-                                            </button>
-                                        </Tippy>
-                                    </>
-                                ),
-                            },
+                            { accessor: 'description', title: 'Keterangan', sortable: true },
                         ]}
                         totalRecords={bookBankList?.data?.totalData}
                         recordsPerPage={pageSize}

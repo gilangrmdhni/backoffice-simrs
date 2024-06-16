@@ -54,8 +54,6 @@ const Index = () => {
 
     const dateNow = new Date();
     const dateFirst = new Date(dateNow.getFullYear(), dateNow.getMonth(), 1);
-    const [startDate, setStartDate] = useState<any>(dateFirst);
-    const [endDate, setEndDate] = useState<any>(dateNow);
 
     const formatDateState = (date: Date): string => {
         const year = date.getUTCFullYear();
@@ -77,13 +75,13 @@ const Index = () => {
         return `${year}-${month}-${day}`;
     };
 
-    const start = formatDateState(dateFirst)
-    const end = formatDateState(dateNow)
+    const [startDate, setStartDate] = useState<any>(formatDateState(dateFirst));
+    const [endDate, setEndDate] = useState<any>(formatDateState(dateNow));
 
     const {data,refetch,error,isLoading} = useGetDetailCoaWithCoaQuery<any>({
         'coa':coaFix,
-        'startDate':start,
-        'endDate':end,
+        'startDate':startDate,
+        'endDate':endDate,
     })
 
     const navigate = useNavigate();
@@ -100,11 +98,7 @@ const Index = () => {
     };
 
     useEffect(() => {
-        refetch({
-            'coa':coaFix,
-            'startDate':formatDateState(startDate),
-            'endDate':formatDateState(endDate),
-        })
+        refetch()
     },[startDate,endDate]);
 
     function formatDateString(dateString: string): string {
@@ -152,10 +146,10 @@ const Index = () => {
                                 placeholder={`${formatDateInput(startDate)} to ${formatDateInput(endDate)}`}
                                 onChange={([startDate, endDate]) => {
                                     if(startDate != undefined){
-                                        setStartDate(startDate);
+                                        setStartDate(formatDateState(startDate));
                                     }
                                     if(endDate != undefined){
-                                        setEndDate(endDate);
+                                        setEndDate(formatDateState(endDate));
                                     }
                                 }}
                             />

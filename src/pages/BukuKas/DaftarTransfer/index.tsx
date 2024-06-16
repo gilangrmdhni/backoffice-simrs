@@ -15,12 +15,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
 import AnimateHeight from 'react-animate-height';
-import { useGetBookBanksQuery, useDeleteBookBankMutation } from '@/store/api/bank/bookBank/bookBankApiSlice';
-import { BookBankType } from '@/types/bookBankType';
+import { useGetTransactionJournalQuery,useDeleteTransactionJournalMutation } from '@/store/api/daftarTransfer/daftarTransferApiSlice';
+import { TransactionJournalType,TransactionDetail } from '@/types/transactionJournalType';
 import { addDays } from 'date-fns';
 import SelectSearch from 'react-select';
 import DateRangePicker from '@/components/DateRangePicker';
 
+import Flatpickr from 'react-flatpickr';
+import 'flatpickr/dist/flatpickr.css';
 
 const DaftarTransferIndex = () => {
     const dispatch = useDispatch();
@@ -40,40 +42,66 @@ const DaftarTransferIndex = () => {
     const [status, setStatus] = useState<string>('');
     const [showFilter, setShowFilter] = useState<boolean>(false);
     const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'createdDate', direction: 'desc' });
+    const dateNow = new Date();
+    const dateFirst = new Date(dateNow.getFullYear(), dateNow.getMonth(), 1);
+    const [startDate, setStartDate] = useState<any>('');
+    const [endDate, setEndDate] = useState<any>('');
+
+    const formatDateState = (date: Date): string => {
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+        const milliseconds = String(date.getUTCMilliseconds()).padStart(3, '0');
+
+        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
+    };
+
+    const formatDateInput = (date: Date): string => {
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    };
 
     const {
         data: bookBankList,
         refetch,
         error,
         isLoading,
-    } = useGetBookBanksQuery({
+    } = useGetTransactionJournalQuery({
         orderBy: sortStatus.columnAccessor,
         orderType: sortStatus.direction,
         page: page,
         pageSize: pageSize,
         keyword: search,
         status: status,
+        startDate: startDate,
+        endDate: endDate,
+        transactionType : "Transfer"
     });
 
-    const [deleteBookBank, { isError: isDeleteError }] = useDeleteBookBankMutation();
+    const [deleteTransactionJournal, { isError: isDeleteError }] = useDeleteTransactionJournalMutation();
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<number>(0);
 
 
     const handleDelete = async (id: number) => {
         try {
-            const response = await deleteBookBank(id).unwrap();
+            const response = await deleteTransactionJournal(id).unwrap();
             // Handle success response
+            responseCallback(response, 
+                toastMessage("Success delete Transaction Journal.", 'success')
+                , toastMessage("Failed to delete Transaction Journal.", 'error'));
+            refetch();
         } catch (err) {
             // Handle error
-            console.error("Error deleting book bank:", err);
-            toastMessage("Failed to delete book bank.", 'error');
+            console.error("Error deleting Transaction Journal:", err);
+            toastMessage("Failed to delete Transaction Journal.", 'error');
         }
-    };
-
-
-    const handleEdit = (id: number) => {
-        navigate(`/bookBank/update/${id}`);
     };
 
 
@@ -84,17 +112,13 @@ const DaftarTransferIndex = () => {
     useEffect(() => {
         setPage(1);
     }, [sortStatus, search, pageSize]);
-
+    useEffect(() => {
+        refetch()
+    },[startDate,endDate]);
     const [dates, setDates] = useState<{ startDate: Date | null, endDate: Date | null }>({ startDate: new Date(), endDate: addDays(new Date(), 30) });
 
-    const handleFilter = (startDate: Date | null, endDate: Date | null) => {
-        setDates({ startDate, endDate });
-        console.log('Filtering data from', startDate, 'to', endDate);
-    };
 
-    const handleClick = (newStatus: React.SetStateAction<string>) => {
-        setStatus(newStatus);
-    };
+
 
     return (
         <div>
@@ -121,31 +145,24 @@ const DaftarTransferIndex = () => {
                     <div className="rtl:ml-auto rtl:mr-auto">
                         <div className="grid grid-cols-4 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                            <DateRangePicker onFilter={handleFilter} />
-                        </div>
-                    </div>
-                    <div className="ltr:ml-auto">
-                        <div className="flex items-center gap-1">
-                            <div className="flex border-2 rounded-lg overflow-hidden">
-                                <button
-                                    onClick={() => handleClick('Selesai')}
-                                    className={`flex-1 px-4 py-2 ${status === 'Selesai' ? 'bg-purple-500 text-white' : 'bg-white text-black'}`}
-                                >
-                                    Selesai
-                                </button>
-                                <button
-                                    onClick={() => handleClick('Draf')}
-                                    className={`flex-1 px-4 py-2 ${status === 'Draf' ? 'bg-purple-500 text-white border-l ' : 'bg-white text-black'}`}
-                                >
-                                    Draf
-                                </button>
-                                <button
-                                    onClick={() => handleClick('Void')}
-                                    className={`flex-1 px-4 py-2 ${status === 'Void' ? 'bg-purple-500 text-white border-l ' : 'bg-white text-black'}`}
-                                >
-                                    Void
-                                </button>
-                            </div>
+                            <Flatpickr
+                                options={{
+                                    mode: 'range',
+                                    dateFormat: 'Y-m-d',
+                                    // position: isRtl ? 'auto right' : 'auto left',
+                                }}
+                                className="form-input w-64 font-normal placeholder:"
+                                // value={[startDate,endDate]}
+                                placeholder={`Start Date - End Date`}
+                                onChange={([startDate, endDate]) => {
+                                    if(startDate != undefined){
+                                        setStartDate(formatDateState(startDate));
+                                    }
+                                    if(endDate != undefined){
+                                        setEndDate(formatDateState(endDate));
+                                    }
+                                }}
+                            />
                         </div>
                     </div>
                 </div>
@@ -169,17 +186,22 @@ const DaftarTransferIndex = () => {
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
                         records={bookBankList?.data?.data}
                         columns={[
-                            { accessor: 'coaDebit', title: 'NO TRANSAKSI', sortable: true, textAlignment: 'center' },
+                            { accessor: 'transactionNo', title: 'NO TRANSAKSI', sortable: true, textAlignment: 'center' },
                             {
                                 accessor: 'createdDate',
                                 title: 'TANGGAL TRANSAKSI',
                                 sortable: true,
-                                render: (row: BookBankType, index: number) => (
+                                render: (row: TransactionJournalType, index: number) => (
                                     <span>{new Date(row.createdDate).toLocaleDateString()}</span>
                                 )
                             },
-                            { accessor: 'coaDebitName', title: 'DARI (PENGIRIM)', sortable: true },
-                            { accessor: 'coaCreditName', title: 'KE (PENERIMA)', sortable: true },
+                            { accessor: 'coaName', title: 'DARI (PENGIRIM)', sortable: true },
+                            { accessor: '', title: 'KE (PENERIMA)', sortable: true,
+                                render: (row: TransactionJournalType, index: number) => {
+                                    const detail = row.details.find((detail: TransactionDetail) => detail.isPremier === false);
+                                    return detail ? <span key={index}>{detail.coaName}</span> : null;
+                                }
+                            },
                             { accessor: 'amount', title: 'JUMLAH (RP)', sortable: true },
                         ]}
                         totalRecords={bookBankList?.data?.totalData}
