@@ -30,7 +30,7 @@ const DaftarBiayaForm = () => {
     const [isTime, setIsTime] = useState<any>(dateNow)
 
     const schema = yup.object({
-        desciption: yup.string().required('Description is Required'),
+        description: yup.string().required('Description is Required'),
         coaCode: yup.string().required('Account is Required'),
         amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
         transactionDate: yup.date().required('Transaction Date is Required'),
@@ -49,14 +49,14 @@ const DaftarBiayaForm = () => {
         defaultValues: {
             transactionDate: '',
             coaCode: '',
-            desciption: '',
+            description: '',
             transactionNo: '',
             amount: 0,
             transactionType: 'payment',
             transactionName: '',
             transactionRef: '',
             contactId: 0,
-            details: [{ coaCode: '', desciption: '', amount: 0, isPremier: false }]
+            details: [{ coaCode: '', description: '', amount: 0, isPremier: false }]
         }
     });
 
@@ -174,7 +174,7 @@ const DaftarBiayaForm = () => {
     useEffect(() => {
         dispatch(setPageTitle('Buat Biaya'));
         dispatch(setTitle('Buat Biaya'));
-        dispatch(setBreadcrumbTitle(['Dashboard', 'Bank', 'Daftar Biaya', id ? 'Update' : 'Create']));
+        dispatch(setBreadcrumbTitle(['Dashboard', 'Pengeluaran', 'Daftar Biaya', id ? 'Update' : 'Create']));
         if (id) {
             refetchDetailPayment();
         }
@@ -364,10 +364,10 @@ const DaftarBiayaForm = () => {
                                         <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
                                             <div className=''>
                                                 <label htmlFor="details">Deskripsi</label>
-                                                <input type="text" id="details" {...register(`details.${index}.desciption`)} className="form-input font-normal" placeholder='Deskripsi'
+                                                <input type="text" id="details" {...register(`details.${index}.description`)} className="form-input font-normal" placeholder='Deskripsi'
                                                 />
 
-                                                <span className="text-danger text-xs">{(errors.details?.[index]?.desciption as FieldError)?.message}</span>
+                                                <span className="text-danger text-xs">{(errors.details?.[index]?.description as FieldError)?.message}</span>
                                             </div>
                                             <div className=''>
                                                 <label htmlFor="details">Jumlah</label>
@@ -394,7 +394,7 @@ const DaftarBiayaForm = () => {
                             <button
                                 type="button"
                                 className="  text-green-600 border border-green-600 rounded-lg px-4 py-2 hover:bg-green-600 hover:text-white transition-colors duration-300 ease-in-out"
-                                onClick={() => append({ coaCode: '', desciption: '', amount: 0, isPremier: true })}
+                                onClick={() => append({ coaCode: '', description: '', amount: 0, isPremier: true })}
                             >
                                 Tambah
                             </button>

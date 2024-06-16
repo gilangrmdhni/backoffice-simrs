@@ -170,10 +170,10 @@ const Form = () => {
         dispatch(setPageTitle('Buat Tagihan Rutin'));
         dispatch(setTitle('Buat Tagihan Rutin'));
         if(type == 'create'){
-            dispatch(setBreadcrumbTitle(['Dashboard', 'Buku Kas', 'Biaya Rutin',type]));
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Pengeluaran', 'Biaya Rutin',type]));
 
         }else{
-            dispatch(setBreadcrumbTitle(['Dashboard', 'Buku Kas', 'Biaya Rutin',type,lastSegment]));
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Pengeluaran', 'Biaya Rutin',type,lastSegment]));
         }
         ParentListRefetch();
     }, [dispatch]);

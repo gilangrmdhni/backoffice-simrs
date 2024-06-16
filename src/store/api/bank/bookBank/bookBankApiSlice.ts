@@ -4,9 +4,9 @@ import { BookBankType } from '@/types/bookBankType';
 export const bookBankApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getBookBanks: builder.query({
-            query: ({ orderBy = 'createdDate', orderType = 'desc', page = 1, pageSize = 10 }) =>
-                `/Transaction?orderBy=${orderBy}&orderType=${orderType}&page=${page}&pageSize=${pageSize}`,
+            query: (params) => `/Transaction?${new URLSearchParams(params).toString()}`,
         }),
+        
         deleteBookBank: builder.mutation({
             query: (id: number) => ({
                 url: `/Transaction/${id}`,

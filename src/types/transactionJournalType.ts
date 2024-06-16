@@ -1,4 +1,4 @@
-export interface COAType {
+export interface TransactionJournalType {
     coaId?: number;
     coaName: string;
     coaCode: string;
@@ -22,9 +22,9 @@ export interface COAType {
     updatedBy: number;
     createdDate: Date;
     updateDate: Date;
-    journals : Journal[]
+    details : TransactionDetail[]
 }
-export interface Journal {
+export interface TransactionDetail {
     balance?: number | null;
     journalId?: number;              // Menambahkan journalId
     journalDesc?: string;            // Menambahkan journalDesc

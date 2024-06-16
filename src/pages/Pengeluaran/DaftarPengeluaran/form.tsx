@@ -47,7 +47,7 @@ const DaftarPengeluaranForm = () => {
         transactionDate: yup.date().required('Transaction Date is Required'),
         details: yup.array().of(
             yup.object().shape({
-                desciption: yup.string().required('Memo is Required'),
+                description: yup.string().required('Memo is Required'),
                 amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
             })
         ).required().min(1, 'At least one detail entry is required'),
@@ -58,13 +58,13 @@ const DaftarPengeluaranForm = () => {
         defaultValues: {
             transactionDate: '',
             coaCode: '',
-            desciption: '',
+            description: '',
             transactionNo: '',
             transactionType: 'Payment',
             transactionName: '',
             transactionRef: '',
             contactId: 0,
-            details: [{ coaCode: '', desciption: '', amount: 0, isPremier: false }]
+            details: [{ coaCode: '', description: '', amount: 0, isPremier: false }]
         }
     });
 
@@ -290,13 +290,13 @@ const DaftarPengeluaranForm = () => {
                         
                         <div className='flex justify-start w-full mb-10'>
                             <div className='label mr-10 w-64'>
-                                <label htmlFor="desciption">KETERANGAN</label>
+                                <label htmlFor="description">KETERANGAN</label>
                             </div>
                             <div className="text-white-dark w-full">
                                 {/* <input id="transactionNo" type="text" placeholder="Enter Contoh : 0001" className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b]" {...register('transactionNo')} /> */}
-                                {/* <textarea name="" id="desciption"></textarea> */}
-                                <textarea id="desciption"  rows={3} className="form-textarea font-normal" placeholder="Keterangan..." {...register('desciption')}></textarea>
-                                <span className="text-danger text-xs">{(errors.desciption as FieldError)?.message}</span>
+                                {/* <textarea name="" id="description"></textarea> */}
+                                <textarea id="description"  rows={3} className="form-textarea font-normal" placeholder="Keterangan..." {...register('description')}></textarea>
+                                <span className="text-danger text-xs">{(errors.description as FieldError)?.message}</span>
                             </div>
                         </div>
                         {/* <div className="mt-6">
@@ -349,11 +349,11 @@ const DaftarPengeluaranForm = () => {
                                                                 id={`details.${index}.description`}
                                                                 type="text"
                                                                 className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                {...register(`details.${index}.desciption` as const)}
+                                                                {...register(`details.${index}.description` as const)}
                                                                 placeholder={t('Masukan Deskripsi')}
                                                             />
                                                         </div>
-                                                        <span className="text-danger text-xs">{(errors.details?.[index]?.desciption as FieldError)?.message ? t('Deskripsi Wajib Diisi') : ''}</span>
+                                                        <span className="text-danger text-xs">{(errors.details?.[index]?.description as FieldError)?.message ? t('Deskripsi Wajib Diisi') : ''}</span>
                                                     </td>
                                                     <td>
                                                         <div className="relative text-white-dark">

@@ -1,6 +1,6 @@
 export interface DetailEntry {
     coaCode: string;
-    desciption: string;
+    description: string;
     amount: number;
     isPremier: boolean;
 }
@@ -8,7 +8,7 @@ export interface DetailEntry {
 export interface PaymentType {
     transactionDate: string;
     coaCode: string;
-    desciption: string;
+    description: string;
     transactionNo: string;
     amount: number;
     transactionType: string;

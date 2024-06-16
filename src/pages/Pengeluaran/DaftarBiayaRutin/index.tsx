@@ -25,9 +25,9 @@ const DaftarBiayaRutinIndex = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        dispatch(setPageTitle('Book Bank'));
-        dispatch(setTitle('Book Bank'));
-        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "Book Bank"]));
+        dispatch(setPageTitle('Daftar Biaya Rutin'));
+        dispatch(setTitle('Daftar Biaya Rutin'));
+        dispatch(setBreadcrumbTitle(["Dashboard", "Pengeluaran", "Daftar Biaya Rutin","List"]));
     }, [dispatch]);
 
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
@@ -116,30 +116,6 @@ const DaftarBiayaRutinIndex = () => {
                             <DateRangePicker onFilter={handleFilter} />
                         </div>
                     </div>
-                    <div className="ltr:ml-auto">
-                        <div className="flex items-center gap-1">
-                            <div className="flex border-2 rounded-lg overflow-hidden">
-                                <button
-                                    onClick={() => handleClick('Selesai')}
-                                    className={`flex-1 px-4 py-2 ${status === 'Selesai' ? 'bg-purple-500 text-white' : 'bg-white text-black'}`}
-                                >
-                                    Semua
-                                </button>
-                                <button
-                                    onClick={() => handleClick('Draf')}
-                                    className={`flex-1 px-4 py-2 ${status === 'Draf' ? 'bg-purple-500 text-white border-l ' : 'bg-white text-black'}`}
-                                >
-                                    Active
-                                </button>
-                                <button
-                                    onClick={() => handleClick('Void')}
-                                    className={`flex-1 px-4 py-2 ${status === 'Void' ? 'bg-purple-500 text-white border-l ' : 'bg-white text-black'}`}
-                                >
-                                    Inaktive
-                                </button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <div>
                     <AnimateHeight duration={300} height={showFilter ? 'auto' : 0}>
@@ -163,33 +139,9 @@ const DaftarBiayaRutinIndex = () => {
                         columns={[
                             { accessor: 'coaName', title: 'Nama Akun', sortable: true },
                             { accessor: 'amount', title: 'Amount', sortable: true },
-                            { accessor: 'createdDate', title: 'Tanggal Mulai', sortable: true, render: ({ createdDate }) => new Date(createdDate).toLocaleDateString() },
-                            { accessor: 'createdDate', title: 'Berakhir', sortable: true, render: ({ createdDate }) => new Date(createdDate).toLocaleDateString() },
+                            { accessor: 'transactionDate', title: 'Tanggal Transaksi', sortable: true, render: (row: BookBankType) => (row.transactionDate ? new Date(row.transactionDate).toLocaleDateString() : '') },
+                            { accessor: 'paymentDate', title: 'Tanggal Transaksi', sortable: true, render: (row: BookBankType) => (row.paymentDate ? new Date(row.transactionDate).toLocaleDateString() : '') },                            
                             { accessor: 'status', title: 'Status', sortable: true },
-                            {
-                                accessor: '',
-                                title: 'Actions',
-                                render: (s: BookBankType) => (
-                                    <>
-                                        <Tippy content="Edit">
-                                            <button type="button" onClick={() => navigate(`/bookBank/update/${s.journalId}`)}>
-                                                <IconPencil className="ltr:mr-2 rtl:ml-2" />
-                                            </button>
-                                        </Tippy>
-                                        <Tippy content="Delete">
-                                            <button
-                                                type="button"
-                                                onClick={async () => {
-                                                    setDeleteId(s.journalId as number);
-                                                    setShowDeleteModal(true);
-                                                }}
-                                            >
-                                                <IconTrashLines className="m-auto" />
-                                            </button>
-                                        </Tippy>
-                                    </>
-                                ),
-                            },
                         ]}
                         totalRecords={bookBankList?.data?.totalData}
                         recordsPerPage={pageSize}
