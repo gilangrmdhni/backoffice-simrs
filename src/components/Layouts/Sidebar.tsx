@@ -395,7 +395,7 @@ const Sidebar = () => {
                                         </svg>
                                         <span className={`ltr:pl-3 rtl:pr-3 ${currentMenu === 'bank' ? 'text-white' : 'text-black'}`}>{t('Bank')}</span>
                                     </div>
-                                    <div className={currentMenu !== 'bookBank' ? 'rtl:rotate-90 -rotate-90' : ''}>
+                                    <div className={currentMenu !== 'bank' ? 'rtl:rotate-90 -rotate-90' : ''}>
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M19 9L12 15L5 9" stroke={`${currentMenu === 'receivable' ? 'white' : 'black'}`} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
                                         </svg>

@@ -41,7 +41,7 @@ const DepositForm = () => {
     const [showSelected, setShowSelected] = useState<any>([]);
     const [excludeId, setExcludeId] = useState<any>('');
     const [isSave, setIsSave] = useState<boolean>(false);
-
+    
     const schema = yup.object({
         transactionNo: yup.string().required('Transaction No is Required'),
         desciption: yup.string().required('Credit Description is Required'),
@@ -136,6 +136,58 @@ const DepositForm = () => {
         setSelectedRecords(newItems);
     };
 
+    const onSubmit = async (data: DepositType) => {
+        console.log(data);
+        console.log('Data yang dikirim:', data);
+
+        const totaldetails = data.details.reduce((sum, debit) => sum + (Number(debit.amount) || 0), 0);
+        const formAmount = Number(data.amount);
+        console.log('Total details:', totaldetails);
+        console.log('Form Amount:', formAmount);
+
+        // Validasi tambahan sebelum pengiriman
+        if (totaldetails !== formAmount) {
+            toastMessage('Total amount of debit entries must match the amount in the form.', 'error');
+            return;
+        }
+
+        try {
+            let response;
+            if (id) {
+                const updateData = {
+                    ...data,
+                    journalId: parseInt(id),
+                };
+                response = await updateDeposit(updateData).unwrap();
+            } else {
+                const detailsData = data.details.map(debit => ({
+                    coaCode: debit.coaCode,
+                    description: debit.desciption,
+                    amount: debit.amount,
+                    isPremier: false
+                }));
+                const postData: DepositType = {
+                    ...data,
+                    transactionType: 'Deposit',
+                    details: data.details.map((detail, index: number) => ({
+                        ...detail,
+                        coaCode: showSelected[index].coaCode,
+                        isPremier: false
+                    }))
+                };
+
+                console.log('Payload yang dikirim:', JSON.stringify(postData, null, 2));
+
+                response = await createDeposit(postData).unwrap(); // Memastikan postData adalah objek DepositType
+            }
+            responseCallback(response, () => {
+                toastMessage('Data berhasil disimpan.', 'success');
+                navigate('/bookbank');
+            }, null);
+        } catch (err: any) {
+            toastMessage(err.message, 'error');
+        }
+    };
 
     useEffect(() => {
         dispatch(setPageTitle('Deposit'));
@@ -183,10 +235,173 @@ const DepositForm = () => {
 
     return (
         <div>
-            <div className="panel mt-6">
-                <div className='panel'>
+            <div className="mt-6">
+                <form className="flex gap-6 flex-col" onSubmit={handleSubmit(onSubmit)}>
+                    <div className='panel'>
+                        <div className="grid md:grid-cols-1 gap-4 w-full">
+                            <div>
+                                <label htmlFor="transactionNo" className="block text-sm font-medium text-gray-700">Transaction No</label>
+                                <div className="relative text-white-dark">
+                                    <input id="transactionNo" type="text" placeholder="Enter Transaction No" {...register('transactionNo')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                                </div>
+                                <span className="text-danger text-xs">{(errors.transactionNo as FieldError)?.message}</span>
+                            </div>
+                            <div>
+                                <label htmlFor="coaCode" className="block text-sm font-medium text-gray-700">Deposit To</label>
+                                <div className="relative text-white-dark">
+                                    <select id="coaCode" {...register('coaCode')} className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                        <option value="">Select Account</option>
+                                        {bankList.map((bank: any) => (
+                                            <option key={bank.desc} value={bank.desc}>{bank.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
+                            </div>
+                            <div>
+                                <label htmlFor="description" className="block text-sm font-medium text-gray-700">Memo</label>
+                                <div className="relative text-white-dark">
+                                    <input id="description" type="text" placeholder="Enter Credit Description" {...register('desciption')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                                </div>
+                                <span className="text-danger text-xs">{(errors.desciption as FieldError)?.message}</span>
+                            </div>
+                            <div>
+                                <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount</label>
+                                <div className="relative text-white-dark">
+                                    <input id="amount" type="number" placeholder="Enter Amount" {...register('amount')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                                </div>
+                                <span className="text-danger text-xs">{(errors.amount as FieldError)?.message}</span>
+                            </div>
 
-                </div>
+                            <div>
+                                <label htmlFor="transactionDate" className="block text-sm font-medium text-gray-700">Created Date</label>
+                                <div className="relative text-white-dark">
+                                    <input id="transactionDate" type="date" {...register('transactionDate')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                                </div>
+                                <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
+                            </div>
+
+                        </div>
+
+                        <div className="mt-6">
+                            <label className="block text-sm font-medium text-gray-700">Amount in Words</label>
+                            <p className="mt-1 text-gray-500">{t(amountText)}</p>
+                        </div>
+                    </div>
+                    <div className="grid md:grid-cols-1 gap-4 w-full panel">
+                        <h1 className="font-semibold text-2xl text-black">
+                            Detail Deposit
+                        </h1>
+                        <div className=" flex justify-end">
+                            <Tippy content="Tambah Daftar Transfer">
+                                <button
+                                    onClick={() => setIsShowModalCoa(true)}
+                                    type="button"
+                                    className="flex justify-left w-auto h-10 p-2.5 btn btn-outline-primary rounded-md ">
+                                    <IconPlus className='font-bold' />
+                                    <span className='font-bold'>Pilih Akun</span>
+                                </button>
+                            </Tippy>
+                        </div>
+                        <div className="space-y-4">
+                            <table className="datatables">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Nama Akun
+                                        </th>
+                                        <th>
+                                            Deskripsi
+                                        </th>
+                                        <th colSpan={2}>
+                                            Jumlah
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {isSave ? (
+                                        showSelected.map((record: COAType, index: number) => (
+                                            <tr key={index}>
+                                                <td>
+                                                    {record.coaName}
+                                                </td>
+                                                <td>
+                                                    <div className="relative text-white-dark">
+                                                        <input
+                                                            id={`details.${index}.description`}
+                                                            type="text"
+                                                            className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                            {...register(`details.${index}.desciption` as const)}
+                                                            placeholder={t('Masukan Deskripsi')}
+                                                        />
+                                                    </div>
+                                                    <span className="text-danger text-xs">{(errors.details?.[index]?.desciption as FieldError)?.message ? t('Deskripsi Wajib Diisi') : ''}</span>
+                                                </td>
+                                                <td>
+                                                    <div className="relative text-white-dark">
+                                                        <input
+                                                            id={`details.${index}.amount`}
+                                                            type="number"
+                                                            className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                            {...register(`details.${index}.amount` as const)}
+                                                            placeholder={t('Masukan Jumlah')}
+                                                        />
+                                                    </div>
+                                                    <span className="text-danger text-xs">{(errors.details?.[index]?.amount as FieldError)?.message ? t('Jumlah Wajib Diisi') : ''}</span>
+                                                </td>
+                                                <td>
+                                                    <input type="hidden" id={`details.${index}.isPremier`} {...register(`details.${index}.isPremier` as const)} value="true" />
+                                                    <button
+                                                        type="button"
+                                                        className="border-none h-10 w-10"
+                                                        onClick={() => deleteItem(index)}
+                                                    >
+                                                        <FontAwesomeIcon icon={faTrash} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={4}>
+                                                Data Tidak Tersedia
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="mt-6 grid grid-cols-2 gap-4">
+                            <div className="flex justify-end">
+                                <p className='font-bold text-xl'>Total :</p>
+                                <p className='font-bold text-xl'>{total.toLocaleString()}</p>
+                            </div>
+                            <div className="flex justify-end">
+                                <p className='font-bold text-xl'>Difference :</p>
+                                <p className='font-bold text-xl'>{difference.toLocaleString()}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-6 flex justify-end space-x-4">
+                       
+                        <button
+                            type="button"
+                            className="px-4 py-2 text-primary rounded-md shadow-sm"
+                            onClick={() => navigate('/Deposit]')}
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            className="px-4 py-2 bg-blue-600 bg-primary text-white rounded-md shadow-sm"
+                        >
+                            {isCreating || isUpdating ? 'Loading' : id ? 'Update' : 'Create'}
+                        </button>
+                    </div>
+                    <ModalCoaCustom setIsSave={setIsSave} selectedRecords={selectedRecords} setShowSelected={setShowSelected} setSelectedRecords={setSelectedRecords} showModal={isShowModalCoa} setIsShowModal={setIsShowModalCoa} excludeId={excludeId} />
+                </form>
             </div>
         </div>
     );

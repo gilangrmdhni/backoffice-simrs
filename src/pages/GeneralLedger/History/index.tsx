@@ -151,9 +151,9 @@ const Index = () => {
         setPage(1);
     }, [sortStatus, search, pageSize, role]);
 
-    const colorStatus = (status: string) => {
-        return status === 'InActive' ? 'primary' : 'success';
-    };
+    // const colorStatus = (status: string) => {
+    //     return status === 'InActive' ? 'primary' : 'success';
+    // };
 
     const formatNumber = (number: any) => {
         // Mengubah angka menjadi string dengan dua digit desimal
@@ -229,20 +229,17 @@ const Index = () => {
                                 </tr>
                             ) : (
                                 HistoryList?.data?.data.map((row: journalType, index: number) => {
-                                    if (row.source === 'PaymentBank') {
-                                        totalCredits += Number(row.amount)
-                                    }else{
-                                        totalDebits += Number(row.amount)
-                                    }
+                                        totalCredits += Number(row.creditAmount)
+                                        totalDebits += Number(row.debitAmount)
                                     return(
                                         <tr key={index} className='hover:bg-[#e0e6ed33]'>
-                                            <td className="mantine">{new Date(row.createdDate).toLocaleDateString()}</td>
-                                            <td className="mantine">{row.source}</td>
-                                            <td className="mantine">{row.source === 'PaymentBank' ? row.coaDebit : row.coaCredit}</td>
-                                            <td className="mantine">{row.source === 'PaymentBank' ? row.coaDebitName : row.coaCreditName}</td>
-                                            <td className="mantine">{row.source === 'PaymentBank' ? row.journalDescDebit : row.journalDescCredit}</td>
-                                            <td className="mantine">{row.source === 'PaymentBank' ? formatNumber(row.amount) : '0'}</td>
-                                            <td className="mantine">{row.source === 'PaymentBank' ? '0' : formatNumber(row.amount)}</td>
+                                            <td className="mantine">{row.createdDate ? new Date(row.createdDate).toLocaleDateString() : ''}</td>
+                                            <td className="mantine">{row.transactionDetail?.transactionType}</td>
+                                            <td className="mantine">{row.coaCode}</td>
+                                            <td className="mantine">{row.coaName}</td>
+                                            <td className="mantine">{ row.journalDesc}</td>
+                                            <td className="mantine">{formatNumber(row.creditAmount)}</td>
+                                            <td className="mantine">{formatNumber(row.debitAmount)}</td>
                                         </tr>
                                     )
                                 })
