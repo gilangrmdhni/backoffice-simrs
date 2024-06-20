@@ -261,7 +261,7 @@ const ReconciliationForm = () => {
                         <div>
                             <label htmlFor="desc" className="block text-sm font-medium text-gray-700">ReconcileDate</label>
                             {/* <input id="desc" type="text" placeholder="Enter Description" {...register('desc')} className="form-input mt-1 block w-full rounded-md border-gray-300 shadow-sm" /> */}
-                            <span className="font-bold">{reconciledDate !== '' ? formatDate(reconciledDate) : '-'}</span>
+                            <span className="font-bold">{reconciledDate !== '' && reconciledDate !== null && reconciledDate !== undefined ? formatDate(reconciledDate) : '-'}</span>
                         </div>
 
                         <div>
