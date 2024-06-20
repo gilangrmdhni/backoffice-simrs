@@ -16,6 +16,7 @@ import { responseCallback } from '@/utils/responseCallback';
 import { useGetBookBanksQuery } from '@/store/api/bank/bookBank/bookBankApiSlice';
 import { BankType } from '@/types/bankType';
 import { journalType } from '@/types';
+import { toastMessage } from '@/utils/toastUtils';
 
 const ReconciliationForm = () => {
     const dispatch = useDispatch();
@@ -46,7 +47,8 @@ const ReconciliationForm = () => {
     const [totalClear, setTotalClear] = useState(0);
     const [totalOutstanding, setTotalOutstanding] = useState(0);
     const [balanceText, setBalanceText] = useState('');
-    const [selectedBookBankIds, setSelectedBookBankIds] = useState<number[]>([]);
+    const [balance, setBalance] = useState(0);
+    const [selectedBookBankIds, setSelectedBookBankIds] = useState<any>([]);
     const [showValidationPopup, setShowValidationPopup] = useState(false);
 
     const convertNumberToText = (num: number) => {
@@ -123,7 +125,8 @@ const ReconciliationForm = () => {
             }
             responseCallback(response, () => {
                 navigate('/reconcile');
-            }, null);
+                toastMessage('Reconcile Successfully Saved','success')
+            }, toastMessage('Failed Saved Reconcile','error'));
         } catch (err: any) {
             toast.error(err.message);
         }
@@ -139,11 +142,11 @@ const ReconciliationForm = () => {
     };
 
     const handleSelectBookBank = (journalId: number, isSelected: boolean) => {
-        setSelectedBookBankIds((prev) => {
+        setSelectedBookBankIds((prev : any) => {
             if (isSelected) {
                 return [...prev, journalId];
             } else {
-                return prev.filter((id) => id !== journalId);
+                return prev.filter((id : any) => id !== journalId);
             }
         });
     };
@@ -173,21 +176,37 @@ const ReconciliationForm = () => {
     }, [detailReconciliation, setValue]);
 
     useEffect(() => {
-        const subscription = watch((value, { name }) => {
+        const selectedBookBanks = bookBanks?.data?.data?.filter((entry: journalType) => selectedBookBankIds.includes(Number(entry.journalId)));
+        const totalClearAmount = selectedBookBanks?.reduce((sum: number, entry: journalType) => {
+                sum += entry?.debitAmount || 0;
+                sum -= entry?.creditAmount || 0;
+                return sum;
+        }, 0) || 0;
+        
+        // setValue('newStatementBalance',balance);
+        const subscription = watch((value:any, { name }) => {
             if (name === 'newStatementBalance') {
                 const balance = parseFloat(value.newStatementBalance?.toString() || '0') || 0;
                 setBalanceText(convertNumberToText(balance));
+                setBalance(balance);
             }
-
-            const selectedBookBanks = bookBanks?.data?.data?.filter((entry: journalType) => selectedBookBankIds.includes(Number(entry.journalId)));
-            const totalClearAmount = selectedBookBanks?.reduce((sum: number, entry: journalType) => sum + (entry.balance || 0), 0) || 0;
-            setTotalClear(totalClearAmount);
+            // setTotalClear(totalClearAmount);
+            if(totalClearAmount === 0) {
+                setTotalClear(0);
+            }else{
+                setTotalClear(-totalClearAmount);
+            }
             const balance = parseFloat(value.newStatementBalance?.toString() || '0') || 0;
-            setTotalOutstanding(balance - totalClearAmount);
-
+            setTotalOutstanding(balance + totalClearAmount);
         });
+        if(totalClearAmount === 0) {
+            setTotalClear(0);
+        }else{
+            setTotalClear(-totalClearAmount);
+        }
+        setTotalOutstanding(balance + totalClearAmount);
         return () => subscription.unsubscribe();
-    }, [watch, selectedBookBankIds, bookBanks]);
+    }, [watch, selectedBookBankIds, bookBanks,balance]);
 
     return (
         <div className="container mx-auto p-4">
@@ -277,7 +296,9 @@ const ReconciliationForm = () => {
                                         <td>{entry.creditAmount != null ? entry.creditAmount : 0}</td>
                                         <td>{entry.debitAmount != null ? entry.debitAmount : 0}</td>
                                         <td className="py-2">
-                                            <input type="checkbox" onChange={(e) => handleSelectBookBank(Number(entry.journalId), e.target.checked)} />
+                                            <input type="checkbox" 
+                                                onChange={ (e: any) => handleSelectBookBank(Number(entry.journalId), e.target.checked)}
+                                            />
                                         </td>
                                         <td className="py-2">{entry.reconciledDate ? new Date(entry.reconciledDate).toLocaleDateString('id-ID', {
                                             year: 'numeric',
