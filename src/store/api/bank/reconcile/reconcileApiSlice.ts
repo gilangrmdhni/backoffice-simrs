@@ -8,9 +8,12 @@ export const reconciliationApi = apiSlice.injectEndpoints({
         }),
         getReconciliations: builder.query({
             query: (params) => `/Bank/reconciliation?${new URLSearchParams(params).toString()}`,
-        }),
+        }),   
         getReconciliationDetail: builder.query({
             query: (id: number) => `/Bank/reconciliation/${id}`,
+        }),
+        getReconciliationDetailCoa: builder.mutation({
+            query: (coa: string) => `/code/${coa}`,
         }),
         createReconciliation: builder.mutation({
             query: (data: ReconciliationType) => ({
@@ -42,4 +45,5 @@ export const {
     useCreateReconciliationMutation,
     useUpdateReconciliationMutation,
     useDeleteReconciliationMutation,
+    useGetReconciliationDetailCoaMutation,
 } = reconciliationApi;
