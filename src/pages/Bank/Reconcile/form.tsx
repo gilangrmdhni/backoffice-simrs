@@ -30,7 +30,6 @@ const ReconciliationForm = () => {
     const [coaBank,setCoaBank] = useState<any>('')
     const [newStatementBalance, setNewStatementBalance] = useState<any>('');
     const [reconciledDate, setReconciledDate] = useState<any>('');
-    const [latestReconciledDate, setLatestReconciledDate] = useState<any>('');
     const schema = yup.object({
         coaCode: yup.string().required('Account is required'),
         desc: yup.string().required('Description is required'),
@@ -215,18 +214,33 @@ const ReconciliationForm = () => {
                 try {
                     const data = await detailReconciliation(coaBank).unwrap();
                     if (data) {
-                        setValue('newStatementBalance', data?.data?.newStatementBalance);
+                        // setValue('newStatementBalance', data?.data?.newStatementBalance);
                         setNewStatementBalance(data?.data?.balance);
                         setReconciledDate(data?.data?.reconciledDate);
                     }
                 } catch (err: any) {
                     toast.error(err.message);
                 }
+            }else{
+                // setValue('newStatementBalance', data?.data?.newStatementBalance);
+                setNewStatementBalance('');
+                setReconciledDate('');
             }
         };
         fetchData();
     },[coaBank])
 
+    const formatDate = (dateString: any) => {
+        const date = new Date(dateString);
+        const year = date.getUTCFullYear();
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+    
+        return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+    };
     return (
         <div className="container mx-auto p-4">
             <div className="panel">
@@ -247,7 +261,7 @@ const ReconciliationForm = () => {
                         <div>
                             <label htmlFor="desc" className="block text-sm font-medium text-gray-700">ReconcileDate</label>
                             {/* <input id="desc" type="text" placeholder="Enter Description" {...register('desc')} className="form-input mt-1 block w-full rounded-md border-gray-300 shadow-sm" /> */}
-                            <span className="font-bold">{reconciledDate}</span>
+                            <span className="font-bold">{reconciledDate !== '' ? formatDate(reconciledDate) : '-'}</span>
                         </div>
 
                         <div>
