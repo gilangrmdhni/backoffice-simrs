@@ -54,7 +54,7 @@ const Index = () => {
 
     const dateNow = new Date();
     const dateFirst = new Date(dateNow.getFullYear(), dateNow.getMonth(), 1);
-
+    // console.log(dateNow)
     const formatDateState = (date: Date): string => {
         const year = date.getUTCFullYear();
         const month = String(date.getUTCMonth() + 1).padStart(2, '0');
@@ -67,11 +67,28 @@ const Index = () => {
         return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
     };
 
-    const formatDateInput = (date: Date): string => {
-        const year = date.getUTCFullYear();
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(date.getUTCDate()).padStart(2, '0');
-
+    const formatDateInput = (date: Date | string): string => {
+        let inputDate: Date;
+    
+        // Check if input is a string, then convert it to a Date object
+        if (typeof date === 'string') {
+            inputDate = new Date(date);
+            
+            // Check if the parsed date is valid
+            if (isNaN(inputDate.getTime())) {
+                throw new Error('Invalid date string');
+            }
+        } else if (date instanceof Date) {
+            inputDate = date;
+        } else {
+            throw new Error('Invalid date type');
+        }
+    
+        // Now inputDate is guaranteed to be a valid Date object
+        const year = inputDate.getUTCFullYear();
+        const month = String(inputDate.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(inputDate.getUTCDate()).padStart(2, '0');
+    
         return `${year}-${month}-${day}`;
     };
 
@@ -116,9 +133,9 @@ const Index = () => {
                             <div className='flex flex-start'>
                                 <p className='text-sm text-white'>{t('Periode: ')}</p>
                                 <span className='flex'>
-                                    <p className='text-sm text-white font-bold' >{t(formatDate(startDate))}</p>
+                                    <p className='text-sm text-white font-bold' >{formatDateInput(startDate)}</p>
                                     <p className='text-sm text-white font-bold' >-</p>
-                                    <p className='text-sm text-white font-bold' >{t(formatDate(endDate))}</p>
+                                    <p className='text-sm text-white font-bold' >{formatDateInput(endDate)}</p>
                                 </span>
                             </div>
                         </div>
