@@ -274,7 +274,7 @@ const PaymentForm = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="transactionDate" className="block text-sm font-medium text-gray-700">Created Date</label>
+                                <label htmlFor="transactionDate" className="block text-sm font-medium text-gray-700">Payment Date</label>
                                 <div className="relative text-white-dark">
                                     <input id="transactionDate" type="date" {...register('transactionDate')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
                                 </div>
