@@ -32,7 +32,6 @@ const ReconciliationForm = () => {
         desc: yup.string().required('Description is required'),
         newStatementBalance: yup.number().required('New Statement Balance is required').positive('Must be positive'),
         reconciledDate: yup.date().required('Reconcile Date is required'),
-        createdDate: yup.date().required('Created Date is required'),
         clearIds: yup.array().of(yup.number().required()).min(1, 'At least one clear ID is required'),
         totalClear: yup.number().required('Total Clear is required'),
         totalOutStanding: yup.number().required('Total Outstanding is required'),
@@ -113,7 +112,6 @@ const ReconciliationForm = () => {
                 totalOutStanding: Number(totalOutstanding),
                 newStatementBalance: Number(getValues('newStatementBalance')),
                 reconciledDate: new Date(getValues('reconciledDate')).toISOString(),
-                createdDate: new Date(getValues('createdDate')).toISOString(),
                 createdBy: 1  // Assuming you are setting this to a default value
             }; 
             let response;
@@ -126,7 +124,7 @@ const ReconciliationForm = () => {
             responseCallback(response, () => {
                 navigate('/reconcile');
                 toastMessage('Reconcile Successfully Saved','success')
-            }, toastMessage('Failed Saved Reconcile','error'));
+            }, null);
         } catch (err: any) {
             toast.error(err.message);
         }
@@ -216,7 +214,7 @@ const ReconciliationForm = () => {
                     <div className="grid md:grid-cols-2 gap-4 w-full">
                         <div>
                             <label htmlFor="coaCode" className="block text-sm font-medium text-gray-700">Bank Account</label>
-                            <select id="coaCode" {...register('coaCode')} className="form-select mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <select id="coaCode" {...register('coaCode')} className="form-select mt-1 block w-full rounded-md border-gray-300 shadow-sm" >
                                 <option value="">Select Account</option>
                                 {bankList?.data.map((bank : BankType) => (
                                     <option key={bank.desc} value={bank.desc}>{bank.label}</option>
@@ -241,11 +239,11 @@ const ReconciliationForm = () => {
                             <span className="text-danger text-xs">{(errors.reconciledDate as FieldError)?.message}</span>
                         </div>
 
-                        <div>
+                        {/* <div>
                             <label htmlFor="createdDate" className="block text-sm font-medium text-gray-700">Created Date</label>
                             <input id="createdDate" type="date" {...register('createdDate')} className="form-input mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
                             <span className="text-danger text-xs">{(errors.createdDate as FieldError)?.message}</span>
-                        </div>
+                        </div> */}
                         <div>
                             <input type="hidden" {...register('totalClear')} value={totalClear} />
                             <input type="hidden" {...register('totalOutStanding')} value={totalOutstanding} />

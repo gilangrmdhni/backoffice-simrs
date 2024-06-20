@@ -46,7 +46,7 @@ const DepositForm = () => {
         transactionNo: yup.string().required('Transaction No is Required'),
         description: yup.string().required('Credit Description is Required'),
         coaCode: yup.string().required('Account is Required'),
-        transactionDate: yup.date().required('Created Date is Required'),
+        transactionDate: yup.date().required('Deposit Date is Required'),
         details: yup.array().of(
             yup.object().shape({
                 // coaCode: yup.string().required('Account is Required'),
@@ -274,7 +274,7 @@ const DepositForm = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="transactionDate" className="block text-sm font-medium text-gray-700">Created Date</label>
+                                <label htmlFor="transactionDate" className="block text-sm font-medium text-gray-700">Deposit Date</label>
                                 <div className="relative text-white-dark">
                                     <input id="transactionDate" type="date" {...register('transactionDate')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
                                 </div>
