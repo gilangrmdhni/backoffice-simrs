@@ -1,4 +1,4 @@
-.report-insurance :is([dir="ltr"] table thead tr th),.report-insurance :is([dir="ltr"] table tfoot tr th), :is([dir="ltr"] table tbody tr td){
+.report-insurance :is([dir="ltr"] table thead tr th),.report-insurance :is([dir="ltr"] table tfoot tr th),.report-insurance :is([dir="ltr"] table tbody tr td){
     text-align:center !important;
 }
 
