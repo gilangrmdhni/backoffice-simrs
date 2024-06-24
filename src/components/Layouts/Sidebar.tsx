@@ -306,7 +306,7 @@ const Sidebar = () => {
                                 <AnimateHeight duration={300} height={currentMenu === 'pengeluaran' ? 'auto' : 0}>
                                     <ul className={`sub-menu text-black bg-white`}>
                                         <li>
-                                            <NavLink to="/daftarpengeluaran">
+                                            <NavLink to="/daftar-pengeluaran">
                                                 Daftar Pengeluaran
                                             </NavLink>
                                         </li>

@@ -226,12 +226,12 @@ const routes = [
         layout: 'default',
     },
     {
-        path: '/agingSchedule',
+        path: '/aging-Schedule',
         element: <AgingScheduleIndex />,
         layout: 'default',
     },
     {
-        path: '/paymentPeriod',
+        path: '/payment-Period',
         element: <PaymentPeriodIndex />,
         layout: 'default',
     },
