@@ -1,9 +1,14 @@
 export interface TransactionJournalType {
-    coaId?: number;
+    coaId: number;
     coaName: string;
     coaCode: string;
     accountTypeId: number;
     accountTypeName?: string;
+    transactionNo: string;
+    transactionType: string;
+    transactionDate: string;
+    description:string;
+    amount: number;
     coaLevel: number;
     parentId: number | 1;
     parentName?: string | null;

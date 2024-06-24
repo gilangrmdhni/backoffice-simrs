@@ -128,7 +128,7 @@ const DaftarPenerimaanIndex = () => {
                     <div className="ltr:ml-auto">
                         <div className="flex items-center gap-1">
                             <button
-                                onClick={() => navigate(`/daftarpenerimaan/create`)}
+                                onClick={() => navigate(`/daftar-penerimaan/create`)}
                                 type="button"
                                 className="btn btn-primary"
                             >

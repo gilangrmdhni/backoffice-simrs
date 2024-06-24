@@ -188,7 +188,7 @@ const DaftarPenerimaanForm = () => {
             }
             responseCallback(response, () => {
                 toastMessage('Data berhasil disimpan.', 'success');
-                navigate('/daftarpenerimaan');
+                navigate('/daftar-penerimaan');
             }, null);
         } catch (err: any) {
             toastMessage(err.message, 'error');
@@ -402,7 +402,7 @@ const DaftarPenerimaanForm = () => {
                         <button
                             type="button"
                             className="px-4 py-2 text-primary"
-                            onClick={() => navigate('/daftarpenerimaan')}
+                            onClick={() => navigate('/daftar-penerimaan')}
                         >
                             Cancel
                         </button>

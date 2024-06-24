@@ -1,7 +1,7 @@
 .mantine-Table-root .mantine-1s8spa1 {
      padding: 0
 }
-.coa :is([dir="ltr"] table thead tr th), :is([dir="ltr"] table tfoot tr th), :is([dir="ltr"] table tbody tr td) {
+.coa :is([dir="ltr"] table thead tr th),.coa :is([dir="ltr"] table tfoot tr th), :is([dir="ltr"] table tbody tr td) {
      text-align: left !important;
  }
 

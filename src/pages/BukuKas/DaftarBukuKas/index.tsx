@@ -33,7 +33,7 @@ const Index = () => {
     useEffect(() => {
         dispatch(setPageTitle('Daftar Buku Kas'));
         dispatch(setTitle('Daftar Buku Kas'));
-        dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'Buku Kas', 'List']));
+        dispatch(setBreadcrumbTitle(['Dashboard', 'Buku Kas', 'Daftar Buku Kas', 'List']));
     });
     const [isLoadingUpload, setIsLoadingUpload] = useState<boolean>(false);
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
@@ -56,7 +56,8 @@ const Index = () => {
         keyword: search,
         orderBy: sortStatus.columnAccessor === 'coaCode' ? 'coaCode' : sortStatus.columnAccessor,
         orderType: sortStatus.direction,
-        page: -1,
+        page: page,
+        pageSize:pageSize,
         status,
         parent: COALevel,
     });
@@ -328,7 +329,7 @@ const Index = () => {
                                         return(
                                             <>
                                                 <Tippy content="Details">
-                                                    <button type="button" onClick={() => navigate(`/bukukas/detail/${s.coaCode.replace(/\./g, '-')}`)} className="">
+                                                    <button type="button" onClick={() => navigate(`/daftar-buku-kas/detail/${s.coaCode.replace(/\./g, '-')}`)} className="">
                                                         {/* <IconPencil className="ltr:mr-2 rtl:ml-2" /> */}
                                                         <IconEye className="ltr:mr-2 rtl:ml-2" />
                                                     </button>
@@ -348,9 +349,15 @@ const Index = () => {
                         ]}
                         horizontalSpacing={`xs`}
                         verticalSpacing={`xs`}
-                        totalRecords={CoAList?.totalData}
+                        totalRecords={CoAList?.data?.totalData}
                         rowStyle={(state: COAType) => (state ? { padding: 0 } : { padding: 0 })}
-                        fetching={isLoading}
+                        recordsPerPage={pageSize}
+                        page={page}
+                        onPageChange={(p) => setPage(p)}
+                        recordsPerPageOptions={PAGE_SIZES}
+                        onRecordsPerPageChange={setPageSize}
+                        sortStatus={sortStatus}
+                        onSortStatusChange={setSortStatus}
                         minHeight={200}
                     />
                 </div>

@@ -15,23 +15,23 @@ import { Link, useNavigate } from 'react-router-dom';
 import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
 import AnimateHeight from 'react-animate-height';
-import { useGetTransactionJournalQuery,useDeleteTransactionJournalMutation } from '@/store/api/daftarTransfer/daftarTransferApiSlice';
-import { TransactionJournalType,TransactionDetail } from '@/types/transactionJournalType';
+import { useGetTransactionJournalQuery, useDeleteTransactionJournalMutation } from '@/store/api/daftarTransfer/daftarTransferApiSlice';
+import { TransactionJournalType, TransactionDetail } from '@/types/transactionJournalType';
 import { addDays } from 'date-fns';
 import SelectSearch from 'react-select';
 import DateRangePicker from '@/components/DateRangePicker';
-
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
+import './index.css'
 
-const DaftarTransferIndex = () => {
+const Index = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     useEffect(() => {
-        dispatch(setPageTitle('Daftar Transfer'));
-        dispatch(setTitle('Daftar Transfer'));
-        dispatch(setBreadcrumbTitle(["Dashboard", "Buku Kas", "Daftar Transfer", "List"]));
+        dispatch(setPageTitle('Trial Journal'));
+        dispatch(setTitle('Trial Journal'));
+        dispatch(setBreadcrumbTitle(["Dashboard", "Master", "Trial Journal", "List"]));
     }, [dispatch]);
 
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
@@ -41,7 +41,7 @@ const DaftarTransferIndex = () => {
     const [search, setSearch] = useState<string>('');
     const [status, setStatus] = useState<string>('');
     const [showFilter, setShowFilter] = useState<boolean>(false);
-    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'createdDate', direction: 'desc' });
+    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'transactionDate', direction: 'desc' });
     const dateNow = new Date();
     const dateFirst = new Date(dateNow.getFullYear(), dateNow.getMonth(), 1);
     const [startDate, setStartDate] = useState<any>('');
@@ -81,7 +81,6 @@ const DaftarTransferIndex = () => {
         status: status,
         startDate: startDate,
         endDate: endDate,
-        transactionType : "Transfer"
     });
 
     const [deleteTransactionJournal, { isError: isDeleteError }] = useDeleteTransactionJournalMutation();
@@ -93,8 +92,8 @@ const DaftarTransferIndex = () => {
         try {
             const response = await deleteTransactionJournal(id).unwrap();
             // Handle success response
-            responseCallback(response, 
-                toastMessage("Success delete Transaction Journal.", 'success')
+            responseCallback(response,
+                toastMessage("Success delete Trial Journal.", 'success')
                 , null);
             refetch();
         } catch (err) {
@@ -114,30 +113,36 @@ const DaftarTransferIndex = () => {
     }, [sortStatus, search, pageSize]);
     useEffect(() => {
         refetch()
-    },[startDate,endDate]);
+    }, [startDate, endDate]);
     const [dates, setDates] = useState<{ startDate: Date | null, endDate: Date | null }>({ startDate: new Date(), endDate: addDays(new Date(), 30) });
 
+    const FormattedDate = (date: any) => {
+        const tanggal = new Date(date);
 
+        const formattedDate = tanggal.toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
 
-
+        return formattedDate;
+    }
+    const formatNumber = (number: any) => {
+        // Mengubah angka menjadi string dengan dua digit desimal
+        let formattedNumber = number.toFixed(1);
+        // Mengganti titik desimal dengan koma
+        formattedNumber = formattedNumber.replace(',', '.');
+        // Menambahkan titik sebagai pemisah ribuan
+        formattedNumber = formattedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return formattedNumber;
+    };
     return (
-        <div>
+        <div className='trialjournal'>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
                     <div className="rtl:ml-auto rtl:mr-auto">
-                        <div className="grid grid-cols-3 gap-2">
-                            <span className=' text-3xl '>Daftar Transfer</span>
-                        </div>
-                    </div>
-                    <div className="ltr:ml-auto">
-                        <div className="flex items-center gap-1">
-                            <button
-                                onClick={() => navigate(`/daftar-transfer/create`)}
-                                type="button"
-                                className="btn btn-primary"
-                            >
-                                + Tambah Daftar Transfer
-                            </button>
+                        <div className="grid grid-cols-1 gap-2">
+                            <span className=' text-3xl '>Trial Journal</span>
                         </div>
                     </div>
                 </div>
@@ -155,10 +160,10 @@ const DaftarTransferIndex = () => {
                                 // value={[startDate,endDate]}
                                 placeholder={`Start Date - End Date`}
                                 onChange={([startDate, endDate]) => {
-                                    if(startDate != undefined){
+                                    if (startDate != undefined) {
                                         setStartDate(formatDateState(startDate));
                                     }
-                                    if(endDate != undefined){
+                                    if (endDate != undefined) {
                                         setEndDate(formatDateState(endDate));
                                     }
                                 }}
@@ -166,55 +171,109 @@ const DaftarTransferIndex = () => {
                         </div>
                     </div>
                 </div>
-                <div>
-                    <AnimateHeight duration={300} height={showFilter ? 'auto' : 0}>
-                        <div className="space-y-2 p-4 text-white-dark text-[13px] border-t border-[#d3d3d3] dark:border-[#1b2e4b]">
-                            <div className="grid grid-cols-8 gap-2">
-                                <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                                <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
-                                    <option value={''}>All Status</option>
-                                    <option value={'Pending'}>Pending</option>
-                                    <option value={'Completed'}>Completed</option>
-                                </select>
+
+                <div className='panel p-5'>
+                    <div className="relative">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            <div className='!border-r-[0.5px] !border-r-grey'>
+                                <div className="text-primary">
+                                    <p className='p-0 m-0'>
+                                        Current
+                                    </p>
+
+                                    <span className='text-xs text-slate-500'>
+                                    24 Juni 2024
+                                    </span>
+                                </div>
+                                <div className="mt-2 font-semibold text-2xl">$50,000.00</div>
+                            </div>
+                            <div className='!border-r-[0.5px] !border-r-grey'>
+                                <div className="text-primary">
+                                    <p className="p-0 m-0">
+                                        Day Before
+                                    </p>
+                                    <span className='text-xs text-slate-500'>
+                                    23 Juni 34
+                                    </span>
+                                </div>
+                                <div className="mt-2 font-semibold text-2xl">$15,000.00</div>
+                            </div>
+                            <div className='!border-r-[0.5px] !border-r-grey'>
+                                <div className="text-primary">
+                                    <p className='p-0 m-0'>
+                                        Week Before in same day
+                                    </p>
+                                    <span className='text-xs text-slate-500'>
+                                        17 Juni 34
+                                    </span>
+                                </div>
+                                <div className="mt-2 font-semibold text-2xl">$2,500.00</div>
+                            </div>
+                            <div className=''>
+                                <div className="text-primary">
+                                    <p className='p-0 m-0'>
+                                        Month Before same date 
+                                    </p>
+                                    <span className='text-xs text-slate-500'>
+                                        24 Juni 2024
+                                    </span>
+                                </div>
+                                <div className="mt-2 font-semibold text-2xl">$10,500.00</div>
                             </div>
                         </div>
-                    </AnimateHeight>
+                    </div>
                 </div>
+
                 <div className="datatables">
-                    <DataTable
-                        highlightOnHover
-                        className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
-                        records={bookBankList?.data?.data}
-                        columns={[
-                            { accessor: 'transactionNo', title: 'NO TRANSAKSI', sortable: true, textAlignment: 'center' },
+                    <table>
+                        <thead>
+                            <tr className='!border-3 !border-b-black'>
+                                <th className='!border-3 !border-b-black'>No Transaksi</th>
+                                <th>Deskripsi</th>
+                                <th>Kode Akun</th>
+                                <th>Nama Akun</th>
+                                <th>Debit</th>
+                                <th>Kredit</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             {
-                                accessor: 'createdDate',
-                                title: 'TANGGAL TRANSAKSI',
-                                sortable: true,
-                                render: (row: TransactionJournalType, index: number) => (
-                                    <span>{new Date(row.createdDate).toLocaleDateString()}</span>
-                                )
-                            },
-                            { accessor: 'coaName', title: 'DARI (PENGIRIM)', sortable: true },
-                            { accessor: '', title: 'KE (PENERIMA)', sortable: true,
-                                render: (row: TransactionJournalType, index: number) => {
-                                    const detail = row.details.find((detail: TransactionDetail) => detail.isPremier === false);
-                                    return detail ? <span key={index}>{detail.coaName}</span> : null;
-                                }
-                            },
-                            { accessor: 'amount', title: 'JUMLAH (RP)', sortable: true },
-                        ]}
-                        totalRecords={bookBankList?.data?.totalData}
-                        recordsPerPage={pageSize}
-                        page={page}
-                        onPageChange={(p) => setPage(p)}
-                        recordsPerPageOptions={PAGE_SIZES}
-                        onRecordsPerPageChange={setPageSize}
-                        sortStatus={sortStatus}
-                        onSortStatusChange={setSortStatus}
-                        minHeight={200}
-                        paginationText={({ from, to, totalRecords }) => totalRecords > pageSize ? `Showing ${from} to ${to} of ${totalRecords} entries` : ''}
-                    />
+                                bookBankList?.data?.data?.map((item: TransactionJournalType, index: number) => {
+                                    let totalDebit = 0
+                                    let totalCredit = 0
+                                    return (
+                                        <React.Fragment key={index}>
+                                            <tr className='!bg-[rgba(224,230,237,0.3)]'>
+                                                <td colSpan={6} className='font-bold'>{item.description}</td>
+                                                <td className='font-bold flex justify-end w-32'>{FormattedDate(item.transactionDate)}</td>
+                                            </tr>
+                                            {item.details.map((details: TransactionDetail, key: number) => (
+                                                <tr key={key} className='!border-3 !border-y-[#d8d8d866]'>
+                                                    <td >{item.transactionNo}</td>
+                                                    <td>{details.journalDesc}</td>
+                                                    <td>{details.coaCode}</td>
+                                                    <td>{details.coaName}</td>
+                                                    <td>{details.debitAmount != null ? formatNumber(details.debitAmount) : 0}</td>
+                                                    <td colSpan={2}>{details.creditAmount != null ? formatNumber(details.creditAmount) : 0}</td>
+                                                </tr>
+                                            ))}
+                                            <tr className='!bg-[rgba(224,230,237,0.5)]'>
+                                                <td colSpan={3} className='font-bold'></td>
+                                                <td className='font-bold'>Total({item.transactionNo})</td>
+                                                <td>{item.amount != null && item.amount != undefined ? formatNumber(item.amount) : 0}</td>
+                                                <td>{item.amount != null && item.amount != undefined ? formatNumber(item.amount) : 0}</td>
+                                                <td>
+                                                    <button type="button" className='btn btn-primary h-[10px]' >Close</button>
+                                                </td>
+                                            </tr>
+                                        </React.Fragment>
+                                    )
+                                })
+                            }
+
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div className="mb-5">
@@ -268,4 +327,4 @@ const DaftarTransferIndex = () => {
     );
 };
 
-export default DaftarTransferIndex;
+export default Index;
