@@ -291,7 +291,7 @@ const ReconciliationForm = () => {
                         </div>
                     </div>
                     <div className="mt-6">
-                        <label className="block text-sm font-medium text-gray-700">Calculate Statement Balance</label>
+                        <label className="block text-sm font-medium text-gray-700">Say</label>
                         <p className="mt-1 text-gray-500">{balanceText}</p>
                     </div>
                     <div className="mt-6 grid grid-cols-2 gap-4">
