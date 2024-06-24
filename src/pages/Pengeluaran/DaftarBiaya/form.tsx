@@ -415,7 +415,7 @@ const DaftarBiayaForm = () => {
                         <button
                             type="button"
                             className="px-4 py-2 bg-gray-600 text-white rounded-md shadow-sm"
-                            onClick={() => navigate('/daftarbiayas')}
+                            onClick={() => navigate('/daftar-biayas')}
                         >
                             Cancel
                         </button>

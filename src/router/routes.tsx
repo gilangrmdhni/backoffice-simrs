@@ -85,6 +85,8 @@ const DaftarBiayaCreate = lazy(() => import('../pages/Pengeluaran/DaftarBiaya/fo
 const DaftarBiayaRutinIndex = lazy(() => import('../pages/Pengeluaran/DaftarBiayaRutin'));
 const DaftarBiayaRutinCreate = lazy(() => import('../pages/Pengeluaran/DaftarBiayaRutin/form'));
 
+const TrialJournalIndex = lazy(() => import('../pages/Journal/TrialJournal'));
+
 
 const routes = [
     // dashboard
@@ -260,80 +262,85 @@ const routes = [
     },
 
     {
-        path: '/generalLedger/History',
+        path: '/general-ledger/History',
         element: <GeneralLedgerHistoryIndex />,
         layout: 'default',
     },
     {
-        path: '/generalLedger/Summary',
+        path: '/general-ledger/Summary',
         element: <GeneralLedgerSummaryIndex />,
         layout: 'default',
     },
     {
-        path: '/bukukas',
+        path: '/daftar-buku-kas',
         element: <DaftarBukuKasIndex />,
         layout: 'default',
     },
     {
-        path: '/bukukas/detail/:coa',
+        path: '/daftar-buku-kas/detail/:coa',
         element: <DaftarBukuKasDetail />,
         layout: 'default',
     },
     {
-        path: '/bukukas/create',
+        path: '/daftar-buku-kas/create',
         element: <DaftarBukuKasCreate />,
         layout: 'default',
     },
     {
-        path: '/daftartransfer',
+        path: '/daftar-transfer',
         element: <DaftarTransferIndex />,
         layout: 'default',
     },
     {
-        path: '/daftartransfer/create',
+        path: '/daftar-transfer/create',
         element: <DaftarTransferCreate />,
         layout: 'default',
     },
     {
-        path: '/daftarpenerimaan',
+        path: '/daftar-penerimaan',
         element: <DaftarPenerimaanIndex />,
         layout: 'default',
     },
     {
-        path: '/daftarpenerimaan/create',
+        path: '/daftar-penerimaan/create',
         element: <DaftarPenerimaanCreate />,
         layout: 'default',
     },
     {
-        path: '/daftarpengeluaran',
+        path: '/daftar-pengeluaran',
         element: <DaftarPengeluaranIndex />,
         layout: 'default',
     },
     {
-        path: '/daftarpengeluaran/create',
+        path: '/daftar-pengeluaran/create',
         element: <DaftarPengeluaranCreate />,
         layout: 'default',
     },
     {
-        path: '/daftarbiaya',
+        path: '/daftar-biaya',
         element: <DaftarBiayaIndex />,
         layout: 'default',
     },
     {
-        path: '/daftarbiaya/create',
+        path: '/daftar-biaya/create',
         element: <DaftarBiayaCreate />,
         layout: 'default',
     },
     {
-        path: '/daftarbiayarutin',
+        path: '/daftar-biaya-rutin',
         element: <DaftarBiayaRutinIndex />,
         layout: 'default',
     },
     {
-        path: '/daftarbiayarutin/create',
+        path: '/daftar-biaya-rutin/create',
         element: <DaftarBiayaRutinCreate />,
         layout: 'default',
     },
+    {
+        path: '/journal/trial-journal',
+        element: <TrialJournalIndex />,
+        layout: 'default',
+    }
 ];
 
 export { routes };

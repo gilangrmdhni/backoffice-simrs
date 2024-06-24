@@ -159,7 +159,7 @@ const Form = () => {
                 response = await post(data);
             }
             responseCallback(response, (data: any) => {
-                navigate('/daftarbiayarutin')
+                navigate('/daftar-biayarutin')
             }, null);
         } catch (err: any) {
             toastMessage(err.message, 'error');
@@ -307,7 +307,7 @@ const Form = () => {
                             </div>
                         </div>    
                         <div className="flex w-full justify-end">
-                            <button type="button" className=" btn bg-white  w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)] mr-5 hover:bg-purple-300" onClick={()=>navigate('/daftartransfer')}>
+                            <button type="button" className=" btn bg-white  w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)] mr-5 hover:bg-purple-300" onClick={()=>navigate('/daftar-transfer')}>
                                 batal
                             </button>
                             <button type="submit" className=" btn btn-primary  w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">

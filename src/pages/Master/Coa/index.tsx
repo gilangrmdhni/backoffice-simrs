@@ -58,7 +58,8 @@ const Index = () => {
         keyword: search,
         orderBy: sortStatus.columnAccessor === 'coaCode' ? 'coaCode' : sortStatus.columnAccessor,
         orderType: sortStatus.direction,
-        page: -1,
+        page: page,
+        pageSize:pageSize,
         status,
         parent : COALevel,
     });
@@ -339,9 +340,15 @@ const Index = () => {
                         ]}
                         horizontalSpacing={`xs`}
                         verticalSpacing={`xs`}
-                        totalRecords={CoAList?.totalData}
+                        totalRecords={CoAList?.data?.totalData}
                         rowStyle={(state: COAType) => (state ? { padding: 0 } : { padding: 0 })}
-                        fetching={isLoading}
+                        recordsPerPage={pageSize}
+                        page={page}
+                        onPageChange={(p) => setPage(p)}
+                        recordsPerPageOptions={PAGE_SIZES}
+                        onRecordsPerPageChange={setPageSize}
+                        sortStatus={sortStatus}
+                        onSortStatusChange={setSortStatus}
                         minHeight={200}
                     />
                 </div>

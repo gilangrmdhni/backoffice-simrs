@@ -37,7 +37,7 @@ const Index = () => {
     useEffect(() => {
         dispatch(setPageTitle('Daftar Buku Kas'));
         dispatch(setTitle('Daftar Buku Kas'));
-        dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'Buku Kas', coa]));
+        dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'Daftar Buku Kas', coa]));
     });
     const [isLoadingUpload, setIsLoadingUpload] = useState<boolean>(false);
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
@@ -257,7 +257,7 @@ const Index = () => {
                         <button
                             className='w-full btn btn-outline-primary rounded-md '
                             onClick={()=>{
-                                navigate('/bukukas')
+                                navigate('/daftar-buku-kas')
                             }}
                         >
                             Kembali

@@ -6,12 +6,14 @@ const BreadCrumb = () => {
     const {breadcrumbTitle,Title} = useSelector((state: any) => state.themeConfig);
     const NotLink = [
         "Master",
+        "Journal",
         "Receivable",
         "General Ledger",
         "create",
         "update"
     ];
     const SkyText = [
+        "Journal",
         "Master",
         "Receivable",
         "General Ledger"
@@ -27,7 +29,7 @@ const BreadCrumb = () => {
                 {breadcrumbTitle.map((dt : string, index : number) => (
                     index !== breadcrumbTitle.length - 1 && !NotLink.includes(dt) ? (
                         <span key={index} className="">                   
-                            <NavLink to={`/${dt == 'Dashboard' ? '' : dt.replace(/\s+/g, '')}`}>
+                            <NavLink to={`/${dt == 'Dashboard' ? '' : dt.replace(/\s+/g, '-')}`}>
                                 <span className="text-sky-400 dark:text-white-light hover:underline">
                                     {dt}
                                 </span>
