@@ -39,7 +39,7 @@ const Index = () => {
     const PAGE_SIZES: number[] = [10, 20, 30, 50, 100];
     const [pageSize, setPageSize] = useState<number>(PAGE_SIZES[0]);
     const [search, setSearch] = useState<string>('');
-    const [status, setStatus] = useState<string>('Pending');
+    const [status, setStatus] = useState<string>('Completed');
     const [showFilter, setShowFilter] = useState<boolean>(false);
     const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'transactionDate', direction: 'desc' });
     const dateNow = new Date();
@@ -271,6 +271,7 @@ const Index = () => {
                                     )
                                 })
                             }
+
                             {               
                                 bookBankList?.data?.data.length < 1 ? <tr><td colSpan={7} style={{height:'200px',textAlign:'center'}}>Data Not Found</td></tr> : null
                             }

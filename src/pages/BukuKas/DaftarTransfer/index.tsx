@@ -41,7 +41,7 @@ const DaftarTransferIndex = () => {
     const [search, setSearch] = useState<string>('');
     const [status, setStatus] = useState<string>('');
     const [showFilter, setShowFilter] = useState<boolean>(false);
-    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'createdDate', direction: 'desc' });
+    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'transactionDate', direction: 'desc' });
     const dateNow = new Date();
     const dateFirst = new Date(dateNow.getFullYear(), dateNow.getMonth(), 1);
     const [startDate, setStartDate] = useState<any>('');

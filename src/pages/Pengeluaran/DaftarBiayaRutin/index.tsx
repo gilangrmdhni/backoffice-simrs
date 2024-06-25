@@ -37,7 +37,7 @@ const DaftarBiayaRutinIndex = () => {
     const [search, setSearch] = useState<string>('');
     const [status, setStatus] = useState<string>('');
     const [showFilter, setShowFilter] = useState<boolean>(false);
-    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'createdDate', direction: 'desc' });
+    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'transactionDate', direction: 'desc' });
 
     const {
         data: bookBankList,
@@ -100,7 +100,7 @@ const DaftarBiayaRutinIndex = () => {
                     <div className="ltr:ml-auto">
                         <div className="flex items-center gap-1">
                             <button
-                                onClick={() => navigate(`/daftarbiayarutin/create`)}
+                                onClick={() => navigate(`/daftar-biaya-rutin/create`)}
                                 type="button"
                                 className="btn btn-primary"
                             >
