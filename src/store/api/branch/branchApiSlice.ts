@@ -4,8 +4,8 @@ import { apiSlice } from '../apiSlice';
 export const branchApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getBranch: builder.query({
-            query: ({ orderBy = 'BranchId', orderType = 'asc', page = 1, pageSize = 10 }) =>
-                `/Branch?orderBy=${orderBy}&orderType=${orderType}&page=${page}&pageSize=${pageSize}`,
+            query: ({ orderBy = 'BranchId', orderType = 'asc', page = 1, pageSize = 10, keyword = '', status = '' }) =>
+                `/Branch?orderBy=${orderBy}&orderType=${orderType}&page=${page}&pageSize=${pageSize}&keyword=${keyword}&status=${status}`,
         }),
         deleteBranch: builder.mutation({
             query: (id?: number) => {
@@ -39,6 +39,14 @@ export const branchApi = apiSlice.injectEndpoints({
         getOptionBranch: builder.query({
             query: (params) => `/branch/option?${new URLSearchParams(params).toString()}`,
         }),
+        exportBranch: builder.mutation({
+            query: ({ type, keyword, orderBy, orderType, status }) => ({
+                url: `Branch/export?type=${type}&keyword=${keyword}&orderBy=${orderBy}&orderType=${orderType}&status=${status}`,
+                method: 'GET',
+                responseHandler: (response) => response.blob(),
+            }),
+            transformResponse: (response: Blob) => response,
+        }),
     }),
 });
 
@@ -48,6 +56,6 @@ export const {
     usePostBranchMutation,
     useUpdateBranchMutation,
     useGetDetailBranchQuery,
-    useGetOptionBranchQuery
+    useGetOptionBranchQuery,
+    useExportBranchMutation,
 } = branchApi;
-

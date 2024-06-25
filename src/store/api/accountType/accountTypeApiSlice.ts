@@ -32,6 +32,14 @@ export const accountTypeApi = apiSlice.injectEndpoints({
         getOptionAccountTypeOption: builder.query({
             query: (params) => `/AccountType/option?${new URLSearchParams(params).toString()}`,
         }),
+        exportAccountType: builder.mutation({
+            query: ({ type, keyword, orderBy, orderType }) => ({
+                url: `AccountType/export?type=${type}&keyword=${keyword}&orderBy=${orderBy}&orderType=${orderType}`,
+                method: 'GET',
+                responseHandler: (response) => response.blob(),
+            }),
+            transformResponse: (response: Blob) => response,
+        }),
     }),
 });
 
@@ -42,4 +50,5 @@ export const {
     useUpdateAccountTypeMutation,
     useGetAccountTypeDetailQuery,
     useGetOptionAccountTypeOptionQuery,
+    useExportAccountTypeMutation,
 } = accountTypeApi;

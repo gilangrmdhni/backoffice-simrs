@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { Fragment, useEffect, useState } from 'react';
 import { setBreadcrumbTitle, setPageTitle, setTitle } from '../../../store/themeConfigSlice';
-import { useDeleteBranchMutation, useGetBranchQuery } from '@/store/api/branch/branchApiSlice';
+import { useDeleteBranchMutation, useGetBranchQuery, useExportBranchMutation } from '@/store/api/branch/branchApiSlice';
 import IconTrashLines from '@/components/Icon/IconTrashLines';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
@@ -11,9 +11,10 @@ import IconPencil from '@/components/Icon/IconPencil';
 import { Dialog, Transition } from '@headlessui/react';
 import IconX from '@/components/Icon/IconX';
 import IconPlus from '@/components/Icon/IconPlus';
-import { branchType } from '@/types'; // Pastikan tipe data branch disesuaikan dengan definisi Anda
+import { branchType } from '@/types'; 
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
+import IconDownload from '@/components/Icon/IconDownload';
 
 const Index = () => {
     const dispatch = useDispatch();
@@ -45,6 +46,7 @@ const Index = () => {
         status,
     });
 
+    const [exportBranch] = useExportBranchMutation();
     const [deleted, { isError }] = useDeleteBranchMutation();
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<number>(0);
@@ -56,9 +58,33 @@ const Index = () => {
             setDeleteId(0);
             setShowDeleteModal(false);
             responseCallback(response, null, null);
+            toastMessage('Delete successful', 'success');
+            setPage(1);
             refetch();
         } catch (err: any) {
             toastMessage(err.message, 'error');
+        }
+    };
+
+    const handleExport = async () => {
+        try {
+            const type = 'xlsx';
+            const keyword = search;
+            const orderBy = sortStatus.columnAccessor;
+            const orderType = sortStatus.direction;
+            const statusValue = status;
+    
+            const res = await exportBranch({ type, keyword, orderBy, orderType, status: statusValue }).unwrap();
+            const url = window.URL.createObjectURL(new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Branches_${new Date().toISOString()}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+        } catch (error: any) {
+            console.error('Failed to download branches', error);
+            toastMessage(error.message, 'error');
         }
     };
 
@@ -91,14 +117,25 @@ const Index = () => {
                     <div className="rtl:ml-auto rtl:mr-auto">
                         <div className="grid grid-cols-2 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                            <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
+                            <select id="ctnSelect1" className="form-select text-black" onChange={(e) => setStatus(e.target.value)}>
                                 <option value={''}>All Status</option>
                                 <option value={'Active'}>Active</option>
-                                <option value={'Inactive'}>Inactive</option>
+                                <option value={'InActive'}>InActive</option>
                             </select>
                         </div>
                     </div>
-                    <div className="ltr:ml-auto">
+                    <div className="ltr:ml-auto flex gap-2">
+                        <div className="grid grid-cols-1 gap-2">
+                            <Tippy content="Download Branches">
+                                <button
+                                    onClick={handleExport}
+                                    type="button"
+                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
+                                >
+                                    <IconDownload />
+                                </button>
+                            </Tippy>
+                        </div>
                         <div className="grid grid-cols-1 gap-2">
                             <Tippy content="Add Branch">
                                 <button
@@ -112,7 +149,6 @@ const Index = () => {
                         </div>
                     </div>
                 </div>
-                {/* Tambahkan kode untuk tabel */}
                 <div className="datatables">
                     <DataTable
                         highlightOnHover
@@ -165,7 +201,6 @@ const Index = () => {
                     />
                 </div>
             </div>
-
             <div className="mb-5">
                 <Transition appear show={showDeleteModal} as={Fragment}>
                     <Dialog as="div" open={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
@@ -190,9 +225,7 @@ const Index = () => {
                                         </button>
                                     </div>
                                     <div className="p-5">
-                                        <p>
-                                            You will lose your data!
-                                        </p>
+                                        <p>You will lose your data!</p>
                                         <div className="flex justify-end items-center mt-8">
                                             <button onClick={() => setShowDeleteModal(false)} type="button" className="btn btn-outline-dark">
                                                 Cancel

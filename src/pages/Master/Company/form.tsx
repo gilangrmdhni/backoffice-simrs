@@ -157,7 +157,7 @@ const CompanyForm = () => {
                                     <span className="ml-2 text-black">Active</span>
                                 </label>
                                 <label className="flex items-center">
-                                    <input type="radio" value="Inactive" {...register('status')} className="form-radio" />
+                                    <input type="radio" value="InActive" {...register('status')} className="form-radio" />
                                     <span className="ml-2 text-black">InActive</span>
                                 </label>
                             </div>

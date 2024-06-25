@@ -21,7 +21,8 @@ import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
 import { rolesType } from '@/types/rolesType';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
-import { useGetCurrencyQuery,useDeleteCurrencyMutation } from '@/store/api/currency/currencyApiSlice';
+import { useGetCurrencyQuery, useDeleteCurrencyMutation, useExportCurrencyMutation } from '@/store/api/currency/currencyApiSlice';
+
 
 const Index = () => {
     // const user = useSelector((state: any) => state.auth.user);
@@ -29,7 +30,7 @@ const Index = () => {
     useEffect(() => {
         dispatch(setPageTitle('Currency'));
         dispatch(setTitle('Currency'));
-        dispatch(setBreadcrumbTitle(['Dashboard','Master','Currency',"List"]));
+        dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'Currency', "List"]));
     });
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const [page, setPage] = useState<number>(1);
@@ -54,6 +55,7 @@ const Index = () => {
         orderType: sortStatus.direction,
         status,
     });
+    const [exportCurrency] = useExportCurrencyMutation();
     const { data: rolesList, refetch: rolesListRefetch } = useGetRolesQuery({});
     const [deleted, { isError }] = useDeleteCurrencyMutation();
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
@@ -67,10 +69,31 @@ const Index = () => {
             setDeleteId(0);
             setShowDeleteModal(false);
             responseCallback(response, null, null);
-            toastMessage("success Deleted Data","success")
+            toastMessage('Delete successful', 'success');
+            setPage(1);
             refetch();
         } catch (err: any) {
             toastMessage(err.message, 'error');
+        }
+    };
+    const handleExport = async () => {
+        try {
+            const type = 'xlsx';
+            const keyword = search;
+            const orderBy = sortStatus.columnAccessor;
+            const orderType = sortStatus.direction;
+
+            const res = await exportCurrency({ type, keyword, orderBy, orderType }).unwrap();
+            const url = window.URL.createObjectURL(new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Currencies_${new Date().toISOString()}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+        } catch (error: any) {
+            console.error('Failed to download currencies', error);
+            toastMessage(error.message, 'error');
         }
     };
 
@@ -92,15 +115,19 @@ const Index = () => {
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
                         </div>
                     </div>
-                    <div className="ltr:ml-auto">
-                        <div className="grid grid-cols-2 gap-2">
-                            
-                            {/* <Tippy content="Download">
-                                <Link to="" className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60">
+                    <div className="ltr:ml-auto flex gap-2">
+                        <div className="grid grid-cols-1 gap-2">
+                            <Tippy content="Download Currency">
+                                <button
+                                    onClick={handleExport}
+                                    type="button"
+                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
+                                >
                                     <IconDownload />
-                                </Link>
-                            </Tippy> */}
-                            <span></span>
+                                </button>
+                            </Tippy>
+                        </div>
+                        <div className="grid grid-cols-1 gap-2">
                             <Tippy content="Add Currency">
                                 <button
                                     onClick={() => navigate(`/currency/create`)}

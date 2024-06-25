@@ -110,6 +110,8 @@ const Index = () => {
             setDeleteId(0);
             setShowDeleteModal(false);
             responseCallback(response, null, null);
+            toastMessage('Delete successful', 'success');
+            setPage(1);
             refetch();
         } catch (err: any) {
             toastMessage(err.message, 'error');

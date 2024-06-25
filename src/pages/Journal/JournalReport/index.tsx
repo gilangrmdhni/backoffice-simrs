@@ -95,6 +95,7 @@ const Index = () => {
             responseCallback(response,
                 toastMessage("Success delete Trial Journal.", 'success')
                 , null);
+                setPage(1);
             refetch();
         } catch (err) {
             // Handle error

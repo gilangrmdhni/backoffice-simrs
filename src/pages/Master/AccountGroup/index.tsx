@@ -14,7 +14,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
-import { useDeleteAccountGroupMutation, useGetAccountGroupsQuery } from '@/store/api/accountGroup/accountGroupApiSlice';
+import { useDeleteAccountGroupMutation, useGetAccountGroupsQuery, useExportAccountGroupMutation } from '@/store/api/accountGroup/accountGroupApiSlice';
+import IconDownload from '@/components/Icon/IconDownload';
 
 const Index = () => {
     const dispatch = useDispatch();
@@ -47,6 +48,7 @@ const Index = () => {
     const [deleteAccountGroup, { isError }] = useDeleteAccountGroupMutation();
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<number>(0);
+    const [exportAccountGroup] = useExportAccountGroupMutation();
     const navigate = useNavigate();
 
     const handleDelete = async () => {
@@ -55,9 +57,33 @@ const Index = () => {
             setDeleteId(0);
             setShowDeleteModal(false);
             responseCallback(response, null, null);
+            toastMessage('Delete successful', 'success');
+            setPage(1);
             refetch();
         } catch (err: any) {
             toastMessage(err.message, 'error');
+        }
+    };
+
+
+    const handleExport = async () => {
+        try {
+            const type = 'xlsx';
+            const keyword = search;
+            const orderBy = sortStatus.columnAccessor;
+            const orderType = sortStatus.direction;
+
+            const res = await exportAccountGroup({ type, keyword, orderBy, orderType }).unwrap();
+            const url = window.URL.createObjectURL(res);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `AccountGroups_${new Date().toISOString()}.xlsx`); // Adjust the file name as needed
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+        } catch (error: any) {
+            console.error('Failed to download account groups', error);
+            toastMessage(error.message, 'error');
         }
     };
 
@@ -98,7 +124,18 @@ const Index = () => {
                             />
                         </div>
                     </div>
-                    <div className="ltr:ml-auto">
+                    <div className="ltr:ml-auto flex gap-2">
+                        <div className="grid grid-cols-1 gap-2">
+                            <Tippy content="Download AccountGroup">
+                                <button
+                                    onClick={handleExport}
+                                    type="button"
+                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
+                                >
+                                    <IconDownload />
+                                </button>
+                            </Tippy>
+                        </div>
                         <div className="grid grid-cols-1 gap-2">
                             <Tippy content="Add AccountGroup">
                                 <button

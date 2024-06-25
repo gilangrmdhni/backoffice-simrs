@@ -35,6 +35,14 @@ export const companyApi = apiSlice.injectEndpoints({
         getDetailCompany: builder.query({
             query: (id?: string) => `/Company/${id}`,
         }),
+        exportCompany: builder.mutation({
+            query: ({ type, keyword, orderBy, orderType, status }) => ({
+                url: `Company/export?type=${type}&keyword=${keyword}&orderBy=${orderBy}&orderType=${orderType}&status=${status}`,
+                method: 'GET',
+                responseHandler: (response) => response.blob(),
+            }),
+            transformResponse: (response: Blob) => response,
+        }),
     }),
 });
 
@@ -43,6 +51,7 @@ export const {
     useDeleteCompanyMutation,
     usePostCompanyMutation,
     useUpdateCompanyMutation,
-    useGetDetailCompanyQuery
+    useGetDetailCompanyQuery,
+    useExportCompanyMutation,
 } = companyApi;
 
