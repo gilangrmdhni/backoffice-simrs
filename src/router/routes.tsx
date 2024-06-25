@@ -86,6 +86,7 @@ const DaftarBiayaRutinIndex = lazy(() => import('../pages/Pengeluaran/DaftarBiay
 const DaftarBiayaRutinCreate = lazy(() => import('../pages/Pengeluaran/DaftarBiayaRutin/form'));
 
 const TrialJournalIndex = lazy(() => import('../pages/Journal/TrialJournal'));
+const JournalReportIndex = lazy(() => import('../pages/Journal/JournalReport'));
 
 
 const routes = [
@@ -339,6 +340,11 @@ const routes = [
     {
         path: '/journal/trial-journal',
         element: <TrialJournalIndex />,
+        layout: 'default',
+    },
+    {
+        path: '/journal/journal-report',
+        element: <JournalReportIndex />,
         layout: 'default',
     }
 ];

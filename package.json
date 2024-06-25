@@ -4,7 +4,7 @@
     "version": "0.0.1",
     "type": "module",
     "scripts": {
-        "dev": "TAILWIND_MODE=watch vite --port 80",
+        "dev": "TAILWIND_MODE=watch vite --port 3000",
         "build": "tsc && vite build",
         "preview": "vite preview"
     },
