@@ -7,7 +7,7 @@ import IconMail from '@/components/Icon/IconMail';
 import * as yup from 'yup';
 import { useForm, FieldError,useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { usersType,COAType,OptionType, AccountType, AccountGroupType } from '@/types';
+import { usersType,COAType,OptionType, AccountType, AccountGroupType, journalType } from '@/types';
 import { useCreateDepositMutation,useUpdateDepositMutation } from '@/store/api/bank/deposit/depositApiSlice';
 import { DepositType } from '@/types/depositType';
 import { useGetDetailCOAQuery, usePostCOAMutation, useUpdateCOAMutation,useGetOptionCOAQuery } from '@/store/api/coa/coaApiSlice';
@@ -23,7 +23,9 @@ import { toastMessage } from '@/utils/toastUtils';
 import SelectSearch from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
-
+import { useGetDetailJournalQuery } from '@/store/api/journal/journalApiSlice';
+import { TransactionJournalType,TransactionDetail } from '@/types/transactionJournalType';
+import { BookBankType } from '@/types/bookBankType';
 
 const Form = () => {
     // const user = useSelector((state: any) => state.auth.user);
@@ -49,8 +51,8 @@ const Form = () => {
     const pathSegments = location.pathname.split('/');
     const lastSegment = pathSegments[pathSegments.length - 1];
     const type = pathSegments[2];
-
     const { id } = useParams();
+    const {data: detailDaftarTransfer, refetch: refetchDaftarTransfer} =  id ? useGetDetailJournalQuery<any>(id) : {data:null, refetch: () => {}};
     
     const { data: AccountList, refetch: AccountListRefetch } = useGetOptionCOAQuery<any>({
         orderBy: 'coaCode',
@@ -63,7 +65,7 @@ const Form = () => {
         {
             AccountList?.data?.map((option: any) =>{
                 AccountListOption.push({
-                    value: option.value,
+                    value: option.desc,
                     label: option.label,
                     level: option.level ? option.level : '',
                     desc: option.desc ? option.desc : '',
@@ -83,7 +85,7 @@ const Form = () => {
         {
             AccountToList?.data?.map((option: any) =>{
                 AccountToListOption.push({
-                    value: option.value,
+                    value: option.desc,
                     label: option.label,
                     level: option.level ? option.level : '',
                     desc: option.desc ? option.desc : '',
@@ -96,7 +98,7 @@ const Form = () => {
         AccountListOption = []
         AccountList?.data?.map((option: any) =>{
             AccountListOption.push({
-                value: option.value,
+                value: option.desc,
                 label: option.label,
                 level: option.level ? option.level : '',
                 desc: option.desc ? option.desc : '',
@@ -109,7 +111,7 @@ const Form = () => {
         AccountToListOption = []
         AccountToList?.data?.map((option: any) =>{
             AccountToListOption.push({
-                value: option.value,
+                value: option.desc,
                 label: option.label,
                 level: option.level ? option.level : '',
                 desc: option.desc ? option.desc : '',
@@ -186,7 +188,24 @@ const Form = () => {
         }
         AccountListRefetch();
     }, [dispatch]);
-    
+
+    useEffect(() => {
+        if (id) {
+            refetchDaftarTransfer();
+        }
+    }, [id, refetchDaftarTransfer]);
+
+    useEffect(() => {
+        if (detailDaftarTransfer && 'data' in detailDaftarTransfer) {
+            if (detailDaftarTransfer?.data) {
+                Object.keys(detailDaftarTransfer.data).forEach((key) => {
+                    setValue(key as keyof DepositType, detailDaftarTransfer.data[key]);
+                });
+            }
+        }
+    }, [detailDaftarTransfer, setValue]);
+    // console.log(detailDaftarTransfer?.data?.coaCode)
+    console.log(AccountListOption.find(option => option.value == detailDaftarTransfer?.data?.coaCode))
     return (
         <div>
             <div className="panel mt-6">
@@ -200,7 +219,7 @@ const Form = () => {
                                 <label htmlFor="transactionNo">NO TRANSAKSI</label>
                             </div>
                             <div className="text-white-dark w-full">
-                                <input id="transactionNo" type="text" placeholder="Enter Contoh : BTU-0001" {...register('transactionNo')} className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update'} />
+                                <input id="transactionNo" type="text" placeholder="Enter Contoh : BTU-0001" {...register('transactionNo')} className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update' || type == 'detail'} />
                                 {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                     <IconMail fill={true} />
                                 </span> */}
@@ -210,7 +229,7 @@ const Form = () => {
                         
                        <div className='flex justify-start w-full mb-10'>
                             <div className='label mr-10 w-64'>
-                                <label htmlFor="coaCOde">AKUN</label>
+                                <label htmlFor="coaCode">AKUN</label>
                             </div>
                             <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
                                 <div className='w-full'>
@@ -220,9 +239,10 @@ const Form = () => {
                                         options={AccountListOption} 
                                         onInputChange={(e) => setSearchAccount(e)} 
                                         onChange={(e: any) => setAccount(`${e.desc}`)}
-                                        isDisabled={type == 'update'}
+                                        isDisabled={type == 'update' || type == 'detail'}
                                         className='w-full font-normal'
-                                        
+                                        defaultValue={AccountListOption.find(option => option.value == detailDaftarTransfer?.data?.coaCode)}
+                                        value={AccountListOption.find(option => option.value == detailDaftarTransfer?.data?.coaCode)}
                                     />
                                     <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
                                 </div>
@@ -233,8 +253,10 @@ const Form = () => {
                                         options={AccountListOption} 
                                         onInputChange={(e) => setSearchAccountTo(e)} 
                                         onChange={(e: any) => setAccountTo(`${e.desc}`)}
-                                        isDisabled={type == 'update'}
+                                        isDisabled={type == 'update' || type == 'detail'}
                                         className='w-full font-normal'
+                                        defaultValue={AccountToListOption.find(option => option.value == detailDaftarTransfer?.data?.details[0].coaCode)}
+                                        value={AccountToListOption.find(option => option.value == detailDaftarTransfer?.data?.coaCode)}
 
                                     />
                                     <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
@@ -252,11 +274,14 @@ const Form = () => {
                                         dateFormat: 'Y-m-d H:i',
                                         position: isRtl ? 'auto right' : 'auto left'
                                     }}
-                                    className="form-input font-normal"
+                                    className="form-input font-normal disabled:pointer-events-none disabled:bg-[#eee]"
                                     onChange={(date: Date[]) => {
                                         setValue('transactionDate', date[0].toISOString());
                                     }}
                                     placeholder='Pilih Tanggal Transaksi'
+                                    // isDisabled={type == 'update' || type == 'detail'}
+                                    disabled={type == 'update' || type == 'detail'}
+                                    value={detailDaftarTransfer?.data?.transactionDate}
                                 />
                             </div>
                         </div>        
@@ -265,7 +290,7 @@ const Form = () => {
                                     <label htmlFor="amount">Jumlah (RP)</label>
                                 </div>
                                 <div className="text-white-dark w-full">
-                                    <input id="amount" type="text" placeholder="Enter Contoh : 20000" {...register('amount')} className="form-input w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark font-normal" disabled={type == 'update'} />
+                                    <input id="amount" type="text" placeholder="Enter Contoh : 20000" {...register('amount')} className="form-input w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark font-normal" disabled={type == 'update' || type == 'detail'} />
                                     {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                         <IconMail fill={true} />
                                     </span> */}
@@ -277,8 +302,8 @@ const Form = () => {
                                     <label htmlFor="description">Keterangan</label>
                                 </div>
                                 <div className="text-white-dark w-full">
-                                    {/* <input id="coaName" type="text" placeholder="Enter Contoh : 20000" {...register('coaName')} className="form-input w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update'} /> */}
-                                    <textarea id="ctnTextarea" rows={3} className="form-textarea font-normal" placeholder="Keterangan..." disabled={type == 'update'}></textarea>
+                                    {/* <input id="coaName" type="text" placeholder="Enter Contoh : 20000" {...register('coaName')} className="form-input w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update' || type == 'detail'} /> */}
+                                    <textarea id="ctnTextarea" rows={3} className="form-textarea font-normal disabled:pointer-events-none disabled:bg-[#eee]" placeholder="Keterangan..." disabled={type == 'update' || type == 'detail'}></textarea>
                                     {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
                                         <IconMail fill={true} />
                                     </span> */}
@@ -287,11 +312,19 @@ const Form = () => {
                         </div>
                         <div className="flex w-full justify-end">
                             <button type="button" className=" btn bg-white  w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)] mr-5 hover:bg-purple-300" onClick={()=>navigate('/daftar-transfer')}>
-                                batal
+                                
+                                {type == 'detail' ? 'Kembali' : 'Batal'}
                             </button>
-                            <button type="submit" className=" btn btn-primary  w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
+                            {
+                                type !== 'detail' ?
+                                <button type="submit" className=" btn btn-primary  w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
+                                    {isLoadingPost || isLoadingUpdate ? 'Loading' : id ? 'Update' : 'Save'}
+                                </button>
+                                : ''
+                            }
+                            {/* <button type="submit" className=" btn btn-primary  w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
                                 {isLoadingPost || isLoadingUpdate ? 'Loading' : id ? 'Update' : 'Save'}
-                            </button>
+                            </button> */}
                         </div>
                     </div>
                 </form>

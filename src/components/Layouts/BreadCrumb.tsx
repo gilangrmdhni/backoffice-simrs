@@ -10,13 +10,15 @@ const BreadCrumb = () => {
         "Receivable",
         "General Ledger",
         "create",
-        "update"
+        "update",
+        "detail"
     ];
     const SkyText = [
         "Journal",
         "Master",
         "Receivable",
-        "General Ledger"
+        "General Ledger",
+        "detail"
     ]
     return (
         <div className='w-full h-[100px] bg-[#9C6ACD] flex px-6 items-center justify-between'>

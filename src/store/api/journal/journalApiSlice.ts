@@ -1,4 +1,4 @@
-import { usersType } from '@/types';
+import { journalType, usersType } from '@/types';
 import { apiSlice } from '../apiSlice';
 
 export const journalRefApi = apiSlice.injectEndpoints({
@@ -9,15 +9,15 @@ export const journalRefApi = apiSlice.injectEndpoints({
         deleteJournal: builder.mutation({
             query: (id?: number) => {
                 return {
-                    url: `/Journal/${id}`,
+                    url: `/Transaction/${id}`,
                     method: 'DELETE',
                 };
             },
         }),
         postJournal: builder.mutation({
-            query: (body: usersType) => {
+            query: (body: journalType) => {
                 return {
-                    url: '/Journal',
+                    url: '/Transaction',
                     method: 'POST',
                     body: body,
                 };
@@ -33,7 +33,7 @@ export const journalRefApi = apiSlice.injectEndpoints({
             },
         }),
         getDetailJournal: builder.query({
-            query: (id?: string) => `/Journal/${id}`,
+            query: (id?: string) => `/Transaction/${id}`,
         }),
     }),
 });
