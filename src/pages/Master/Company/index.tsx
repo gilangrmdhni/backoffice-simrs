@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { Fragment, useEffect, useState } from 'react';
 import { setBreadcrumbTitle, setPageTitle, setTitle } from '../../../store/themeConfigSlice';
-import { useDeleteCompanyMutation, useGetCompaniesQuery } from '@/store/api/company/companyApiSlice';
+import { useDeleteCompanyMutation, useGetCompaniesQuery, useExportCompanyMutation } from '@/store/api/company/companyApiSlice';
 import AnimateHeight from 'react-animate-height';
 import IconTrashLines from '@/components/Icon/IconTrashLines';
 import Tippy from '@tippyjs/react';
@@ -15,6 +15,8 @@ import IconPlus from '@/components/Icon/IconPlus';
 import { companyType } from '@/types';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
+import IconDownload from '@/components/Icon/IconDownload';
+
 
 const Index = () => {
     const dispatch = useDispatch();
@@ -32,6 +34,7 @@ const Index = () => {
     const [status, setStatus] = useState<string>('');
     const [showFilter, setShowFilter] = useState<boolean>(false);
     const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'companyId', direction: 'asc' });
+    const [exportCompany] = useExportCompanyMutation();
 
     const {
         data: companyList,
@@ -58,9 +61,32 @@ const Index = () => {
             setDeleteId(0);
             setShowDeleteModal(false);
             responseCallback(response, null, null);
+            setPage(1);
             refetch();
         } catch (err: any) {
             toastMessage(err.message, 'error');
+        }
+    };
+
+    const handleExport = async () => {
+        try {
+            const type = 'xlsx';
+            const keyword = search;
+            const orderBy = sortStatus.columnAccessor;
+            const orderType = sortStatus.direction;
+            const statusValue = status;
+
+            const res = await exportCompany({ type, keyword, orderBy, orderType, status: statusValue }).unwrap();
+            const url = window.URL.createObjectURL(new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Companies_${new Date().toISOString()}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+        } catch (error: any) {
+            console.error('Failed to download companies', error);
+            toastMessage(error.message, 'error');
         }
     };
 
@@ -73,7 +99,7 @@ const Index = () => {
     }, [sortStatus, search, pageSize]);
 
     const colorStatus = (status: string) => {
-        return status === 'Inactive' ? 'primary' : 'success';
+        return status === 'InActive' ? 'primary' : 'success';
     };
 
     return (
@@ -86,11 +112,22 @@ const Index = () => {
                             <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
                                 <option value={''}>All Status</option>
                                 <option value={'Active'}>Active</option>
-                                <option value={'Inactive'}>Inactive</option>
+                                <option value={'InActive'}>InActive</option>
                             </select>
                         </div>
                     </div>
-                    <div className="ltr:ml-auto">
+                    <div className="ltr:ml-auto flex gap-2">
+                        <div className="grid grid-cols-1 gap-2">
+                            <Tippy content="Download Companies">
+                                <button
+                                    onClick={handleExport}
+                                    type="button"
+                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
+                                >
+                                    <IconDownload />
+                                </button>
+                            </Tippy>
+                        </div>
                         <div className="grid grid-cols-1 gap-2">
                             <Tippy content="Add Company">
                                 <button
@@ -112,14 +149,14 @@ const Index = () => {
                                 <select id="ctnSelect1" className="form-select text-black" onChange={(e) => setStatus(e.target.value)}>
                                     <option value={''}>All Status</option>
                                     <option value={'Active'}>Active</option>
-                                    <option value={'Inactive'}>Inactive</option>
+                                    <option value={'InActive'}>InActive</option>
                                 </select>
                                 <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
                                 <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
                                 <select id="ctnSelect1" className="form-select text-black" onChange={(e) => setStatus(e.target.value)}>
                                     <option value={''}>All Status</option>
                                     <option value={'Active'}>Active</option>
-                                    <option value={'Inactive'}>Inactive</option>
+                                    <option value={'InActive'}>InActive</option>
                                 </select>
                             </div>
                         </div>

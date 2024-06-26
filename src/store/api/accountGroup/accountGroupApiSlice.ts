@@ -3,8 +3,8 @@ import { apiSlice } from '../apiSlice';
 export const accountGroupApi = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getAccountGroups: builder.query({
-            query: ({ orderBy = 'accountGroupId', orderType = 'asc', page = 1, pageSize = 10 }) =>
-                `/AccountGroup?orderBy=${orderBy}&orderType=${orderType}&page=${page}&pageSize=${pageSize}`,
+            query: ({ keyword = '', orderBy = 'accountGroupId', orderType = 'asc', page = 1, pageSize = 10 }) =>
+                `/AccountGroup?keyword=${keyword}&orderBy=${orderBy}&orderType=${orderType}&page=${page}&pageSize=${pageSize}`,
         }),
         deleteAccountGroup: builder.mutation({
             query: (id) => ({
@@ -29,9 +29,13 @@ export const accountGroupApi = apiSlice.injectEndpoints({
         getAccountGroupDetail: builder.query({
             query: (id) => `/AccountGroup/${id}`,
         }),
-
-        getOptionAccountGroupDetail: builder.query({
-            query: (params) => `/AccountGroup/option?${new URLSearchParams(params).toString()}`,
+        exportAccountGroup: builder.mutation({
+            query: ({ type, keyword, orderBy, orderType }) => ({
+                url: `AccountGroup/export?type=${type}&keyword=${keyword}&orderBy=${orderBy}&orderType=${orderType}`,
+                method: 'GET',
+                responseHandler: (response) => response.blob(),
+            }),
+            transformResponse: (response: Blob) => response,
         }),
     }),
 });
@@ -42,5 +46,5 @@ export const {
     useCreateAccountGroupMutation,
     useUpdateAccountGroupMutation,
     useGetAccountGroupDetailQuery,
-    useGetOptionAccountGroupDetailQuery,
+    useExportAccountGroupMutation,
 } = accountGroupApi;

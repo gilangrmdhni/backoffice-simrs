@@ -91,13 +91,14 @@ const Index = () => {
     const handleDelete = async (id: number) => {
         try {
             const response = await deleteTransactionJournal(id).unwrap();
-            // Handle success response
             responseCallback(response,
                 toastMessage("Success delete Trial Journal.", 'success')
+                
                 , null);
+                setPage(1);
+                
             refetch();
         } catch (err) {
-            // Handle error
             console.error("Error deleting Transaction Journal:", err);
             toastMessage("Failed to delete Transaction Journal.", 'error');
         }
@@ -182,7 +183,7 @@ const Index = () => {
                                     </p>
 
                                     <span className='text-xs text-slate-500'>
-                                    24 Juni 2024
+                                        24 Juni 2024
                                     </span>
                                 </div>
                                 <div className="mt-2 font-semibold text-2xl">$50,000.00</div>
@@ -193,7 +194,7 @@ const Index = () => {
                                         Day Before
                                     </p>
                                     <span className='text-xs text-slate-500'>
-                                    23 Juni 34
+                                        23 Juni 34
                                     </span>
                                 </div>
                                 <div className="mt-2 font-semibold text-2xl">$15,000.00</div>
@@ -212,7 +213,7 @@ const Index = () => {
                             <div className=''>
                                 <div className="text-primary">
                                     <p className='p-0 m-0'>
-                                        Month Before same date 
+                                        Month Before same date
                                     </p>
                                     <span className='text-xs text-slate-500'>
                                         24 Juni 2024
@@ -271,8 +272,8 @@ const Index = () => {
                                     )
                                 })
                             }
-                            {               
-                                bookBankList?.data?.data.length < 1 ? <tr><td colSpan={7} style={{height:'200px',textAlign:'center'}}>Data Not Found</td></tr> : null
+                            {
+                                bookBankList?.data?.data.length < 1 ? <tr><td colSpan={7} style={{ height: '200px', textAlign: 'center' }}>Data Not Found</td></tr> : null
                             }
                         </tbody>
                     </table>

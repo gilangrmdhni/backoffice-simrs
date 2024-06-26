@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { Fragment } from 'react';
 import { setBreadcrumbTitle, setPageTitle, setTitle } from '../../../store/themeConfigSlice';
-import { useDeleteAccountTypeMutation, useGetAccountTypesQuery } from '@/store/api/accountType/accountTypeApiSlice';
+import { useDeleteAccountTypeMutation, useGetAccountTypesQuery, useExportAccountTypeMutation } from '@/store/api/accountType/accountTypeApiSlice';
 import IconTrashLines from '@/components/Icon/IconTrashLines';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { responseCallback } from '@/utils/responseCallback';
 import { toastMessage } from '@/utils/toastUtils';
+import IconDownload from '@/components/Icon/IconDownload';
 
 const Index = () => {
     const dispatch = useDispatch();
@@ -43,6 +44,7 @@ const Index = () => {
         orderType: sortStatus.direction,
     });
 
+    const [exportAccountType] = useExportAccountTypeMutation();
     const [deleted, { isError }] = useDeleteAccountTypeMutation();
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<number>(0);
@@ -54,9 +56,32 @@ const Index = () => {
             setDeleteId(0);
             setShowDeleteModal(false);
             responseCallback(response, null, null);
+            toastMessage('Delete successful', 'success');
+            setPage(1);
             refetch();
         } catch (err: any) {
             toastMessage(err.message, 'error');
+        }
+    };
+
+    const handleExport = async () => {
+        try {
+            const type = 'xlsx';
+            const keyword = search;
+            const orderBy = sortStatus.columnAccessor;
+            const orderType = sortStatus.direction;
+
+            const res = await exportAccountType({ type, keyword, orderBy, orderType }).unwrap();
+            const url = window.URL.createObjectURL(res);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `AccountTypes_${new Date().toISOString()}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+        } catch (error: any) {
+            console.error('Failed to download account types', error);
+            toastMessage(error.message, 'error');
         }
     };
 
@@ -87,7 +112,18 @@ const Index = () => {
                             />
                         </div>
                     </div>
-                    <div className="ltr:ml-auto">
+                    <div className="ltr:ml-auto flex gap-2">
+                        <div className="grid grid-cols-1 gap-2">
+                            <Tippy content="Download AccountType">
+                                <button
+                                    onClick={handleExport}
+                                    type="button"
+                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
+                                >
+                                    <IconDownload />
+                                </button>
+                            </Tippy>
+                        </div>
                         <div className="grid grid-cols-1 gap-2">
                             <Tippy content="Add AccountType">
                                 <button

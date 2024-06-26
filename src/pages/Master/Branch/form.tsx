@@ -177,11 +177,11 @@ const BranchForm = () => {
                             <div className="flex space-x-4">
                                 <label className="flex items-center">
                                     <input type="radio" value="Active" {...register('status')} className="form-radio" />
-                                    <span className="ml-2 text-white-dark">Active</span>
+                                    <span className="ml-2 text-black">Active</span>
                                 </label>
                                 <label className="flex items-center">
-                                    <input type="radio" value="Inactive" {...register('status')} className="form-radio" />
-                                    <span className="ml-2 text-white-dark">Inactive</span>
+                                    <input type="radio" value="InActive" {...register('status')} className="form-radio" />
+                                    <span className="ml-2 text-black">InActive</span>
                                 </label>
                             </div>
                             <span className="text-danger text-xs">{(errors.status as FieldError)?.message}</span>

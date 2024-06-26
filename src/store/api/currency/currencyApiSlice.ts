@@ -38,6 +38,14 @@ export const currencyApi = apiSlice.injectEndpoints({
         getOptionCurrency: builder.query({
             query: (params) => `/Currency/option?${new URLSearchParams(params).toString()}`,
         }),
+        exportCurrency: builder.mutation({
+            query: ({ type, keyword, orderBy, orderType }) => ({
+                url: `Currency/export?type=${type}&keyword=${keyword}&orderBy=${orderBy}&orderType=${orderType}`,
+                method: 'GET',
+                responseHandler: (response) => response.blob(),
+            }),
+            transformResponse: (response: Blob) => response,
+        }),
     }),
 });
 
@@ -47,5 +55,6 @@ export const {
     usePostCurrencyMutation,
     useUpdateCurrencyMutation,
     useGetDetailCurrencyQuery,
-    useGetOptionCurrencyQuery
+    useGetOptionCurrencyQuery,
+    useExportCurrencyMutation,
 } = currencyApi;
