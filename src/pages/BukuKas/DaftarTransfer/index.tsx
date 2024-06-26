@@ -20,6 +20,7 @@ import { TransactionJournalType,TransactionDetail } from '@/types/transactionJou
 import { addDays } from 'date-fns';
 import SelectSearch from 'react-select';
 import DateRangePicker from '@/components/DateRangePicker';
+import IconEye from '@/components/Icon/IconEye';
 
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
@@ -203,6 +204,19 @@ const DaftarTransferIndex = () => {
                                 }
                             },
                             { accessor: 'amount', title: 'JUMLAH (RP)', sortable: true },
+                            {
+                                accessor:'',
+                                title:'Action',
+                                render : (row: TransactionJournalType) => {
+                                    return (
+                                        <Tippy content="Details">
+                                                <button type="button" onClick={() => navigate(`/daftar-transfer/detail/${row.transactionId}`)} className="">
+                                                    <IconEye className="ltr:mr-2 rtl:ml-2" />
+                                                </button>
+                                        </Tippy>
+                                    )
+                                }
+                            }
                         ]}
                         totalRecords={bookBankList?.data?.totalData}
                         recordsPerPage={pageSize}

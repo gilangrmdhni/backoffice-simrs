@@ -66,8 +66,10 @@ const GeneralLedgerSummaryIndex = lazy(() => import('../pages/GeneralLedger/Summ
 const DaftarBukuKasIndex = lazy(() => import('../pages/BukuKas/DaftarBukuKas'));
 const DaftarBukuKasCreate = lazy(() => import('../pages/BukuKas/DaftarBukuKas/form'));
 const DaftarBukuKasDetail = lazy(() => import('../pages/BukuKas/DaftarBukuKas/detail'));
+
 const DaftarTransferIndex = lazy(() => import('../pages/BukuKas/DaftarTransfer'));
 const DaftarTransferCreate = lazy(() => import('../pages/BukuKas/DaftarTransfer/form'));
+const DaftarTransferDetail = lazy(() => import('../pages/BukuKas/DaftarTransfer/form'));
 
 // Penerimaan
 const DaftarPenerimaanIndex = lazy(() => import('../pages/Penerimaan/DaftarPenerimaan'));
@@ -295,6 +297,11 @@ const routes = [
     {
         path: '/daftar-transfer/create',
         element: <DaftarTransferCreate />,
+        layout: 'default',
+    },
+    {
+        path: '/daftar-transfer/detail/:id',
+        element: <DaftarTransferDetail />,
         layout: 'default',
     },
     {
