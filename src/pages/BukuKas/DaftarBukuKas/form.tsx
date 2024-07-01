@@ -188,9 +188,6 @@ const Form = () => {
     return (
         <div>
             <div className="panel mt-6">
-                <h1 className="font-semibold text-2xl text-black mb-10">
-                    Transfer Uang
-                </h1>
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(submitForm)}>
 
                     <div className='flex justify-start w-full mb-10'>

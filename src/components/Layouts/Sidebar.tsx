@@ -139,7 +139,7 @@ const Sidebar = () => {
                                                 fill={`${currentMenu === "master" ? "white" : 'black'}`}
                                             />
                                         </svg>
-                                        <span className={`ltr:pl-3 rtl:pr-3 ${currentMenu === 'master' ? 'text-white' : 'text-black'}`}>{t('Master')}</span>
+                                        <span className={`ltr:pl-3 rtl:pr-3 ${currentMenu === 'master' ? 'text-white' : 'text-black'}`}>{t('Master Data')}</span>
                                     </div>
                                     <div className={currentMenu !== 'master' ? 'rtl:rotate-90 -rotate-90' : ''}>
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

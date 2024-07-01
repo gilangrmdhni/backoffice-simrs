@@ -24,7 +24,8 @@ import IconEye from '@/components/Icon/IconEye';
 
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
-
+import { FormatNumber } from '@/utils/formatNumber';
+import { FormatDate } from '@/utils/formatDate';
 const DaftarTransferIndex = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -126,24 +127,6 @@ const DaftarTransferIndex = () => {
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
                     <div className="rtl:ml-auto rtl:mr-auto">
-                        <div className="grid grid-cols-3 gap-2">
-                            <span className=' text-3xl '>Daftar Transfer</span>
-                        </div>
-                    </div>
-                    <div className="ltr:ml-auto">
-                        <div className="flex items-center gap-1">
-                            <button
-                                onClick={() => navigate(`/daftar-transfer/create`)}
-                                type="button"
-                                className="btn btn-primary"
-                            >
-                                + Tambah Daftar Transfer
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
-                    <div className="rtl:ml-auto rtl:mr-auto">
                         <div className="grid grid-cols-4 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
                             <Flatpickr
@@ -166,20 +149,17 @@ const DaftarTransferIndex = () => {
                             />
                         </div>
                     </div>
-                </div>
-                <div>
-                    <AnimateHeight duration={300} height={showFilter ? 'auto' : 0}>
-                        <div className="space-y-2 p-4 text-white-dark text-[13px] border-t border-[#d3d3d3] dark:border-[#1b2e4b]">
-                            <div className="grid grid-cols-8 gap-2">
-                                <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                                <select id="ctnSelect1" className="form-select text-white-dark" onChange={(e) => setStatus(e.target.value)}>
-                                    <option value={''}>All Status</option>
-                                    <option value={'Pending'}>Pending</option>
-                                    <option value={'Completed'}>Completed</option>
-                                </select>
-                            </div>
+                    <div className="ltr:ml-auto">
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => navigate(`/daftar-transfer/create`)}
+                                type="button"
+                                className="btn btn-primary"
+                            >
+                                + Tambah Daftar Transfer
+                            </button>
                         </div>
-                    </AnimateHeight>
+                    </div>
                 </div>
                 <div className="datatables">
                     <DataTable
@@ -189,11 +169,11 @@ const DaftarTransferIndex = () => {
                         columns={[
                             { accessor: 'transactionNo', title: 'NO TRANSAKSI', sortable: true, textAlignment: 'center' },
                             {
-                                accessor: 'createdDate',
+                                accessor: '',
                                 title: 'TANGGAL TRANSAKSI',
                                 sortable: true,
                                 render: (row: TransactionJournalType, index: number) => (
-                                    <span>{new Date(row.createdDate).toLocaleDateString()}</span>
+                                    <span>{FormatDate(row.transactionDate)}</span>
                                 )
                             },
                             { accessor: 'coaName', title: 'DARI (PENGIRIM)', sortable: true },
@@ -203,7 +183,7 @@ const DaftarTransferIndex = () => {
                                     return detail ? <span key={index}>{detail.coaName}</span> : null;
                                 }
                             },
-                            { accessor: 'amount', title: 'JUMLAH (RP)', sortable: true },
+                            { accessor: '', title: 'JUMLAH (RP)', sortable: true, render:(row: TransactionJournalType) => FormatNumber(row.amount) },
                             {
                                 accessor:'',
                                 title:'Action',

@@ -123,24 +123,6 @@ const DaftarPenerimaanIndex = () => {
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
                     <div className="rtl:ml-auto rtl:mr-auto">
-                        <div className="grid grid-cols-3 gap-2">
-                            <span className=' text-3xl '>Daftar Penerimaan</span>
-                        </div>
-                    </div>
-                    <div className="ltr:ml-auto">
-                        <div className="flex items-center gap-1">
-                            <button
-                                onClick={() => navigate(`/daftar-penerimaan/create`)}
-                                type="button"
-                                className="btn btn-primary"
-                            >
-                                + Tambah Daftar penerimaan
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
-                    <div className="rtl:ml-auto rtl:mr-auto">
                         <div className="grid grid-cols-4 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
                             <Flatpickr
@@ -161,6 +143,17 @@ const DaftarPenerimaanIndex = () => {
                                     }
                                 }}
                             />
+                        </div>
+                    </div>
+                    <div className="ltr:ml-auto">
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => navigate(`/daftar-penerimaan/create`)}
+                                type="button"
+                                className="btn btn-primary"
+                            >
+                                + Tambah Daftar penerimaan
+                            </button>
                         </div>
                     </div>
                 </div>

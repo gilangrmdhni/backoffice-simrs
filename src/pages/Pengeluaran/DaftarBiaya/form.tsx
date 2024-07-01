@@ -15,7 +15,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
-
+import { FormatNumber } from '@/utils/formatNumber';
 const DaftarBiayaForm = () => {
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const dispatch = useDispatch();
@@ -402,7 +402,7 @@ const DaftarBiayaForm = () => {
                     </div>
                     <div className="flex justify-start space-x-6">
                         <span className='text-md'>Total :</span>
-                        <span className='text-md'> {total.toLocaleString()}</span>
+                        <span className='text-md'> {FormatNumber(total)}</span>
                     </div>
 
                     <div className="mt-6 flex justify-end space-x-4">

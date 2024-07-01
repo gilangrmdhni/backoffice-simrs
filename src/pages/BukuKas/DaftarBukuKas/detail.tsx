@@ -30,6 +30,9 @@ import { useTranslation } from 'react-i18next';
 import { t } from 'i18next';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
+import { FormatDate } from '@/utils/formatDate';
+import { FormatNumber } from '@/utils/formatNumber';
+
 const Index = () => {
     const dispatch = useDispatch();
     const { coa } = useParams();
@@ -109,11 +112,6 @@ const Index = () => {
 
     const { t } = useTranslation();
 
-    const formatDate = (date: Date): string => {
-        const options: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric' };
-        return date.toLocaleDateString('en-GB', options);
-    };
-
     useEffect(() => {
         refetch()
     },[startDate,endDate]);
@@ -128,20 +126,19 @@ const Index = () => {
                 <div className='my-3 mx-3'>
                     <div className="flex justify-between px-5 panel bg-gradient-to-r from-violet-600 via-purple-500 to-violet-600">
                         <div>
-                            <h2 className='text-xl text-white font-bold'>{t('Nama Akun')}</h2>
-                            <h2 className='text-base text-white font-bold'>{t(data?.data?.coaName)}</h2>
+                            <h2 className='text-xl text-white font-bold'>{t(data?.data?.coaName)}</h2>
                             <div className='flex flex-start'>
-                                <p className='text-sm text-white'>{t('Periode: ')}</p>
+                                <p className='text-sm text-white'>{t('Periode')} &nbsp; : &nbsp;</p>
                                 <span className='flex'>
-                                    <p className='text-sm text-white font-bold' >{formatDateInput(startDate)}</p>
-                                    <p className='text-sm text-white font-bold' >-</p>
-                                    <p className='text-sm text-white font-bold' >{formatDateInput(endDate)}</p>
+                                    <p className='text-sm text-white font-bold' >{FormatDate(startDate)}</p>
+                                    <p className='text-sm text-white font-bold' >&nbsp; - &nbsp;</p>
+                                    <p className='text-sm text-white font-bold' >{FormatDate(endDate)}</p>
                                 </span>
                             </div>
                         </div>
                         <div className='content-center'>
                             <h2 className='text-xl text-white font-bold'>{t('Saldo Akhir')}</h2>
-                            <h2 className='text-2xl text-white font-bold'>{t(`${data?.data?.currencyName != null ? data?.data?.currencyName : 'Rp. '}  ${data?.data?.balance.toLocaleString('en-US')}`)}</h2>
+                            <h2 className='text-2xl text-white font-bold'>{t(`${data?.data?.currencyName != null ? data?.data?.currencyName : 'Rp. '}  ${FormatNumber(data?.data?.balance)}`)}</h2>
                         </div>
                     </div>
                     <div className='panel'>
@@ -183,7 +180,7 @@ const Index = () => {
                                         sortable: true,
                                         render: (row: Journal, index: number) => (
                                             <>
-                                                <span>{row?.createdDate ? formatDateString(row.createdDate) : '-'}</span>
+                                                <span>{row?.createdDate ? FormatDate(row?.createdDate) : '-'}</span>
                                             </>
                                         )
                                     },
@@ -208,27 +205,27 @@ const Index = () => {
                                         )
                                     },
                                     {
-                                        accessor: 'coaDebit',
+                                        accessor: '',
                                         title: 'Debit',
                                         sortable: true,
                                         render: (row: Journal, index: number) =>(
                                             <>
                                                 <span>
                                                     {row.debitAmount != null && row.debitAmount != undefined ?
-                                                        row.debitAmount.toLocaleString('en-US') : 0}
+                                                        FormatNumber(row.debitAmount) : 0}
                                                 </span>
                                             </>
                                         )
                                     },
                                     {
-                                        accessor: 'coaCredit',
+                                        accessor: '',
                                         title: 'Credit',
                                         sortable: true,
                                         render: (row: Journal, index: number) =>(
                                             <>
                                                 <span>
                                                     {row.creditAmount != null && row.creditAmount != undefined ?
-                                                        row.creditAmount.toLocaleString('en-US') : 0}
+                                                        FormatNumber(row.creditAmount) : 0}
                                                 </span>
                                             </>
                                         )
@@ -241,7 +238,7 @@ const Index = () => {
                                             <>
                                                 <span>
                                                     {row.balance != null && row.balance != undefined ?
-                                                        row.balance.toLocaleString('en-US') : 0}
+                                                        FormatNumber(row.balance) : 0}
                                                 </span>
                                             </>
                                         )

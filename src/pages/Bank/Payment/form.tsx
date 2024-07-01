@@ -22,7 +22,7 @@ import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
-
+import { FormatNumber } from '@/utils/formatNumber';
 interface BankOption {
     desc: string;
     label: string;
@@ -374,11 +374,11 @@ const PaymentForm = () => {
                         <div className="mt-6 grid grid-cols-2 gap-4">
                             <div className="flex justify-end">
                                 <p className='font-bold text-xl'>Total :</p>
-                                <p className='font-bold text-xl'>{total.toLocaleString()}</p>
+                                <p className='font-bold text-xl'>{FormatNumber(total)}</p>
                             </div>
                             <div className="flex justify-end">
                                 <p className='font-bold text-xl'>Difference :</p>
-                                <p className='font-bold text-xl'>{difference.toLocaleString()}</p>
+                                <p className='font-bold text-xl'>{FormatNumber(difference)}</p>
                             </div>
                         </div>
                     </div>

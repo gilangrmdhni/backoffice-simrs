@@ -22,6 +22,8 @@ import { addDays } from 'date-fns';
 
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
+import { FormatNumber } from '@/utils/formatNumber';
+import { FormatDate } from '@/utils/formatDate';
 
 const DaftarPengeluaranIndex = () => {
     const dispatch = useDispatch();
@@ -123,24 +125,6 @@ const DaftarPengeluaranIndex = () => {
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
                     <div className="rtl:ml-auto rtl:mr-auto">
-                        <div className="grid grid-cols-3 gap-2">
-                            <span className=' text-3xl '>Daftar Pengeluaran</span>
-                        </div>
-                    </div>
-                    <div className="ltr:ml-auto">
-                        <div className="flex items-center gap-1">
-                            <button
-                                onClick={() => navigate(`/daftar-pengeluaran/create`)}
-                                type="button"
-                                className="btn btn-primary"
-                            >
-                                + Tambah Daftar Pengeluaran
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5">
-                    <div className="rtl:ml-auto rtl:mr-auto">
                         <div className="grid grid-cols-4 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
                             <Flatpickr
@@ -163,6 +147,17 @@ const DaftarPengeluaranIndex = () => {
                             />
                         </div>
                     </div>
+                    <div className="ltr:ml-auto">
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => navigate(`/daftar-pengeluaran/create`)}
+                                type="button"
+                                className="btn btn-primary"
+                            >
+                                + Tambah Daftar Pengeluaran
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="datatables">
@@ -172,9 +167,9 @@ const DaftarPengeluaranIndex = () => {
                         records={bookBankList?.data?.data}
                         columns={[
                             { accessor: 'transactionNo', title: 'No Transaksi', sortable: true },
-                            { accessor: 'transactionDate', title: 'Tanggal Transaksi', sortable: true, render: (row: BookBankType) => (row.transactionDate ? new Date(row.transactionDate).toLocaleDateString() : '') },
+                            { accessor: '', title: 'Tanggal Transaksi', sortable: true, render: (row: BookBankType) => (row.transactionDate ? FormatDate(row.transactionDate) : '') },
                             { accessor: 'coaName', title: 'Nama Akun', sortable: true },
-                            { accessor: 'amount', title: 'Amount', sortable: true },
+                            { accessor: '', title: 'Amount', sortable: true,render : (row: BookBankType) => FormatNumber(row.amount) },
                             { accessor: 'description', title: 'Keterangan', sortable: true },
                         ]}
                         totalRecords={bookBankList?.data?.totalData}

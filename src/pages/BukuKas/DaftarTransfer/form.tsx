@@ -5,13 +5,13 @@ import { setPageTitle, setBreadcrumbTitle, setTitle } from '../../../store/theme
 import { useGetEmployeeQuery } from '@/store/api/employee/employeeApiSlice';
 import IconMail from '@/components/Icon/IconMail';
 import * as yup from 'yup';
-import { useForm, FieldError,useFieldArray } from 'react-hook-form';
+import { useForm, FieldError, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { usersType,COAType,OptionType, AccountType, AccountGroupType, journalType } from '@/types';
-import { useCreateDepositMutation,useUpdateDepositMutation } from '@/store/api/bank/deposit/depositApiSlice';
+import { usersType, COAType, OptionType, AccountType, AccountGroupType, journalType } from '@/types';
+import { useCreateDepositMutation, useUpdateDepositMutation } from '@/store/api/bank/deposit/depositApiSlice';
 import { DepositType } from '@/types/depositType';
-import { useGetDetailCOAQuery, usePostCOAMutation, useUpdateCOAMutation,useGetOptionCOAQuery } from '@/store/api/coa/coaApiSlice';
-import { useGetAccountTypesQuery,useGetOptionAccountTypeOptionQuery } from '@/store/api/accountType/accountTypeApiSlice';
+import { useGetDetailCOAQuery, usePostCOAMutation, useUpdateCOAMutation, useGetOptionCOAQuery } from '@/store/api/coa/coaApiSlice';
+import { useGetAccountTypesQuery, useGetOptionAccountTypeOptionQuery } from '@/store/api/accountType/accountTypeApiSlice';
 import { useGetAccountGroupsQuery, useGetOptionAccountGroupDetailQuery } from '@/store/api/accountGroup/accountGroupApiSlice';
 import { useGetOptionBranchQuery } from '@/store/api/branch/branchApiSlice';
 import { useGetOptionCurrencyQuery } from '@/store/api/currency/currencyApiSlice';
@@ -24,113 +24,66 @@ import SelectSearch from 'react-select';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import { useGetDetailJournalQuery } from '@/store/api/journal/journalApiSlice';
-import { TransactionJournalType,TransactionDetail } from '@/types/transactionJournalType';
+import { TransactionJournalType, TransactionDetail } from '@/types/transactionJournalType';
 import { BookBankType } from '@/types/bookBankType';
 
 const Form = () => {
-    // const user = useSelector((state: any) => state.auth.user);
-    const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
-    const accountTypeRef = useRef<HTMLSelectElement>(null);
-    const accountGroupRef = useRef<HTMLSelectElement>(null);
-    const parentRef = useRef<HTMLSelectElement>(null);
-    const currencyRef = useRef<HTMLSelectElement>(null);
-    const [account,setAccount] = useState<string>('');
-    const [accountTo,setAccountTo] = useState<string>('');
-    const [desc,setDesc] = useState<string>('');
-    const [transactionDate,setTransactionDate] = useState<string>('');
-    const dateNow = new Date
-    const [isTanggal,setIsTanggal] = useState<any>(dateNow)
-    const [isTime,setIsTime] = useState<any>(dateNow)
-    const [searchAccount,setSearchAccount] = useState<string>('');
-    const [searchAccountTo,setSearchAccountTo] = useState<string>('');
-    const [post, { isLoading: isLoadingPost, error: isErrorPost }] = useCreateDepositMutation();
-    const [update, { isLoading: isLoadingUpdate, error: isErrorUpdate }] = useUpdateDepositMutation();
     const dispatch = useDispatch();
     const location = useLocation();
     const navigate = useNavigate();
+    const { id } = useParams();
     const pathSegments = location.pathname.split('/');
     const lastSegment = pathSegments[pathSegments.length - 1];
     const type = pathSegments[2];
-    const { id } = useParams();
-    const {data: detailDaftarTransfer, refetch: refetchDaftarTransfer} =  id ? useGetDetailJournalQuery<any>(id) : {data:null, refetch: () => {}};
-    
+
+    const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl';
+    const [account, setAccount] = useState<string>('');
+    const [accountTo, setAccountTo] = useState<string>('');
+    const [transactionDate, setTransactionDate] = useState<string>('');
+    const [searchAccount, setSearchAccount] = useState<string>('');
+    const [searchAccountTo, setSearchAccountTo] = useState<string>('');
+
+    const [post, { isLoading: isLoadingPost }] = useCreateDepositMutation();
+    const [update, { isLoading: isLoadingUpdate }] = useUpdateDepositMutation();
+
+    const { data: detailDaftarTransfer, refetch: refetchDaftarTransfer } = id ? useGetDetailJournalQuery<any>(id) : { data: null, refetch: () => {} };
     const { data: AccountList, refetch: AccountListRefetch } = useGetOptionCOAQuery<any>({
         orderBy: 'coaCode',
         orderType: 'asc',
-        pageSize:20,
-        status : 'Active',
+        pageSize: 20,
+        status: 'Active',
         keyword: searchAccount,
     });
-    let AccountListOption: any[] = []
-        {
-            AccountList?.data?.map((option: any) =>{
-                AccountListOption.push({
-                    value: option.desc,
-                    label: option.label,
-                    level: option.level ? option.level : '',
-                    desc: option.desc ? option.desc : '',
-                })
-            })
-        }
-    
     const { data: AccountToList, refetch: AccountToListRefetch } = useGetOptionCOAQuery<any>({
         orderBy: 'coaCode',
         orderType: 'asc',
-        pageSize:20,
-        status : 'Active',
+        pageSize: 20,
+        status: 'Active',
         keyword: searchAccountTo,
     });
 
-    let AccountToListOption: any[]= []
-        {
-            AccountToList?.data?.map((option: any) =>{
-                AccountToListOption.push({
-                    value: option.desc,
-                    label: option.label,
-                    level: option.level ? option.level : '',
-                    desc: option.desc ? option.desc : '',
-                })
-            })
-        }
+    const AccountListOption = AccountList?.data?.map((option: any) => ({
+        value: option.desc,
+        label: option.label,
+        level: option.level || '',
+        desc: option.desc || '',
+    })) || [];
 
-    useEffect(() => {
-        AccountListRefetch();
-        AccountListOption = []
-        AccountList?.data?.map((option: any) =>{
-            AccountListOption.push({
-                value: option.desc,
-                label: option.label,
-                level: option.level ? option.level : '',
-                desc: option.desc ? option.desc : '',
-            })
-        })
-    },[searchAccount]);
-
-    useEffect(() => {
-        AccountToListRefetch();
-        AccountToListOption = []
-        AccountToList?.data?.map((option: any) =>{
-            AccountToListOption.push({
-                value: option.desc,
-                label: option.label,
-                level: option.level ? option.level : '',
-                desc: option.desc ? option.desc : '',
-            })
-        })
-        
-    },[searchAccountTo]);
-
+    const AccountToListOption = AccountToList?.data?.map((option: any) => ({
+        value: option.desc,
+        label: option.label,
+        level: option.level || '',
+        desc: option.desc || '',
+    })) || [];
 
     const schema = yup.object({
-        transactionNo: yup.string().required('Transaction No is Required'),
         coaCode: yup.string().required('Account is Required'),
         transactionDate: yup.date().required('Transaction Date is Required'),
         description: yup.string().required('Description is Required'),
         amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
         details: yup.array().of(
             yup.object().shape({
-                // description: yup.string().required('Memo is Required'),
-                amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
+                coaCode: yup.string().required('Account is Required'),
             })
         ).required().min(1, 'At least one detail entry is required'),
     }).required();
@@ -149,28 +102,24 @@ const Form = () => {
             details: [{ coaCode: '', description: '', amount: 0, isPremier: false }]
         }
     });
+
     const { fields, append, remove } = useFieldArray({
         control,
         name: 'details',
     });
 
     const submitForm = async (formData: DepositType) => {
-        console.log(formData)
         try {
-            let response: any;
             const data: DepositType = {
-                ...formData,
-                coaCode : account,
-                details:[{ coaCode: accountTo,amount: formData.amount,description: formData.description}]
-            }
-            console.log(data)
-            // if (id) {
-            //     response = await update(data);
-            // } else {
-                response = await post(data);
-            // }
+                coaCode: account,
+                description: formData.description,
+                amount: formData.amount,
+                transactionDate: transactionDate,
+                details: [{ coaCode: accountTo, amount: formData.amount, description: formData.description }]
+            };
+            const response = await post(data);
             responseCallback(response, (data: any) => {
-                navigate('/daftar-transfer')
+                navigate('/daftar-transfer');
             }, null);
         } catch (err: any) {
             toastMessage(err.message, 'error');
@@ -181,10 +130,9 @@ const Form = () => {
         dispatch(setPageTitle('Daftar Transfer'));
         dispatch(setTitle('Daftar Transfer'));
         if(type == 'create'){
-            dispatch(setBreadcrumbTitle(['Dashboard', 'Buku Kas', 'Daftar Transfer',type]));
-
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Buku Kas', 'Daftar Transfer', type]));
         }else{
-            dispatch(setBreadcrumbTitle(['Dashboard', 'Buku Kas', 'Daftar Transfer',type,lastSegment]));
+            dispatch(setBreadcrumbTitle(['Dashboard', 'Buku Kas', 'Daftar Transfer', type, lastSegment]));
         }
         AccountListRefetch();
     }, [dispatch]);
@@ -196,68 +144,57 @@ const Form = () => {
     }, [id, refetchDaftarTransfer]);
 
     useEffect(() => {
-        if (detailDaftarTransfer && 'data' in detailDaftarTransfer) {
-            if (detailDaftarTransfer?.data) {
-                Object.keys(detailDaftarTransfer.data).forEach((key) => {
-                    setValue(key as keyof DepositType, detailDaftarTransfer.data[key]);
-                });
-            }
+        if (detailDaftarTransfer?.data) {
+            Object.keys(detailDaftarTransfer.data).forEach((key) => {
+                setValue(key as keyof DepositType, detailDaftarTransfer.data[key]);
+            });
         }
     }, [detailDaftarTransfer, setValue]);
-    // console.log(detailDaftarTransfer?.data?.coaCode)
-    console.log(AccountListOption.find(option => option.value == detailDaftarTransfer?.data?.coaCode))
+
     return (
         <div>
             <div className="panel mt-6">
-                <h1 className="font-semibold text-2xl text-black mb-10">
-                    Transfer Uang
-                </h1>
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(submitForm)}>
-                    <div className="grid md:grid-cols-1 w-full ">
+                    <div className="grid md:grid-cols-1 w-full">
                         <div className='flex justify-start w-full mb-10'>
                             <div className='label mr-10 w-64'>
                                 <label htmlFor="transactionNo">NO TRANSAKSI</label>
                             </div>
                             <div className="text-white-dark w-full">
-                                <input id="transactionNo" type="text" placeholder="Enter Contoh : BTU-0001" {...register('transactionNo')} className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update' || type == 'detail'} />
-                                {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                                    <IconMail fill={true} />
-                                </span> */}
+                                <input id="transactionNo" type="text" placeholder="Enter Contoh : BTU-0001" {...register('transactionNo')} className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type === 'update' || type === 'detail'} />
                                 <span className="text-danger text-xs">{(errors.transactionNo as FieldError)?.message}</span>
                             </div>
                         </div>
-                        
-                       <div className='flex justify-start w-full mb-10'>
+                        <div className='flex justify-start w-full mb-10'>
                             <div className='label mr-10 w-64'>
                                 <label htmlFor="coaCode">AKUN</label>
                             </div>
                             <div className="text-white-dark w-full grid md:grid-cols-2 gap-4">
                                 <div className='w-full'>
                                     <label htmlFor="coaCode">Akun Asal</label>
-                                    <SelectSearch 
+                                    <SelectSearch
                                         placeholder="Pilih"
-                                        options={AccountListOption} 
-                                        onInputChange={(e) => setSearchAccount(e)} 
-                                        onChange={(e: any) => setAccount(`${e.desc}`)}
-                                        isDisabled={type == 'update' || type == 'detail'}
+                                        options={AccountListOption}
+                                        onInputChange={(e) => setSearchAccount(e)}
+                                        onChange={(e: any) => { setAccount(e.desc); setValue('coaCode', e.desc); }}
+                                        isDisabled={type === 'update' || type === 'detail'}
                                         className='w-full font-normal'
-                                        defaultValue={AccountListOption.find(option => option.value == detailDaftarTransfer?.data?.coaCode)}
-                                        value={AccountListOption.find(option => option.value == detailDaftarTransfer?.data?.coaCode)}
+                                        defaultValue={AccountListOption.find((option: any) => option.value === detailDaftarTransfer?.data?.coaCode)}
+                                        value={AccountListOption.find((option: any) => option.value === detailDaftarTransfer?.data?.coaCode)}
                                     />
                                     <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
                                 </div>
                                 <div className='w-full'>
                                     <label htmlFor="Akun">Akun Tujuan</label>
-                                    <SelectSearch 
+                                    <SelectSearch
                                         placeholder="Pilih"
-                                        options={AccountListOption} 
-                                        onInputChange={(e) => setSearchAccountTo(e)} 
-                                        onChange={(e: any) => setAccountTo(`${e.desc}`)}
-                                        isDisabled={type == 'update' || type == 'detail'}
+                                        options={AccountToListOption}
+                                        onInputChange={(e) => setSearchAccountTo(e)}
+                                        onChange={(e: any) => { setAccountTo(e.desc); setValue('details.0.coaCode', e.desc); }}
+                                        isDisabled={type === 'update' || type === 'detail'}
                                         className='w-full font-normal'
-                                        defaultValue={AccountToListOption.find(option => option.value == detailDaftarTransfer?.data?.details[0].coaCode)}
-                                        value={AccountToListOption.find(option => option.value == detailDaftarTransfer?.data?.coaCode)}
-
+                                        defaultValue={AccountToListOption.find((option: any) => option.value === detailDaftarTransfer?.data?.details[0].coaCode)}
+                                        value={AccountToListOption.find((option: any) => option.value === detailDaftarTransfer?.data?.details[0].coaCode)}
                                     />
                                     <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
                                 </div>
@@ -279,52 +216,39 @@ const Form = () => {
                                         setValue('transactionDate', date[0].toISOString());
                                     }}
                                     placeholder='Pilih Tanggal Transaksi'
-                                    // isDisabled={type == 'update' || type == 'detail'}
-                                    disabled={type == 'update' || type == 'detail'}
+                                    disabled={type === 'update' || type === 'detail'}
                                     value={detailDaftarTransfer?.data?.transactionDate}
                                 />
+                                <span className="text-danger text-xs">{(errors.transactionDate as FieldError) ? "Transaction Date is required" : ''}</span>
                             </div>
-                        </div>        
-                        <div className='flex justify-start w-full mb-10'>
-                                <div className='label mr-10 w-64'>
-                                    <label htmlFor="amount">Jumlah (RP)</label>
-                                </div>
-                                <div className="text-white-dark w-full">
-                                    <input id="amount" type="text" placeholder="Enter Contoh : 20000" {...register('amount')} className="form-input w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark font-normal" disabled={type == 'update' || type == 'detail'} />
-                                    {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                                        <IconMail fill={true} />
-                                    </span> */}
-                                    <span className="text-danger text-xs">{(errors.amount as FieldError) ? "Jumlah is required" : ''}</span>
-                                </div>
                         </div>
                         <div className='flex justify-start w-full mb-10'>
-                                <div className='label mr-10 w-64'>
-                                    <label htmlFor="description">Keterangan</label>
-                                </div>
-                                <div className="text-white-dark w-full">
-                                    {/* <input id="coaName" type="text" placeholder="Enter Contoh : 20000" {...register('coaName')} className="form-input w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark" disabled={type == 'update' || type == 'detail'} /> */}
-                                    <textarea id="ctnTextarea" rows={3} className="form-textarea font-normal disabled:pointer-events-none disabled:bg-[#eee]" placeholder="Keterangan..." disabled={type == 'update' || type == 'detail'}></textarea>
-                                    {/* <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                                        <IconMail fill={true} />
-                                    </span> */}
-                                    <span className="text-danger text-xs">{(errors.description as FieldError)?.message}</span>
-                                </div>
+                            <div className='label mr-10 w-64'>
+                                <label htmlFor="amount">Jumlah (RP)</label>
+                            </div>
+                            <div className="text-white-dark w-full">
+                                <input id="amount" type="text" placeholder="Enter Contoh : 20000" {...register('amount')} className="form-input w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b] text-white-dark font-normal" disabled={type === 'update' || type === 'detail'} />
+                                <span className="text-danger text-xs">{(errors.amount as FieldError) ? "Jumlah is required" : ''}</span>
+                            </div>
+                        </div>
+                        <div className='flex justify-start w-full mb-10'>
+                            <div className='label mr-10 w-64'>
+                                <label htmlFor="description">Keterangan</label>
+                            </div>
+                            <div className="text-white-dark w-full">
+                                <textarea id="ctnTextarea" rows={3} className="form-textarea font-normal disabled:pointer-events-none disabled:bg-[#eee]" {...register('description')} placeholder="Keterangan..." disabled={type === 'update' || type === 'detail'} onChange={(e) => setValue('description', e.target.value)}></textarea>
+                                <span className="text-danger text-xs">{(errors.description as FieldError)?.message}</span>
+                            </div>
                         </div>
                         <div className="flex w-full justify-end">
-                            <button type="button" className=" btn bg-white  w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)] mr-5 hover:bg-purple-300" onClick={()=>navigate('/daftar-transfer')}>
-                                
-                                {type == 'detail' ? 'Kembali' : 'Batal'}
+                            <button type="button" className="btn bg-white w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)] mr-5 hover:bg-purple-300" onClick={() => navigate('/daftar-transfer')}>
+                                {type === 'detail' ? 'Kembali' : 'Batal'}
                             </button>
-                            {
-                                type !== 'detail' ?
-                                <button type="submit" className=" btn btn-primary  w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
+                            {type !== 'detail' && (
+                                <button type="submit" className="btn btn-primary w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
                                     {isLoadingPost || isLoadingUpdate ? 'Loading' : id ? 'Update' : 'Save'}
                                 </button>
-                                : ''
-                            }
-                            {/* <button type="submit" className=" btn btn-primary  w-1/6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]">
-                                {isLoadingPost || isLoadingUpdate ? 'Loading' : id ? 'Update' : 'Save'}
-                            </button> */}
+                            )}
                         </div>
                     </div>
                 </form>

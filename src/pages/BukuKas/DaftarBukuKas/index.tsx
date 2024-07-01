@@ -226,19 +226,6 @@ const Index = () => {
         <div className='bukukas'>
             <div className="panel mt-6">
                 <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5 max-w-64 justify-between">
-                    <div className="flex items-center gap-2 text-3xl">
-                        Daftar Buku Bank & Kas
-                    </div>
-                    {/* <div className="flex items-center gap-2">
-                        <button
-                            type="button"
-                            className="btn btn-secondary"
-                        >
-                            Tambah Transaksi
-                        </button>
-                    </div> */}
-                </div>
-                <div className="flex md:items-center md:flex-row flex-col mb-5 gap-5 max-w-64 justify-between">
                     <div className="flex items-center gap-2">
                         <input type="text" className="form-input" placeholder="Cari..." value={search} onChange={(e) => setSearch(e.target.value)} />
                     </div>

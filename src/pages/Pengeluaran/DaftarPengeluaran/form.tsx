@@ -21,7 +21,7 @@ import ModalCoaCustom from '@/components/ModalCoaCustom';
 import { COAType } from '@/types';
 import { useTranslation } from 'react-i18next';
 import i18next from 'i18next';
-
+import { FormatNumber } from '@/utils/formatNumber';
 interface BankOption {
     desc: string;
     label: string;
@@ -394,7 +394,7 @@ const DaftarPengeluaranForm = () => {
                         <div className="mt-6 grid grid-cols-1 gap-4">
                             <div className="flex justify-end">
                                 <label className='font-bold text-xl'>Total : </label>
-                                <label className='font-bold text-xl'>{total.toLocaleString()}</label>
+                                <label className='font-bold text-xl'>{FormatNumber(total)}</label>
                             </div>
                             
                         </div>

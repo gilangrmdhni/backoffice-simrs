@@ -15,7 +15,7 @@ import SelectSearch from 'react-select'
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 import IconSearch from '@/components/Icon/IconSearch';
-
+import { FormatNumber } from '@/utils/formatNumber';
 const ReportPerInsurance = () => {
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const dateNow = new Date
@@ -111,16 +111,6 @@ const ReportPerInsurance = () => {
         }, 3000);
     }, [searchOptionInsurance]);
 
-    const formatNumber = (number: any) => {
-        // Mengubah angka menjadi string dengan dua digit desimal
-        let formattedNumber = number.toFixed(0);
-        // Mengganti titik desimal dengan koma
-        formattedNumber = formattedNumber.replace('.', ',');
-        // Menambahkan titik sebagai pemisah ribuan
-        formattedNumber = formattedNumber.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-        return formattedNumber;
-    };
-
     let total = 0;
     let totalCell = 0;
     let zeroToFortyFiveTotal = 0;
@@ -193,12 +183,12 @@ const ReportPerInsurance = () => {
                                         <React.Fragment key={index}>
                                             <tr >
                                                 <td>{data.insuranceName}</td>
-                                                <td>{formatNumber(totalCell)}</td>
-                                                <td>{formatNumber(data.zeroToFortyFive)}</td>
-                                                <td>{formatNumber(data.fortyFiveToSixty)}</td>
-                                                <td>{formatNumber(data.sixtyToNinety)}</td>
-                                                <td>{formatNumber(data.ninetyToOneTwenty)}</td>
-                                                <td>{formatNumber(data.greaterThanOneTwenty)}</td>
+                                                <td>{FormatNumber(totalCell)}</td>
+                                                <td>{FormatNumber(data.zeroToFortyFive)}</td>
+                                                <td>{FormatNumber(data.fortyFiveToSixty)}</td>
+                                                <td>{FormatNumber(data.sixtyToNinety)}</td>
+                                                <td>{FormatNumber(data.ninetyToOneTwenty)}</td>
+                                                <td>{FormatNumber(data.greaterThanOneTwenty)}</td>
                                             </tr>
                                         </React.Fragment>
                                     )
@@ -208,12 +198,12 @@ const ReportPerInsurance = () => {
                         <tfoot>
                             <tr>
                                 <th>Total</th>
-                                <th>{formatNumber(total)}</th>
-                                <th>{formatNumber(zeroToFortyFiveTotal)}</th>
-                                <th>{formatNumber(fortyFiveToSixtyTotal)}</th>
-                                <th>{formatNumber(sixtyToNinetyTotal)}</th>
-                                <th>{formatNumber(ninetyToOneTwentyTotal)}</th>
-                                <th>{formatNumber(greaterThanOneTwentyTotal)}</th>
+                                <th>{FormatNumber(total)}</th>
+                                <th>{FormatNumber(zeroToFortyFiveTotal)}</th>
+                                <th>{FormatNumber(fortyFiveToSixtyTotal)}</th>
+                                <th>{FormatNumber(sixtyToNinetyTotal)}</th>
+                                <th>{FormatNumber(ninetyToOneTwentyTotal)}</th>
+                                <th>{FormatNumber(greaterThanOneTwentyTotal)}</th>
                             </tr>
                         </tfoot>
                     </table>

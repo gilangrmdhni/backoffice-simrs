@@ -17,7 +17,7 @@ import { useGetBookBanksQuery } from '@/store/api/bank/bookBank/bookBankApiSlice
 import { BankType } from '@/types/bankType';
 import { journalType } from '@/types';
 import { toastMessage } from '@/utils/toastUtils';
-
+import { FormatNumber } from '@/utils/formatNumber';
 const ReconciliationForm = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -297,11 +297,11 @@ const ReconciliationForm = () => {
                     <div className="mt-6 grid grid-cols-2 gap-4">
                         <div className="flex justify-end">
                             <p>Total Clear :</p>
-                            <p>{totalClear.toLocaleString()}</p>
+                            <p>{FormatNumber(totalClear)}</p>
                         </div>
                         <div className="flex justify-end">
                             <p>Total Outstanding :</p>
-                            <p>{totalOutstanding.toLocaleString()}</p>
+                            <p>{FormatNumber(totalOutstanding)}</p>
                         </div>
                     </div>
                     <div className="datatables mt-8">
