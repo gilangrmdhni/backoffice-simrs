@@ -19,9 +19,10 @@ import { useGetBookBanksQuery, useDeleteBookBankMutation } from '@/store/api/ban
 import { BookBankType } from '@/types/bookBankType';
 import DateRangePicker from '@/components/DateRangePicker';
 import { addDays } from 'date-fns';
-
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
+import { FormatNumber } from '@/utils/formatNumber';
+import { FormatDate } from '@/utils/formatDate';
 
 const DaftarPenerimaanIndex = () => {
     const dispatch = useDispatch();
@@ -165,10 +166,10 @@ const DaftarPenerimaanIndex = () => {
                         records={bookBankList?.data?.data}
                         columns={[
                             { accessor: 'transactionNo', title: 'No Transaksi', sortable: true },
-                            { accessor: 'transactionDate', title: 'Tanggal Transaksi', sortable: true, render: (row: BookBankType) => (row.transactionDate ? new Date(row.transactionDate).toLocaleDateString() : '') },
+                            { accessor: 'transactionDate', title: 'Tanggal Transaksi', sortable: true, render: (row: BookBankType) => (row.transactionDate ? FormatDate(row.transactionDate) : '') },
 
                             { accessor: 'coaName', title: 'Nama Akun', sortable: true },
-                            { accessor: 'amount', title: 'Amount', sortable: true },
+                            { accessor: 'amount', title: 'Amount', sortable: true,render : (row: BookBankType) => FormatNumber(row.amount) },
                             { accessor: 'description', title: 'Keterangan', sortable: true },
                         ]}
                         totalRecords={bookBankList?.data?.totalData}
