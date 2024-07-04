@@ -35,7 +35,22 @@ export const usersApi = apiSlice.injectEndpoints({
         getDetailUsers: builder.query({
             query: (id?: string) => `/User/${id}`,
         }),
+        exportUsers: builder.mutation({
+            query: ({ type, keyword, orderBy, orderType, status, role }) => ({
+                url: `User/export?type=${type}&keyword=${keyword}&orderBy=${orderBy}&orderType=${orderType}&status=${status}&role=${role}`,
+                method: 'GET',
+                responseHandler: (response) => response.blob(),
+            }),
+            transformResponse: (response: Blob) => response,
+        }),
     }),
 });
 
-export const { useGetUsersQuery, useDeleteUsersMutation, usePostUsersMutation, useUpdateUsersMutation, useGetDetailUsersQuery } = usersApi;
+export const {
+    useGetUsersQuery,
+    useDeleteUsersMutation,
+    usePostUsersMutation,
+    useUpdateUsersMutation,
+    useGetDetailUsersQuery,
+    useExportUsersMutation,
+} = usersApi;

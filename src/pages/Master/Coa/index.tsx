@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, Navigate } from 'react-router-dom';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
-import { Fragment, useEffect, useState,useRef } from 'react';
+import { Fragment, useEffect, useState, useRef } from 'react';
 import { setBreadcrumbTitle, setPageTitle, setTitle } from '../../../store/themeConfigSlice';
 import { useDeleteUsersMutation, useGetUsersQuery } from '@/store/api/users/usersApiSlice';
 import IconServer from '@/components/Icon/IconServer';
@@ -16,13 +16,13 @@ import IconPlus from '@/components/Icon/IconPlus';
 import IconFile from '@/components/Icon/IconTxtFile';
 import IconDownload from '@/components/Icon/IconDownload';
 import { useNavigate } from 'react-router-dom';
-import { COAType, usersType,OptionType } from '@/types';
+import { COAType, usersType, OptionType } from '@/types';
 import { number } from 'yup';
 import { useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
 import { rolesType } from '@/types/rolesType';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
-import { useGetCOAQuery,useDeleteCOAMutation,useGetOptionCOAQuery, useDownloadCoaMutation,useCOAUploadMutation } from '@/store/api/coa/coaApiSlice';
+import { useGetCOAQuery, useDeleteCOAMutation, useGetOptionCOAQuery, useCOAUploadMutation, useExportCOAMutation } from '@/store/api/coa/coaApiSlice';
 import '@/pages/Master/Coa/index.css';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query/fetchBaseQuery';
 import { SerializedError } from '@reduxjs/toolkit';
@@ -35,8 +35,9 @@ const Index = () => {
     useEffect(() => {
         dispatch(setPageTitle('Chart Of Account'));
         dispatch(setTitle('Chart Of Account'));
-        dispatch(setBreadcrumbTitle(['Dashboard','Master','COA','List']));
+        dispatch(setBreadcrumbTitle(['Dashboard', 'Master', 'COA', 'List']));
     });
+    const [exportCOA] = useExportCOAMutation();
     const [isLoadingUpload, setIsLoadingUpload] = useState<boolean>(false);
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const [page, setPage] = useState<number>(1);
@@ -59,9 +60,9 @@ const Index = () => {
         orderBy: sortStatus.columnAccessor === 'coaCode' ? 'coaCode' : sortStatus.columnAccessor,
         orderType: sortStatus.direction,
         page: page,
-        pageSize:pageSize,
+        pageSize: pageSize,
         status,
-        parent : COALevel,
+        parent: COALevel,
     });
     const {
         data: CoAListOption,
@@ -69,33 +70,30 @@ const Index = () => {
     } = useGetOptionCOAQuery<any>({
         orderBy: sortStatus.columnAccessor === 'coaCode' ? 'coaCode' : sortStatus.columnAccessor,
         orderType: sortStatus.direction,
-        pageSize:20,
+        pageSize: 20,
         status,
-        level : 4,
-        accounttype : 1,
-        keyword:searchType
+        level: 4,
+        accounttype: 1,
+        keyword: searchType
     });
 
-    const [CoaUpload, {isLoading:isLoadingError,isError: isErrorUpload}] = useCOAUploadMutation();
-
-
-    const [downloadTemplateCOA] = useDownloadCoaMutation();
+    const [CoaUpload, { isLoading: isLoadingError, isError: isErrorUpload }] = useCOAUploadMutation();
 
 
     let TypeListOption = [];
-        TypeListOption.push({
-            value: "",
-            label: "All Type",
-            level: "",
-        })
+    TypeListOption.push({
+        value: "",
+        label: "All Account Groups",
+        level: "",
+    });
     {
-        CoAListOption?.data?.map((option: any) =>{
+        CoAListOption?.data?.map((option: any) => {
             TypeListOption.push({
                 value: option.value,
                 label: option.label,
                 level: option.level ? option.level : '',
-            })
-        })
+            });
+        });
     }
     const { data: rolesList, refetch: rolesListRefetch } = useGetRolesQuery({});
     const [deleted, { isError }] = useDeleteCOAMutation();
@@ -118,6 +116,30 @@ const Index = () => {
         }
     };
 
+    const handleExport = async () => {
+        try {
+            const type = 'xlsx';
+            const keyword = search;
+            const orderBy = sortStatus.columnAccessor;
+            const orderType = sortStatus.direction;
+            const statusValue = status;
+            const accountType = '';
+            const parent = COALevel;
+
+            const res = await exportCOA({ type, keyword, orderBy, orderType, status: statusValue, accountType, parent }).unwrap();
+            const url = window.URL.createObjectURL(new Blob([res as any], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `CoA_${new Date().toISOString()}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+        } catch (error: any) {
+            console.error('Failed to download CoA', error);
+            toastMessage(error.message, 'error');
+        }
+    };
+
     useEffect(() => {
         setTimeout(() => {
             refetchCoaOption();
@@ -128,7 +150,7 @@ const Index = () => {
                 level: "",
             })
             {
-                CoAListOption?.data?.map((option: any) =>{
+                CoAListOption?.data?.map((option: any) => {
                     TypeListOption.push({
                         value: option.value,
                         label: option.label,
@@ -142,7 +164,7 @@ const Index = () => {
     useEffect(() => {
         refetch();
     }, [COALevel]);
-    
+
 
     useEffect(() => {
         refetch();
@@ -158,13 +180,13 @@ const Index = () => {
     };
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const handleUploadClick =  () => {
+    const handleUploadClick = () => {
         if (fileInputRef.current) {
             fileInputRef.current.click();
         }
     };
 
-    const handleFileChange =  async (e: any) => {
+    const handleFileChange = async (e: any) => {
         console.log("loading file")
         try {
             setIsLoadingUpload(true);
@@ -179,11 +201,11 @@ const Index = () => {
                 console.log("loading success");
                 console.log("errorUpload");
                 setIsLoadingUpload(false);
-                
+
                 if ('message' in response) {
                     responseCallback(response, (data: any) => {
                         navigate('/coa');
-                    }, null);                    
+                    }, null);
                 } else {
                     responseCallback(response, (data: any) => {
                         navigate('/coa');
@@ -205,20 +227,6 @@ const Index = () => {
     };
 
 
-    const handleDownload = async () => {
-        try {
-            const res = await downloadTemplateCOA({}).unwrap();
-            const link = document.createElement('a');
-            link.href = res as string;
-            link.setAttribute('download', `COA_TEMPLATE_${moment().format("yyyyMMDD_Hms")}.xlsx`); // Adjust the file name as needed
-            document.body.appendChild(link);
-            link.click();
-            link.parentNode?.removeChild(link);
-        } catch (error: any) {
-            console.error('Failed to download template', error);
-            toastMessage(error.message, 'error');
-        }
-    };
 
     return (
         <div className='coa'>
@@ -227,13 +235,13 @@ const Index = () => {
                     <div className="rtl:ml-auto rtl:mr-auto">
                         <div className="grid grid-cols-3 gap-2">
                             <input type="text" className="form-input w-auto" placeholder="Keyword..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                            <SelectSearch 
-                                    placeholder="All Type"
-                                    options={TypeListOption}
-                                    className="z-10"
-                                    onInputChange={(e)=> setSearchType(e)}
-                                    onChange={(dt: any)=>{setCOALevel(dt.value)}}
-                                />
+                            <SelectSearch
+                                placeholder="All Account Groups"
+                                options={TypeListOption}
+                                className="z-10"
+                                onInputChange={(e) => setSearchType(e)}
+                                onChange={(dt: any) => { setCOALevel(dt.value) }}
+                            />
                             <button
                                 type="button"
                                 className="hidden w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
@@ -257,28 +265,28 @@ const Index = () => {
                                 </button>
                             </Tippy>
                             <Tippy content="import File">
-                                    <button
-                                        type="button"
-                                        onClick={handleUploadClick}
-                                        className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
-                                    >
-                                        {isLoadingUpload && <span className="animate-spin border-2 border-black border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle"></span>}
-                                        {!isLoadingUpload &&  <IconFile />}
-                                        <input 
-                                            type="file" 
-                                            className={`hidden`}
-                                            onChange={handleFileChange}
-                                            ref={fileInputRef}
-                                        />
-                                    </button>
-                            </Tippy>
-                            <Tippy content="Download Template">
                                 <button
-                                        type="button"
-                                        onClick={handleDownload}
-                                        className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
-                                    >
-                                        <IconDownload />
+                                    type="button"
+                                    onClick={handleUploadClick}
+                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
+                                >
+                                    {isLoadingUpload && <span className="animate-spin border-2 border-black border-l-transparent rounded-full w-5 h-5 ltr:mr-4 rtl:ml-4 inline-block align-middle"></span>}
+                                    {!isLoadingUpload && <IconFile />}
+                                    <input
+                                        type="file"
+                                        className={`hidden`}
+                                        onChange={handleFileChange}
+                                        ref={fileInputRef}
+                                    />
+                                </button>
+                            </Tippy>
+                            <Tippy content="Download CoA">
+                                <button
+                                    onClick={handleExport}
+                                    type="button"
+                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
+                                >
+                                    <IconDownload />
                                 </button>
                             </Tippy>
                         </div>
@@ -290,29 +298,40 @@ const Index = () => {
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
                         records={CoAList?.data?.data}
                         columns={[
-                            { 
-                                accessor: 'coaCode', 
-                                title: 'Account No', 
-                                sortable: true, 
-                                render: (row: COAType,index: number) => (
-                                    <>
-                                        <span style={{ fontWeight: row.accountTypeName == "Header" ? 'bold' : 'normal', paddingLeft: (row.coaLevel > 4) ?`${(row.coaLevel-3) * 0.5}rem` : '0rem' }}>
-                                            {row.coaCode}
-                                        </span>
-                                    </>
+                            {
+                                accessor: 'coaCode',
+                                title: 'Account No',
+                                sortable: true,
+                                render: (row: COAType, index: number) => (
+                                    <span style={{ fontWeight: row.accountTypeName === "Header" ? 'bold' : 'normal' }}>
+                                        {row.coaCode}
+                                    </span>
                                 )
                             },
-                            
                             {
-                                accessor: 'coaName', 
-                                title: 'Account Name', 
+                                accessor: 'coaName',
+                                title: 'Account Name',
                                 sortable: true,
-                                render: (row: COAType,index: number) => (
-                                    <>
-                                        <span style={{ fontWeight: row.accountTypeName == "Header" ? 'bold' : 'normal', paddingLeft: (row.coaLevel > 4) ?`${(row.coaLevel-3) * 0.5}rem` : '0rem' }}>
-                                            {row.coaName}
-                                        </span>
-                                    </>
+                                render: (row: COAType, index: number) => (
+                                    <span style={{ fontWeight: row.accountTypeName === "Header" ? 'bold' : 'normal' }}>
+                                        {row.coaName}
+                                    </span>
+                                )
+                            },
+                            {
+                                accessor: 'accountGroup',
+                                title: 'Account Group',
+                                sortable: true,
+                                render: (row: COAType) => (
+                                    <span>{row.accountGroupId}</span>
+                                )
+                            },
+                            {
+                                accessor: 'accountType',
+                                title: 'Account Type',
+                                sortable: true,
+                                render: (row: COAType) => (
+                                    <span>{row.accountTypeId}</span>
                                 )
                             },
                             {
@@ -343,7 +362,7 @@ const Index = () => {
                         horizontalSpacing={`xs`}
                         verticalSpacing={`xs`}
                         totalRecords={CoAList?.data?.totalData}
-                        rowStyle={(state: COAType) => (state ? { padding: 0 } : { padding: 0 })}
+                        rowStyle={{ padding: '0 8px' }} 
                         recordsPerPage={pageSize}
                         page={page}
                         onPageChange={(p) => setPage(p)}

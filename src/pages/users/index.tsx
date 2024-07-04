@@ -3,7 +3,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { Fragment, useEffect, useState } from 'react';
 import { setBreadcrumbTitle, setPageTitle, setTitle } from '../../store/themeConfigSlice';
-import { useDeleteUsersMutation, useGetUsersQuery } from '@/store/api/users/usersApiSlice';
+import { useDeleteUsersMutation, useGetUsersQuery, useExportUsersMutation } from '@/store/api/users/usersApiSlice';
 import IconServer from '@/components/Icon/IconServer';
 import AnimateHeight from 'react-animate-height';
 import IconTrashLines from '@/components/Icon/IconTrashLines';
@@ -22,13 +22,14 @@ import { rolesType } from '@/types/rolesType';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
 
+
 const Index = () => {
     // const user = useSelector((state: any) => state.auth.user);
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(setPageTitle('Users'));
         dispatch(setTitle('Users'));
-        dispatch(setBreadcrumbTitle(['Dashboard','Users','List']))
+        dispatch(setBreadcrumbTitle(['Dashboard', 'Users', 'List']))
     });
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const [page, setPage] = useState<number>(1);
@@ -54,6 +55,7 @@ const Index = () => {
         status,
     });
     const { data: rolesList, refetch: rolesListRefetch } = useGetRolesQuery({});
+    const [exportUsers] = useExportUsersMutation();
     const [deleted, { isError }] = useDeleteUsersMutation();
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<number>(0);
@@ -69,6 +71,29 @@ const Index = () => {
             refetch();
         } catch (err: any) {
             toastMessage(err.message, 'error');
+        }
+    };
+
+    const handleExport = async () => {
+        try {
+            const type = 'xlsx';
+            const keyword = search;
+            const orderBy = sortStatus.columnAccessor;
+            const orderType = sortStatus.direction;
+            const statusValue = status;
+            const roleValue = role;
+
+            const res = await exportUsers({ type, keyword, orderBy, orderType, status: statusValue, role: roleValue }).unwrap();
+            const url = window.URL.createObjectURL(new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Users_${new Date().toISOString()}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+        } catch (error: any) {
+            console.error('Failed to download users', error);
+            toastMessage(error.message, 'error');
         }
     };
 
@@ -125,10 +150,14 @@ const Index = () => {
                                     <IconPlus />
                                 </button>
                             </Tippy>
-                            <Tippy content="Download">
-                                <Link to="" className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60">
+                            <Tippy content="Download Users">
+                                <button
+                                    onClick={handleExport}
+                                    type="button"
+                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
+                                >
                                     <IconDownload />
-                                </Link>
+                                </button>
                             </Tippy>
                         </div>
                     </div>

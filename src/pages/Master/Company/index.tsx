@@ -99,7 +99,7 @@ const Index = () => {
     }, [sortStatus, search, pageSize]);
 
     const colorStatus = (status: string) => {
-        return status === 'InActive' ? 'primary' : 'success';
+        return status === 'InActive' ? 'white-dark' : 'success';
     };
 
     return (

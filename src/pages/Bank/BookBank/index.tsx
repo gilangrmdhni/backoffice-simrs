@@ -32,6 +32,7 @@ const BookBankIndex = () => {
     const [status, setStatus] = useState<string>('');
     const [showFilter, setShowFilter] = useState<boolean>(false);
     const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'createdDate', direction: 'desc' });
+    const [transactionType, setTransactionType] = useState<string>('');
 
     const {
         data: bookBankList,
@@ -45,11 +46,12 @@ const BookBankIndex = () => {
         pageSize: pageSize,
         keyword: search,
         status: status,
+        transactionType: transactionType,
     });
 
     const [deleteBookBank, { isError: isDeleteError }] = useDeleteBookBankMutation();
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-    const [deleteId, setDeleteId] = useState<string>(''); 
+    const [deleteId, setDeleteId] = useState<string>('');
 
 
     const handleDelete = async (id: string) => {
@@ -86,6 +88,12 @@ const BookBankIndex = () => {
                                 <option value={''}>All Status</option>
                                 <option value={'Pending'}>Pending</option>
                                 <option value={'Completed'}>Completed</option>
+                            </select>
+                            <select id="transactionTypeSelect" className="form-select text-white-dark" onChange={(e) => setTransactionType(e.target.value)}> {/* Filter dropdown baru */}
+                                <option value={''}>All Transaction Types</option>
+                                <option value={'Deposit'}>Deposit</option>
+                                <option value={'Withdrawal'}>Withdrawal</option>
+                                <option value={'Transfer'}>Transfer</option>
                             </select>
                             <button
                                 type="button"
@@ -139,10 +147,10 @@ const BookBankIndex = () => {
                         columns={[
                             { accessor: 'transactionNo', title: 'Transaction No', sortable: true },
                             { accessor: 'transactionType', title: 'Transaction Type', sortable: true },
-                            { accessor: 'coaCode', title: 'COA Code', sortable: true },
-                            { accessor: 'coaName', title: 'COA Name', sortable: true },
-                            { accessor: 'coaParentCode', title: 'COA Parent Code', sortable: true },
-                            { accessor: 'coaParentName', title: 'COA Parent Name', sortable: true },
+                            { accessor: 'coaCode', title: 'Account No', sortable: true },
+                            { accessor: 'coaName', title: 'Account Name', sortable: true },
+                            { accessor: 'coaParentCode', title: 'Account Parent Code', sortable: true },
+                            { accessor: 'coaParentName', title: 'Account Parent Name', sortable: true },
                             { accessor: 'amount', title: 'Amount', sortable: true },
                             { accessor: 'source', title: 'Source', sortable: true },
                             { accessor: 'transactionDate', title: 'Transaction Date', sortable: true, render: (record: any) => new Date(record.transactionDate).toLocaleDateString() },
@@ -154,7 +162,7 @@ const BookBankIndex = () => {
                                 render: (s: BookBankType) => (
                                     <>
                                         <Tippy content="Edit">
-                                            <button type="button" onClick={() => handleEdit(String(s.transactionId))}> 
+                                            <button type="button" onClick={() => handleEdit(String(s.transactionId))}>
                                                 <IconPencil className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>
@@ -162,7 +170,7 @@ const BookBankIndex = () => {
                                             <button
                                                 type="button"
                                                 onClick={() => {
-                                                    setDeleteId(String(s.transactionId)); 
+                                                    setDeleteId(String(s.transactionId));
                                                     setShowDeleteModal(true);
                                                 }}
                                             >
