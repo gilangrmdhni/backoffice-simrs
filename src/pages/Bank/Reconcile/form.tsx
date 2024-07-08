@@ -291,17 +291,17 @@ const ReconciliationForm = () => {
                         </div>
                     </div>
                     <div className="mt-6">
-                        <label className="block text-sm font-medium text-gray-700">Say</label>
-                        <p className="mt-1 text-gray-500">{balanceText}</p>
+                        <label className="block text-md">Amount in Words</label>
+                        <p className="mt-1 text-lg">{balanceText}</p>
                     </div>
                     <div className="mt-6 grid grid-cols-2 gap-4">
                         <div className="flex justify-end">
-                            <p>Total Clear :</p>
-                            <p>{totalClear.toLocaleString()}</p>
+                            <p className='text-lg font-semibold'>Total Clear :</p>
+                            <p className='text-lg font-semibold'>{totalClear.toLocaleString()}</p>
                         </div>
                         <div className="flex justify-end">
-                            <p>Total Outstanding :</p>
-                            <p>{totalOutstanding.toLocaleString()}</p>
+                            <p className='text-lg font-semibold'>Total Outstanding :</p>
+                            <p className='text-lg font-semibold'>{totalOutstanding.toLocaleString()}</p>
                         </div>
                     </div>
                     <div className="datatables mt-8">

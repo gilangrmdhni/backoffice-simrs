@@ -49,6 +49,7 @@ const PaymentPeriodIndex = lazy(() => import('../pages/Receivable/PaymentPeriod'
 
 // Bank
 const BookBankIndex = lazy(() => import('../pages/Bank/BookBank'));
+const BookBankDetail = lazy(() => import('../pages/Bank/BookBank/detail'));
 const DepositCreate = lazy(() => import('../pages/Bank/Deposit/form'));
 const PaymentCreate = lazy(() => import('../pages/Bank/Payment/form'));
 const DepositUpdate = lazy(() => import('../pages/Bank/Deposit/form'));
@@ -239,6 +240,11 @@ const routes = [
     {
         path: '/bookBank',
         element: <BookBankIndex />,
+        layout: 'default',
+    },
+    {
+        path: '/bookBank/detail/:id',
+        element: <BookBankDetail />,
         layout: 'default',
     },
     {

@@ -4,7 +4,7 @@ import { setBreadcrumbTitle, setPageTitle, setTitle } from '../../../store/theme
 import IconTrashLines from '@/components/Icon/IconTrashLines';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
-import IconPencil from '@/components/Icon/IconPencil';
+import IconEye from '@/components/Icon/IconEye'; // Import the IconEye component
 import { Dialog, Transition } from '@headlessui/react';
 import IconX from '@/components/Icon/IconX';
 import { useDispatch, useSelector } from 'react-redux';
@@ -53,7 +53,6 @@ const BookBankIndex = () => {
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<string>('');
 
-
     const handleDelete = async (id: string) => {
         try {
             const response = await deleteBookBank(Number(id)).unwrap(); // Konversi id ke number
@@ -76,6 +75,10 @@ const BookBankIndex = () => {
     useEffect(() => {
         setPage(1);
     }, [sortStatus, search, pageSize]);
+
+    const handleViewDetail = (id: string) => {
+        navigate(`/bookBank/detail/${id}`);
+    };
 
     return (
         <div>
@@ -108,20 +111,7 @@ const BookBankIndex = () => {
                     </div>
                     <div className="ltr:ml-auto">
                         <div className="grid grid-cols-2 gap-2">
-                            {/* <Tippy content="Add Book Bank">
-                                <button
-                                    onClick={() => navigate(`/bookBank/create`)}
-                                    type="button"
-                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
-                                >
-                                    <IconPlus />
-                                </button>
-                            </Tippy> */}
-                            {/* <Tippy content="Download">
-                                <Link to="" className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60">
-                                    <IconDownload />
-                                </Link>
-                            </Tippy> */}
+                            
                         </div>
                     </div>
                 </div>
@@ -145,36 +135,21 @@ const BookBankIndex = () => {
                         className={`${isRtl ? 'whitespace-nowrap table-hover' : 'whitespace-nowrap table-hover'}`}
                         records={bookBankList?.data?.data}
                         columns={[
+                            { accessor: 'transactionDate', title: 'Transaction Date', sortable: true, render: (record: any) => new Date(record.transactionDate).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) },
                             { accessor: 'transactionNo', title: 'Transaction No', sortable: true },
                             { accessor: 'transactionType', title: 'Transaction Type', sortable: true },
                             { accessor: 'coaCode', title: 'Account No', sortable: true },
                             { accessor: 'coaName', title: 'Account Name', sortable: true },
-                            { accessor: 'coaParentCode', title: 'Account Parent Code', sortable: true },
-                            { accessor: 'coaParentName', title: 'Account Parent Name', sortable: true },
-                            { accessor: 'amount', title: 'Amount', sortable: true },
-                            { accessor: 'source', title: 'Source', sortable: true },
-                            { accessor: 'transactionDate', title: 'Transaction Date', sortable: true, render: (record: any) => new Date(record.transactionDate).toLocaleDateString() },
-                            { accessor: 'vourcherId', title: 'Voucher ID', sortable: true },
+                            { accessor: 'amount', title: 'Amount', sortable: true, render: (record: any) => Number(record.amount).toLocaleString('id-ID') },
                             { accessor: 'status', title: 'Status', sortable: true },
                             {
                                 accessor: '',
                                 title: 'Actions',
                                 render: (s: BookBankType) => (
                                     <>
-                                        <Tippy content="Edit">
-                                            <button type="button" onClick={() => handleEdit(String(s.transactionId))}>
-                                                <IconPencil className="ltr:mr-2 rtl:ml-2" />
-                                            </button>
-                                        </Tippy>
-                                        <Tippy content="Delete">
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setDeleteId(String(s.transactionId));
-                                                    setShowDeleteModal(true);
-                                                }}
-                                            >
-                                                <IconTrashLines className="m-auto" />
+                                        <Tippy content="View Detail">
+                                            <button type="button" onClick={() => handleViewDetail(String(s.transactionId))}>
+                                                <IconEye className="ltr:mr-2 rtl:ml-2" />
                                             </button>
                                         </Tippy>
                                     </>
@@ -223,7 +198,7 @@ const BookBankIndex = () => {
                                             You will lose your data!
                                         </p>
                                         <div className="flex justify-end items-center mt-8">
-                                            <button onClick={() => setShowDeleteModal(false)} type="button" className="btn btn-outline-dark">
+                                            <button onClick={() => setShowDeleteModal(false)} type="button" className="btn btn-outline-dark hover:bg-gray-300">
                                                 Cancel
                                             </button>
                                             <button
