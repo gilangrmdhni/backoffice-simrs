@@ -215,7 +215,7 @@ const ModalCoaCustom = ({ setIsSave, selectedRecords, setSelectedRecords, showMo
                                                 idAccessor='coaCode'
                                             />
                                     <div className="flex justify-end items-center mt-8">
-                                        <button onClick={() => setIsShowModal(false)} type="button" className="text-primary">
+                                        <button onClick={() => setIsShowModal(false)} type="button" className="btn bg-gray-400 text-white rounded-md shadow-sm">
                                             Cancel
                                         </button>
                                         <button type="button" onClick={handleButtonSave} className="btn btn-primary ltr:ml-4 rtl:mr-4">

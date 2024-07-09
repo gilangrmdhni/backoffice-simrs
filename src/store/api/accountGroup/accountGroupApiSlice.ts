@@ -29,10 +29,6 @@ export const accountGroupApi = apiSlice.injectEndpoints({
         getAccountGroupDetail: builder.query({
             query: (id) => `/AccountGroup/${id}`,
         }),
-        getOptionAccountGroupDetail: builder.query({
-            query: (params) => `/AccountGroup/option?${new URLSearchParams(params).toString()}`,
-        }),
-
         exportAccountGroup: builder.mutation({
             query: ({ type, keyword, orderBy, orderType }) => ({
                 url: `AccountGroup/export?type=${type}&keyword=${keyword}&orderBy=${orderBy}&orderType=${orderType}`,
@@ -44,6 +40,7 @@ export const accountGroupApi = apiSlice.injectEndpoints({
     }),
 });
 
+
 export const {
     useGetAccountGroupsQuery,
     useDeleteAccountGroupMutation,
@@ -51,5 +48,18 @@ export const {
     useUpdateAccountGroupMutation,
     useGetAccountGroupDetailQuery,
     useExportAccountGroupMutation,
-    useGetOptionAccountGroupDetailQuery,
 } = accountGroupApi;
+
+
+// export const {
+//     useGetAccountGroupsQuery,
+//     useDeleteAccountGroupMutation,
+//     useCreateAccountGroupMutation,
+//     useUpdateAccountGroupMutation,
+//     useGetAccountGroupDetailQuery,
+//     useGetOptionAccountGroupOptionQuery,
+//     useExportAccountGroupMutation,
+//     useGetOptionAccountGroupDetailQuery,
+// } = accountGroupApi;
+
+

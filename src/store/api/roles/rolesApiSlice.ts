@@ -38,7 +38,15 @@ export const rolesApi = apiSlice.injectEndpoints({
         getOptionRoles: builder.query({
             query: (params) => `/Role/option?${new URLSearchParams(params).toString()}`,
         }),
+        exportRoles: builder.mutation({
+            query: ({ type, keyword, orderBy, orderType }) => ({
+                url: `Role/export?type=${type}&keyword=${keyword}&orderBy=${orderBy}&orderType=${orderType}`,
+                method: 'GET',
+                responseHandler: (response) => response.blob(),
+            }),
+            transformResponse: (response: Blob) => response,
+        }),
     }),
 });
 
-export const { useGetRolesQuery, useDeleteRolesMutation, usePostRolesMutation, useUpdateRolesMutation, useGetDetailRolesQuery, useGetOptionRolesQuery } = rolesApi;
+export const { useGetRolesQuery, useDeleteRolesMutation, usePostRolesMutation, useUpdateRolesMutation, useGetDetailRolesQuery, useGetOptionRolesQuery, useExportRolesMutation } = rolesApi;

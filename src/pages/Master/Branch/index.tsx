@@ -11,7 +11,7 @@ import IconPencil from '@/components/Icon/IconPencil';
 import { Dialog, Transition } from '@headlessui/react';
 import IconX from '@/components/Icon/IconX';
 import IconPlus from '@/components/Icon/IconPlus';
-import { branchType } from '@/types'; 
+import { branchType } from '@/types';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
 import IconDownload from '@/components/Icon/IconDownload';
@@ -73,7 +73,7 @@ const Index = () => {
             const orderBy = sortStatus.columnAccessor;
             const orderType = sortStatus.direction;
             const statusValue = status;
-    
+
             const res = await exportBranch({ type, keyword, orderBy, orderType, status: statusValue }).unwrap();
             const url = window.URL.createObjectURL(new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
             const link = document.createElement('a');
@@ -96,8 +96,9 @@ const Index = () => {
         setPage(1);
     }, [sortStatus, search, pageSize, status]);
 
+
     const colorStatus = (status: string) => {
-        return status === 'Inactive' ? 'primary' : 'success';
+        return status === 'InActive' ? 'white-dark' : 'success';
     };
 
     return (

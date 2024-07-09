@@ -11,3 +11,15 @@
      padding-left: 1rem !important;
      padding-right: 0rem !important;
 }
+
+
+.form-input:not(:disabled),
+.form-select:not(:disabled) {
+    color: black;
+}
+
+.form-input:disabled,
+.form-select:disabled {
+    color: #999;
+}
+

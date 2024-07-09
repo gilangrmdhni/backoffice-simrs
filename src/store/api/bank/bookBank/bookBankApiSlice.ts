@@ -27,6 +27,9 @@ export const bookBankApi = apiSlice.injectEndpoints({
                 body: body,
             }),
         }),
+        getTransactionDetail: builder.query({
+            query: (id) => `/Transaction/${id}`,
+        }),
         getBookBankDetail: builder.query({
             query: (id: number) => `/Bank/book/${id}`,
         }),
@@ -39,4 +42,5 @@ export const {
     useCreateBookBankMutation,
     useUpdateBookBankMutation,
     useGetBookBankDetailQuery,
+    useGetTransactionDetailQuery,
 } = bookBankApi;

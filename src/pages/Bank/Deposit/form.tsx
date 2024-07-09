@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { setPageTitle, setTitle, setBreadcrumbTitle } from '../../../store/themeConfigSlice';
 import { useForm, FieldError, useFieldArray } from 'react-hook-form';
 import * as yup from 'yup';
@@ -23,6 +23,10 @@ import 'flatpickr/dist/flatpickr.css';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 import { FormatNumber } from '@/utils/formatNumber';
+import { Transition } from '@headlessui/react/dist/components/transitions/transition';
+import { Dialog } from '@headlessui/react/dist/components/dialog/dialog';
+import IconX from '@/components/Icon/IconX';
+
 interface BankOption {
     desc: string;
     label: string;
@@ -41,15 +45,16 @@ const DepositForm = () => {
     const [showSelected, setShowSelected] = useState<any>([]);
     const [excludeId, setExcludeId] = useState<any>('');
     const [isSave, setIsSave] = useState<boolean>(false);
-    
+    const [isShowModalAccount, setIsShowModalAccount] = useState<boolean>(false);
+    const [selectedAccount, setSelectedAccount] = useState<BankOption | null>(null);
+
     const schema = yup.object({
-        transactionNo: yup.string().required('Transaction No is Required'),
+        transactionNo: yup.string().optional(), 
         description: yup.string().required('Credit Description is Required'),
         coaCode: yup.string().required('Account is Required'),
         transactionDate: yup.date().required('Deposit Date is Required'),
         details: yup.array().of(
             yup.object().shape({
-                // coaCode: yup.string().required('Account is Required'),
                 description: yup.string().required('Memo is Required'),
                 amount: yup.number().required('Amount is Required').positive('Amount must be positive'),
             })
@@ -67,6 +72,13 @@ const DepositForm = () => {
         control,
         name: 'details',
     });
+
+    const handleAccountSelect = (account: BankOption) => {
+        setSelectedAccount(account);
+        setValue('coaCode', account.desc);
+        setIsShowModalAccount(false);
+    };
+
 
     const { data: bankResponse } = useGetOptionBankQuery({
         parent: 952,
@@ -238,26 +250,27 @@ const DepositForm = () => {
             <div className="mt-6">
                 <form className="flex gap-6 flex-col" onSubmit={handleSubmit(onSubmit)}>
                     <div className='panel'>
-                        <div className="grid md:grid-cols-1 gap-4 w-full">
+                        <div className="grid md:grid-cols-2 gap-4 w-full">
                             <div>
                                 <label htmlFor="transactionNo" className="block text-sm font-medium text-gray-700">Transaction No</label>
                                 <div className="relative text-white-dark">
                                     <input id="transactionNo" type="text" placeholder="Enter Transaction No" {...register('transactionNo')} className="form-input placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
                                 </div>
-                                <span className="text-danger text-xs">{(errors.transactionNo as FieldError)?.message}</span>
                             </div>
                             <div>
                                 <label htmlFor="coaCode" className="block text-sm font-medium text-gray-700">Deposit To</label>
                                 <div className="relative text-white-dark">
-                                    <select id="coaCode" {...register('coaCode')} className="form-select placeholder:text-white-dark mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                                        <option value="">Select Account</option>
-                                        {bankList.map((bank: any) => (
-                                            <option key={bank.desc} value={bank.desc}>{bank.label}</option>
-                                        ))}
-                                    </select>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsShowModalAccount(true)}
+                                        className="form-input placeholder:text-gray-500 mt-1 block w-full rounded-md border-gray-300 shadow-sm text-left text-gray-500"
+                                    >
+                                        {selectedAccount ? selectedAccount.label : "Select Account"}
+                                    </button>
                                 </div>
                                 <span className="text-danger text-xs">{(errors.coaCode as FieldError)?.message}</span>
                             </div>
+
                             <div>
                                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">Memo</label>
                                 <div className="relative text-white-dark">
@@ -272,7 +285,6 @@ const DepositForm = () => {
                                 </div>
                                 <span className="text-danger text-xs">{(errors.amount as FieldError)?.message}</span>
                             </div>
-
                             <div>
                                 <label htmlFor="transactionDate" className="block text-sm font-medium text-gray-700">Deposit Date</label>
                                 <div className="relative text-white-dark">
@@ -280,12 +292,11 @@ const DepositForm = () => {
                                 </div>
                                 <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
                             </div>
-
                         </div>
 
                         <div className="mt-6">
-                            <label className="block text-sm font-medium text-gray-700">Amount in Words</label>
-                            <p className="mt-1 text-gray-500">{t(amountText)}</p>
+                            <label className="block text-md">Amount in Words</label>
+                            <p className="mt-1 text-lg">{t(amountText)}</p>
                         </div>
                     </div>
                     <div className="grid md:grid-cols-1 gap-4 w-full panel">
@@ -371,6 +382,48 @@ const DepositForm = () => {
                                 </tbody>
                             </table>
                         </div>
+                        {/* Modal for Account Selection */}
+                        <Transition appear show={isShowModalAccount} as={Fragment}>
+                            <Dialog as="div" open={isShowModalAccount} onClose={() => setIsShowModalAccount(false)}>
+                                <Transition.Child
+                                    as={Fragment}
+                                    enter="ease-out duration-300"
+                                    enterFrom="opacity-0"
+                                    enterTo="opacity-100"
+                                    leave="ease-in duration-200"
+                                    leaveFrom="opacity-100"
+                                    leaveTo="opacity-0"
+                                >
+                                    <div className="fixed inset-0" />
+                                </Transition.Child>
+                                <div className="fixed inset-0 bg-[black]/60 z-[999] overflow-y-auto">
+                                    <div className="flex items-start justify-center min-h-screen px-4">
+                                        <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-lg my-8 text-black dark:text-white-dark animate__animated animate__fadeIn">
+                                            <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
+                                                <h5 className="font-bold text-lg">Select Account</h5>
+                                                <button onClick={() => setIsShowModalAccount(false)} type="button" className="text-white-dark hover:text-dark">
+                                                    <IconX />
+                                                </button>
+                                            </div>
+                                            <div className="p-5">
+                                                <div className="grid grid-cols-1 gap-4">
+                                                    {bankList.map((account) => (
+                                                        <button
+                                                            key={account.desc}
+                                                            type="button"
+                                                            className="block w-full text-left p-2 hover:bg-gray-200 dark:hover:bg-dark/60"
+                                                            onClick={() => handleAccountSelect(account)}
+                                                        >
+                                                            {account.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </Dialog.Panel>
+                                    </div>
+                                </div>
+                            </Dialog>
+                        </Transition>
                         <div className="mt-6 grid grid-cols-2 gap-4">
                             <div className="flex justify-end">
                                 <p className='font-bold text-xl'>Total :</p>
@@ -384,10 +437,10 @@ const DepositForm = () => {
                     </div>
 
                     <div className="mt-6 flex justify-end space-x-4">
-                       
+
                         <button
                             type="button"
-                            className="px-4 py-2 text-primary rounded-md shadow-sm"
+                            className="px-4 py-2 bg-gray-400 text-white rounded-md shadow-sm"
                             onClick={() => navigate('/Deposit]')}
                         >
                             Cancel

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, NavLink, Navigate, useLocation } from 'react-router-dom';
-import { toggleRTL, toggleTheme,toggleSidebar } from '../../store/themeConfigSlice';
+import { toggleRTL, toggleTheme, toggleSidebar } from '../../store/themeConfigSlice';
 import { useTranslation } from 'react-i18next';
 import i18next from 'i18next';
 import Dropdown from '../Dropdown';
@@ -16,12 +16,12 @@ const Header = () => {
     const user = useSelector((state: any) => state.auth.user);
 
     const handleLogout = () => {
-      // Clear user data from local storage
-      removeUserInfo();
-      dispatch(logOut());
-      navigate('/login')
+        // Clear user data from local storage
+        removeUserInfo();
+        dispatch(logOut());
+        navigate('/login')
     };
-    
+
     useEffect(() => {
         const selector = document.querySelector('ul.horizontal-menu a[href="' + window.location.pathname + '"]');
         if (selector) {
@@ -150,105 +150,6 @@ const Header = () => {
                     <div className="sm:flex-1 ltr:sm:ml-0 ltr:ml-auto sm:rtl:mr-0 rtl:mr-auto flex items-center space-x-1.5 lg:space-x-2 rtl:space-x-reverse dark:text-[#d0d2d6]">
                         <div className="sm:ltr:mr-auto sm:rtl:ml-auto">
                         </div>
-                        {/* <div className="dropdown shrink-0">
-                            <Dropdown
-                                offset={[0, 8]}
-                                placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                                btnClassName="relative block p-2 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60"
-                                button={
-                                    <span>
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M19.0001 9.7041V9C19.0001 5.13401 15.8661 2 12.0001 2C8.13407 2 5.00006 5.13401 5.00006 9V9.7041C5.00006 10.5491 4.74995 11.3752 4.28123 12.0783L3.13263 13.8012C2.08349 15.3749 2.88442 17.5139 4.70913 18.0116C9.48258 19.3134 14.5175 19.3134 19.291 18.0116C21.1157 17.5139 21.9166 15.3749 20.8675 13.8012L19.7189 12.0783C19.2502 11.3752 19.0001 10.5491 19.0001 9.7041Z"
-                                                stroke="currentColor"
-                                                strokeWidth="1.5"
-                                            />
-                                            <path d="M7.5 19C8.15503 20.7478 9.92246 22 12 22C14.0775 22 15.845 20.7478 16.5 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                                            <path d="M12 6V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                                        </svg>
-                                        <span className="flex absolute w-3 h-3 ltr:right-0 rtl:left-0 top-0">
-                                            <span className="animate-ping absolute ltr:-left-[3px] rtl:-right-[3px] -top-[3px] inline-flex h-full w-full rounded-full bg-success/50 opacity-75"></span>
-                                            <span className="relative inline-flex rounded-full w-[6px] h-[6px] bg-success"></span>
-                                        </span>
-                                    </span>
-                                }
-                            >
-                                <ul className="!py-0 text-dark dark:text-white-dark w-[300px] sm:w-[350px] divide-y dark:divide-white/10">
-                                    <li onClick={(e) => e.stopPropagation()}>
-                                        <div className="flex items-center px-4 py-2 justify-between font-semibold">
-                                            <h4 className="text-lg">Notification</h4>
-                                            {notifications.length ? <span className="badge bg-primary/80">{notifications.length}New</span> : ''}
-                                        </div>
-                                    </li>
-                                    {notifications.length > 0 ? (
-                                        <>
-                                            {notifications.map((notification) => {
-                                                return (
-                                                    <li key={notification.id} className="dark:text-white-light/90" onClick={(e) => e.stopPropagation()}>
-                                                        <div className="group flex items-center px-4 py-2">
-                                                            <div className="grid place-content-center rounded">
-                                                                <div className="w-12 h-12 relative">
-                                                                    <img className="w-12 h-12 rounded-full object-cover" alt="profile" src={`/assets/images/${notification.profile}`} />
-                                                                    <span className="bg-success w-2 h-2 rounded-full block absolute right-[6px] bottom-0"></span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="ltr:pl-3 rtl:pr-3 flex flex-auto">
-                                                                <div className="ltr:pr-3 rtl:pl-3">
-                                                                    <h6
-                                                                        dangerouslySetInnerHTML={{
-                                                                            __html: notification.message,
-                                                                        }}
-                                                                    ></h6>
-                                                                    <span className="text-xs block font-normal dark:text-gray-500">{notification.time}</span>
-                                                                </div>
-                                                                <button
-                                                                    type="button"
-                                                                    className="ltr:ml-auto rtl:mr-auto text-neutral-300 hover:text-danger opacity-0 group-hover:opacity-100"
-                                                                    onClick={() => removeNotification(notification.id)}
-                                                                >
-                                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                        <circle opacity="0.5" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
-                                                                        <path d="M14.5 9.50002L9.5 14.5M9.49998 9.5L14.5 14.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                                                                    </svg>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                );
-                                            })}
-                                            <li>
-                                                <div className="p-4">
-                                                    <button className="btn btn-primary block w-full btn-small">Read All Notifications</button>
-                                                </div>
-                                            </li>
-                                        </>
-                                    ) : (
-                                        <li onClick={(e) => e.stopPropagation()}>
-                                            <button type="button" className="!grid place-content-center hover:!bg-transparent text-lg min-h-[200px]">
-                                                <div className="mx-auto ring-4 ring-primary/30 rounded-full mb-4">
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        width="40"
-                                                        height="40"
-                                                        viewBox="0 0 24 24"
-                                                        fill="#a9abb6"
-                                                        stroke="#ffffff"
-                                                        strokeWidth="1.5"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        className="feather feather-info bg-primary rounded-full"
-                                                    >
-                                                        <line x1="12" y1="16" x2="12" y2="12"></line>
-                                                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                                                    </svg>
-                                                </div>
-                                                No data available.
-                                            </button>
-                                        </li>
-                                    )}
-                                </ul>
-                            </Dropdown>
-                        </div> */}
                         <div className="dropdown shrink-0 flex">
                             <Dropdown
                                 offset={[0, 8]}
@@ -263,70 +164,12 @@ const Header = () => {
                                             <div className="ltr:pl-4 rtl:pr-4 truncate">
                                                 <h4 className="text-base">
                                                     {user?.displayName || ''}
-                                                    <span className="text-xs bg-success-light rounded text-success px-1 ltr:ml-2 rtl:ml-2">Pro</span>
                                                 </h4>
                                                 <button type="button" className="text-black/60 hover:text-primary dark:text-dark-light/60 dark:hover:text-white">
                                                     {user?.email}
                                                 </button>
                                             </div>
                                         </div>
-                                    </li>
-                                    <li>
-                                        <Link to="" className="dark:hover:text-white">
-                                            <svg className="ltr:mr-2 rtl:ml-2 shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <circle cx="12" cy="6" r="4" stroke="currentColor" strokeWidth="1.5" />
-                                                <path
-                                                    opacity="0.5"
-                                                    d="M20 17.5C20 19.9853 20 22 12 22C4 22 4 19.9853 4 17.5C4 15.0147 7.58172 13 12 13C16.4183 13 20 15.0147 20 17.5Z"
-                                                    stroke="currentColor"
-                                                    strokeWidth="1.5"
-                                                />
-                                            </svg>
-                                            Profile
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to="" className="dark:hover:text-white">
-                                            <svg className="ltr:mr-2 rtl:ml-2 shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    opacity="0.5"
-                                                    d="M2 12C2 8.22876 2 6.34315 3.17157 5.17157C4.34315 4 6.22876 4 10 4H14C17.7712 4 19.6569 4 20.8284 5.17157C22 6.34315 22 8.22876 22 12C22 15.7712 22 17.6569 20.8284 18.8284C19.6569 20 17.7712 20 14 20H10C6.22876 20 4.34315 20 3.17157 18.8284C2 17.6569 2 15.7712 2 12Z"
-                                                    stroke="currentColor"
-                                                    strokeWidth="1.5"
-                                                />
-                                                <path
-                                                    d="M6 8L8.1589 9.79908C9.99553 11.3296 10.9139 12.0949 12 12.0949C13.0861 12.0949 14.0045 11.3296 15.8411 9.79908L18 8"
-                                                    stroke="currentColor"
-                                                    strokeWidth="1.5"
-                                                    strokeLinecap="round"
-                                                />
-                                            </svg>
-                                            Inbox
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link to="" className="dark:hover:text-white">
-                                            <svg className="ltr:mr-2 rtl:ml-2 shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    d="M2 16C2 13.1716 2 11.7574 2.87868 10.8787C3.75736 10 5.17157 10 8 10H16C18.8284 10 20.2426 10 21.1213 10.8787C22 11.7574 22 13.1716 22 16C22 18.8284 22 20.2426 21.1213 21.1213C20.2426 22 18.8284 22 16 22H8C5.17157 22 3.75736 22 2.87868 21.1213C2 20.2426 2 18.8284 2 16Z"
-                                                    stroke="currentColor"
-                                                    strokeWidth="1.5"
-                                                />
-                                                <path opacity="0.5" d="M6 10V8C6 4.68629 8.68629 2 12 2C15.3137 2 18 4.68629 18 8V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                                                <g opacity="0.5">
-                                                    <path d="M9 16C9 16.5523 8.55228 17 8 17C7.44772 17 7 16.5523 7 16C7 15.4477 7.44772 15 8 15C8.55228 15 9 15.4477 9 16Z" fill="currentColor" />
-                                                    <path
-                                                        d="M13 16C13 16.5523 12.5523 17 12 17C11.4477 17 11 16.5523 11 16C11 15.4477 11.4477 15 12 15C12.5523 15 13 15.4477 13 16Z"
-                                                        fill="currentColor"
-                                                    />
-                                                    <path
-                                                        d="M17 16C17 16.5523 16.5523 17 16 17C15.4477 17 15 16.5523 15 16C15 15.4477 15.4477 15 16 15C16.5523 15 17 15.4477 17 16Z"
-                                                        fill="currentColor"
-                                                    />
-                                                </g>
-                                            </svg>
-                                            Lock Screen
-                                        </Link>
                                     </li>
                                     <li className="border-t border-white-light dark:border-white-light/10">
                                         <Link to={location.pathname} onClick={handleLogout} className="text-danger !py-3">

@@ -12,7 +12,7 @@ import IconX from '@/components/Icon/IconX';
 import IconPlus from '@/components/Icon/IconPlus';
 import IconDownload from '@/components/Icon/IconDownload';
 import { useNavigate } from 'react-router-dom';
-import { useDeleteRolesMutation, useGetRolesQuery } from '@/store/api/roles/rolesApiSlice';
+import { useDeleteRolesMutation, useGetRolesQuery, useExportRolesMutation } from '@/store/api/roles/rolesApiSlice';
 import { toastMessage } from '@/utils/toastUtils';
 import { responseCallback } from '@/utils/responseCallback';
 import { rolesType } from '@/types/rolesType';
@@ -23,7 +23,7 @@ const Index = () => {
     useEffect(() => {
         dispatch(setPageTitle('Roles'));
         dispatch(setTitle('Roles'));
-        dispatch(setBreadcrumbTitle(["Dashboard","Roles","List"]));
+        dispatch(setBreadcrumbTitle(["Dashboard", "Roles", "List"]));
     });
     const isRtl = useSelector((state: any) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
     const [page, setPage] = useState<number>(1);
@@ -43,6 +43,7 @@ const Index = () => {
         orderBy: sortStatus.columnAccessor === 'email' ? 'email' : sortStatus.columnAccessor,
         orderType: sortStatus.direction,
     });
+    const [exportRoles] = useExportRolesMutation();
     const [deleted, { isError }] = useDeleteRolesMutation();
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
     const [deleteId, setDeleteId] = useState<number>(0);
@@ -61,7 +62,26 @@ const Index = () => {
             toastMessage(err.message, 'error');
         }
     };
-
+    const handleExport = async () => {
+        try {
+            const type = 'xlsx';
+            const keyword = search;
+            const orderBy = sortStatus.columnAccessor;
+            const orderType = sortStatus.direction;
+    
+            const res = await exportRoles({ type, keyword, orderBy, orderType }).unwrap();
+            const url = window.URL.createObjectURL(new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Roles_${new Date().toISOString()}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+        } catch (error: any) {
+            console.error('Failed to download roles', error);
+            toastMessage(error.message, 'error');
+        }
+    };
     useEffect(() => {
         refetch();
     }, [page]);
@@ -85,7 +105,7 @@ const Index = () => {
                     </div>
                     <div className="ltr:ml-auto">
                         <div className="grid grid-cols-2 gap-2">
-                            <Tippy content="Add User">
+                            <Tippy content="Add Role">
                                 <button
                                     onClick={() => navigate(`/roles/create`)}
                                     type="button"
@@ -94,10 +114,14 @@ const Index = () => {
                                     <IconPlus />
                                 </button>
                             </Tippy>
-                            <Tippy content="Download">
-                                <Link to="" className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60">
+                            <Tippy content="Download Roles">
+                                <button
+                                    onClick={handleExport}
+                                    type="button"
+                                    className="block w-10 h-10 p-2.5 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/6"
+                                >
                                     <IconDownload />
-                                </Link>
+                                </button>
                             </Tippy>
                         </div>
                     </div>
