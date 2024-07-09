@@ -306,7 +306,7 @@ const PaymentForm = () => {
                                 <span className="text-danger text-xs">{(errors.transactionDate as FieldError)?.message}</span>
                             </div>
                         </div>
-                        
+
 
                         <div className="mt-6">
                             <label className="block text-md ">Amount in Words</label>
@@ -452,17 +452,17 @@ const PaymentForm = () => {
 
                     <div className="mt-6 flex justify-end space-x-4">
 
-                        <button
+                        {/* <button
                             type="button"
                             className="px-4 py-2 bg-gray-400 text-white rounded-md shadow-sm"
                             onClick={() => navigate('/payment]')}
                         >
                             Cancel
-                        </button>
+                        </button> */}
 
                         <button
                             type="submit"
-                            className="px-4 py-2 bg-blue-600 bg-primary text-white rounded-md shadow-sm"
+                            className="px-4 py-2  bg-primary text-white rounded-md shadow-sm"
                         >
                             {isCreating || isUpdating ? 'Loading' : id ? 'Update' : 'Create'}
                         </button>

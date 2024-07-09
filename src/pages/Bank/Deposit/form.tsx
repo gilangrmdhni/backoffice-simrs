@@ -23,8 +23,7 @@ import 'flatpickr/dist/flatpickr.css';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css';
 import { FormatNumber } from '@/utils/formatNumber';
-import { Transition } from '@headlessui/react/dist/components/transitions/transition';
-import { Dialog } from '@headlessui/react/dist/components/dialog/dialog';
+import { Dialog, Transition } from '@headlessui/react';
 import IconX from '@/components/Icon/IconX';
 
 interface BankOption {
@@ -438,17 +437,17 @@ const DepositForm = () => {
 
                     <div className="mt-6 flex justify-end space-x-4">
 
-                        <button
+                        {/* <button
                             type="button"
                             className="px-4 py-2 bg-gray-400 text-white rounded-md shadow-sm"
                             onClick={() => navigate('/Deposit]')}
                         >
                             Cancel
-                        </button>
+                        </button> */}
 
                         <button
                             type="submit"
-                            className="px-4 py-2 bg-blue-600 bg-primary text-white rounded-md shadow-sm"
+                            className="px-4 py-2  bg-primary text-white rounded-md shadow-sm"
                         >
                             {isCreating || isUpdating ? 'Loading' : id ? 'Update' : 'Create'}
                         </button>

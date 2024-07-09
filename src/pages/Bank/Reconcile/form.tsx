@@ -393,17 +393,17 @@ const ReconciliationForm = () => {
                     <div className="mt-6 flex justify-end space-x-4 my-4">
                         <button
                             type="submit"
-                            className="px-4 py-2 bg-purple-600 text-white rounded-md shadow-sm"
+                            className="px-4 py-2 bg-primary text-white rounded-md shadow-sm"
                         >
                             Save
                         </button>
-                        <button
+                        {/* <button
                             type="button"
                             className="px-4 py-2 bg-gray-400 text-white rounded-md shadow-sm"
                             onClick={() => navigate('/')}
                         >
                             Cancel
-                        </button>
+                        </button> */}
                     </div>
                 </form>
             </div>
