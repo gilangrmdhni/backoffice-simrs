@@ -22,6 +22,10 @@ import { COAType } from '@/types';
 import { useTranslation } from 'react-i18next';
 import i18next from 'i18next';
 import { FormatNumber } from '@/utils/formatNumber';
+import { Dialog, Transition } from '@headlessui/react';
+import { Fragment } from 'react';
+import IconX from '@/components/Icon/IconX';
+
 interface BankOption {
     desc: string;
     label: string;
@@ -41,6 +45,7 @@ const DaftarPenerimaanForm = () => {
     const [showSelected, setShowSelected] = useState<any>([]);
     const [excludeId, setExcludeId] = useState<any>('');
     const [isSave, setIsSave] = useState<boolean>(false);
+    const [showSubmitModal, setShowSubmitModal] = useState<boolean>(false);
 
     const schema = yup.object({
         coaCode: yup.string().required('Account is Required'),
@@ -154,6 +159,7 @@ const DaftarPenerimaanForm = () => {
     };
 
     const onSubmit = async (data: DepositType) => {
+        setShowSubmitModal(false);
         console.log('Data yang dikirim:', data.details);
 
         const totalDetails = data.details.reduce((sum, detail) => sum + (Number(detail.amount) || 0), 0);
@@ -241,7 +247,7 @@ const DaftarPenerimaanForm = () => {
                         <h1 className="font-semibold text-2xl text-black mb-5">
                             {t('Informasi Penerimaan Kas & Bank')}
                         </h1>
-                        <div className='flex justify-start w-full mb-10'>
+                        <div className='flex justify-start w-full mb-3'>
                             <div className='label mr-10 w-64'>
                                 <label htmlFor="coaCode">{t('NO TRANSAKSI')}</label>
                             </div>
@@ -267,13 +273,13 @@ const DaftarPenerimaanForm = () => {
 
                         <div className='flex justify-start w-full mb-5'>
                             <div className='label mr-10 w-64'>
-                                <label htmlFor="transactionDate">TANGGAL TRANSAKSI</label>
+                                <label htmlFor="transactionDate">{t('TANGGAL TRANSAKSI')}</label>
                             </div>
                             <div className="text-white-dark w-full">
                                 <Flatpickr
                                     options={{
                                         enableTime: true,
-                                        dateFormat: 'Y-m-d H:i',
+                                        dateFormat: 'Y-m-d',
                                         position: isRtl ? 'auto right' : 'auto left'
                                     }}
                                     className="form-input font-normal"
@@ -286,15 +292,15 @@ const DaftarPenerimaanForm = () => {
                             </div>
                         </div>
 
-                        <div className='flex justify-start w-full mb-10'>
+                        <div className='flex justify-start w-full mb-3'>
                             <div className='label mr-10 w-64'>
-                                <label htmlFor="description">KETERANGAN</label>
+                                <label htmlFor="description">{t('KETERANGAN')}</label>
                             </div>
                             <div className="text-white-dark w-full">
                                 {/* <input id="transactionNo" type="text" placeholder="Enter Contoh : 0001" className="form-input font-normal w-full placeholder:text-white-dark disabled:pointer-events-none disabled:bg-[#eee] dark:disabled:bg-[#1b2e4b]" {...register('transactionNo')} /> */}
                                 {/* <textarea name="" id="description"></textarea> */}
                                 <textarea id="description" rows={3} className="form-textarea font-normal" placeholder="Keterangan..." {...register('description')}></textarea>
-                                <span className="text-danger text-xs">{(errors.description as FieldError)?.message}</span>
+                                <span className="text-danger text-xs">{(errors.description as FieldError) ? t('Keterangan Wajib Diisi') : ''}</span>
                             </div>
                         </div>
                         {/* <div className="mt-6">
@@ -324,13 +330,13 @@ const DaftarPenerimaanForm = () => {
                                     <thead>
                                         <tr>
                                             <th>
-                                                Nama Akun
+                                                {t('Nama Akun')}
                                             </th>
                                             <th>
-                                                Deskripsi
+                                                {t('Deskripsi')}
                                             </th>
                                             <th colSpan={2}>
-                                                Jumlah
+                                                {t('Jumlah')}
                                             </th>
                                         </tr>
                                     </thead>
@@ -380,7 +386,9 @@ const DaftarPenerimaanForm = () => {
                                         ) : (
                                             <tr>
                                                 <td colSpan={4}>
-                                                    Data Tidak Tersedia
+                                                    <label className='text-center'>
+                                                        {t('Data Tidak Tersedia')}
+                                                    </label>
                                                 </td>
                                             </tr>
                                         )}
@@ -401,19 +409,62 @@ const DaftarPenerimaanForm = () => {
                     <div className="mt-6 flex justify-end space-x-4">
                         <button
                             type="button"
-                            className="px-4 py-2 text-primary"
+                            className="px-4 py-2 btn btn-outline-dark"
                             onClick={() => navigate('/daftar-penerimaan')}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
+                            // onClick={() => setShowSubmitModal(true)}
                             className="px-4 py-2 bg-primary text-white rounded-md shadow-sm"
                         >
                             {isCreating || isUpdating ? 'Loading' : id ? 'Update' : 'Create'}
                         </button>
                     </div>
                     <ModalCoaCustom setIsSave={setIsSave} selectedRecords={selectedRecords} setShowSelected={setShowSelected} setSelectedRecords={setSelectedRecords} showModal={isShowModalCoa} setIsShowModal={setIsShowModalCoa} excludeId={excludeId} />
+                    {/* <div className="mb-5">
+                        <Transition appear show={showSubmitModal} as={Fragment}>
+                            <Dialog as="div" open={showSubmitModal} onClose={() => setShowSubmitModal(false)}>
+                                <Transition.Child
+                                    as={Fragment}
+                                    enter="ease-out duration-300"
+                                    enterFrom="opacity-0"
+                                    enterTo="opacity-100"
+                                    leave="ease-in duration-200"
+                                    leaveFrom="opacity-100"
+                                    leaveTo="opacity-0"
+                                >
+                                <div className="fixed inset-0" />
+                                </Transition.Child>
+                                <div id="fadein_modal" className="fixed inset-0 bg-[black]/60 z-[999] overflow-y-auto">
+                                    <div className="flex items-start justify-center min-h-screen px-4">
+                                        <Dialog.Panel className="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-lg my-8 text-black dark:text-white-dark animate__animated animate__fadeIn">
+                                            <div className="flex bg-[#fbfbfb] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
+                                                <h5 className="font-bold text-lg">Confirmation</h5>
+                                                <button onClick={() => setShowSubmitModal(false)} type="submit" className="text-white-dark hover:text-dark">
+                                                    <IconX />
+                                                </button>
+                                            </div>
+                                            <div className="p-5">
+                                                <p>
+                                                    You will {isCreating || isUpdating ? 'Loading' : id ? 'Update' : 'Create'} your data
+                                                </p>
+                                                <div className="flex justify-end items-center mt-8">
+                                                    <button onClick={() => setShowSubmitModal(false)} type="button" className="btn btn-outline-dark">
+                                                        Cancel
+                                                    </button>
+                                                    <button type="submit" onClick={() => {handleSubmit(onSubmit) }} className="btn btn-outline-primary ltr:ml-4 rtl:mr-4" >
+                                                        {isCreating || isUpdating ? 'Loading' : id ? 'Update' : 'Create'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </Dialog.Panel>
+                                    </div>
+                                </div>
+                            </Dialog>
+                        </Transition>
+                    </div> */}
                 </form>
             </div>
         </div>
